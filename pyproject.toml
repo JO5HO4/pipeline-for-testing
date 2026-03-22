@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hgg-analysis-pipeline"
+version = "0.1.0"
+description = "Standalone H->gammagamma analysis pipeline for ATLAS open data"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+  { name = "haichenwangberkeley", email = "haichenwang@berkeley.edu" },
+]
+dependencies = [
+  "awkward>=2",
+  "matplotlib>=3.8",
+  "numpy>=1.26",
+  "PyYAML>=6",
+  "scipy>=1.11",
+  "uproot>=5",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+]
+
+[project.scripts]
+hgg-analysis = "analysis.cli:main"
+hgg-preflight = "analysis.preflight:main"
+hgg-load-summary = "analysis.config.load_summary:main"
+hgg-sample-metadata = "analysis.samples.metadata:main"
+hgg-sample-registry = "analysis.samples.registry:main"
+hgg-selection-partition = "analysis.selections.partitioning:main"
+hgg-histmaker = "analysis.hists.histmaker:main"
+hgg-fit = "analysis.stats.fit:main"
+hgg-systematics = "analysis.stats.systematics:main"
+hgg-smoothing-study = "analysis.ad_hoc_smoothing_method_study:main"
+
+[tool.setuptools]
+include-package-data = true
+packages = [
+  "analysis",
+  "analysis.config",
+  "analysis.hists",
+  "analysis.io",
+  "analysis.objects",
+  "analysis.plotting",
+  "analysis.report",
+  "analysis.samples",
+  "analysis.selections",
+  "analysis.stats",
+]
+
+[tool.setuptools.package-data]
+analysis = ["*.json", "*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
