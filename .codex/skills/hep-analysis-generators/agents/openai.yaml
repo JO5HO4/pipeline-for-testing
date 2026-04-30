@@ -1,0 +1,4 @@
+interface:
+  display_name: "HEP Analysis Generators"
+  short_description: "Refactored HEP artifact generation"
+  default_prompt: "Use $hep-analysis-generators to create artifacts for the current HEP analysis project with the refactored generator skill pack."

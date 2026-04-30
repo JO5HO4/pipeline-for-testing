@@ -118,6 +118,18 @@ def run_all_stages(*, summary, inputs, outputs, max_events, unblind_observed_sig
     reports_dir = ensure_dir(outputs_path.parent / "reports")
 
     source_summary = read_json(summary_path)
+    from analysis.vlq_pipeline import is_vlq_summary, run_vlq_analysis
+
+    if is_vlq_summary(source_summary, summary_path):
+        return run_vlq_analysis(
+            source_summary=source_summary,
+            summary_path=summary_path,
+            inputs=inputs_path,
+            outputs=outputs_path,
+            max_events=max_events,
+            unblind_observed_significance=unblind_observed_significance,
+        )
+
     normalized, errors = normalize_summary(source_summary, summary_path)
     normalized = _apply_runtime_overrides(
         normalized,

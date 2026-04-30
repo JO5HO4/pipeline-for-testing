@@ -1,0 +1,1403 @@
+skills:
+  - skill_id: SKILL_SKILLS_PACK_INDEX
+    filename: SKILL_SKILLS_PACK_INDEX.md
+    source_path: README.md
+    stage: other
+    category: other
+    mandatory: true
+    logic_type: engineering
+    inputs:
+      - analysis_summary_json_analysis_analysis_analysis_json
+      - samples_inputs
+      - output_directory_outputs
+    outputs:
+      - normalized_analysis_definition_artifact_with_validated_region_an
+      - spec_to_runtime_mapping_artifact
+      - deviations_from_spec_artifact_with_explicit_substitutions_assump
+      - sample_classification_and_normalization_artifact
+      - process_role_and_nominal_vs_alternative_sample_mapping_artifacts
+      - mc_sample_disambiguation_and_nominal_selection_artifact_for_proc
+      - open_data_metadata_driven_normalization_artifact_for_multi_compo
+      - signal_background_strategy_artifact_including_control_to_signal_
+      - category_region_partition_specification_artifact
+      - partition_completeness_exclusivity_check_artifact
+      - partition_manifest_artifact_for_downstream_stages
+      - region_selection_artifact_with_cut_flow_and_yield_summaries
+    dependencies:
+      - NONE
+    handoff_to:
+      - SKILL_HEP_ANALYSIS_ENV_SETUP
+      - SKILL_BOOTSTRAP_REPO
+      - SKILL_AGENT_PRE_FLIGHT_FACT_CHECK
+      - SKILL_EXTRACT_NEW_SKILL_FROM_FAILURE
+      - SKILL_NARRATIVE_TO_ANALYSIS_JSON_TRANSLATOR
+      - SKILL_MC_SAMPLE_DISAMBIGUATION_AND_NOMINAL_SELECTION
+      - SKILL_SKILL_REFRESH_AND_CHECKPOINTING
+      - SKILL_JSON_SPEC_DRIVEN_EXECUTION
+      - SKILL_FULL_STATISTICS_EXECUTION_POLICY
+      - SKILL_READ_SUMMARY_AND_VALIDATE
+      - SKILL_SAMPLE_REGISTRY_AND_NORMALIZATION
+      - SKILL_MC_NORMALIZATION_METADATA_STACKING
+      - SKILL_SIGNAL_BACKGROUND_STRATEGY_AND_CR_CONSTRAINTS
+      - SKILL_EVENT_IO_AND_COLUMNAR_MODEL
+      - SKILL_OBJECT_DEFINITIONS
+      - SKILL_SELECTION_ENGINE_AND_REGIONS
+      - SKILL_CUT_FLOW_AND_YIELDS
+      - SKILL_HISTOGRAMMING_AND_TEMPLATES
+      - SKILL_FREEZE_ANALYSIS_HISTOGRAM_PRODUCTS
+      - SKILL_SIGNAL_SHAPE_AND_SPURIOUS_SIGNAL_MODEL_SELECTION
+      - SKILL_SYSTEMATICS_AND_NUISANCES
+      - SKILL_WORKSPACE_AND_FIT_PYHF
+      - SKILL_ASIMOV_EXPECTED_SIGNIFICANCE_SPLUSB
+      - SKILL_PLOTTING_AND_REPORT
+      - SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+      - SKILL_CONTROL_REGION_SIGNAL_REGION_BLINDING_AND_VISUALIZATION
+      - SKILL_SMOKE_TESTS_AND_REPRODUCIBILITY
+      - SKILL_PROFILE_LIKELIHOOD_SIGNIFICANCE
+      - SKILL_CATEGORY_CHANNEL_REGION_PARTITIONING
+      - SKILL_FINAL_REPORT_REVIEW_AND_HANDOFF
+      - SKILL_VISUAL_VERIFICATION
+      - SKILL_HISTOGRAM_PLOTTING_INVARIANTS
+      - SKILL_DATA_MC_DISCREPANCY_SANITY_CHECK
+      - SKILL_ROOTMLTOOL_CACHED_ANALYSIS
+      - SKILL_STATTOOL_OPTIONAL_PYHF_BACKEND
+    invocation_keywords:
+      - "readme"
+      - "skills repository (semantic structure)"
+      - "other"
+      - "skills"
+      - "repository"
+      - "semantic"
+      - "structure"
+  - skill_id: SKILL_CATEGORY_CHANNEL_REGION_PARTITIONING
+    filename: SKILL_CATEGORY_CHANNEL_REGION_PARTITIONING.md
+    source_path: analysis_strategy/category_channel_region_partitioning.md
+    stage: design
+    category: selections
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - category_channel_definition_artifact
+      - category_identifiers
+      - category_assignment_logic
+      - region_definition_artifact
+      - region_identifiers
+      - associated_category
+      - region_type
+      - selection_basis_and_logic
+    outputs:
+      - partition_specification_artifact
+      - category_list
+      - region_list
+      - category_region_mapping
+      - category_id
+      - region_id
+      - region_type
+      - selection_basis
+      - selection_definition
+      - blinding_policy
+      - optional_notes_justification
+      - mass_window
+    dependencies:
+      - SKILL_READ_SUMMARY_AND_VALIDATE
+    handoff_to:
+      - SKILL_SELECTION_ENGINE_AND_REGIONS
+      - SKILL_CONTROL_REGION_SIGNAL_REGION_BLINDING_AND_VISUALIZATION
+      - SKILL_SIGNAL_BACKGROUND_STRATEGY_AND_CR_CONSTRAINTS
+    invocation_keywords:
+      - "category channel region partitioning"
+      - "category/channel x region partitioning (sr/cr/sb/vr) for lhc analyses"
+      - "design"
+      - "category"
+      - "channel"
+      - "region"
+      - "partitioning"
+      - "analyses"
+  - skill_id: SKILL_CONTROL_REGION_SIGNAL_REGION_BLINDING_AND_VISUALIZATION
+    filename: SKILL_CONTROL_REGION_SIGNAL_REGION_BLINDING_AND_VISUALIZATION.md
+    source_path: analysis_strategy/control_region_signal_region_blinding_and_visualization.md
+    stage: design
+    category: validation
+    mandatory: true
+    logic_type: engineering
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - control_region_only_normalization_fit_artifact_containing_fitted
+      - blinding_summary_artifact_indicating_region_classification_and_w
+      - region_visualization_artifact_set_covering_all_declared_control_
+      - pre_fit_control_region_visualization_artifact_set_with_data_back
+      - post_fit_control_region_visualization_artifact_set_with_data_bac
+      - pre_fit_and_post_fit_signal_region_visualization_artifacts_in_un
+      - blinding_overlap_audit_artifact_confirming_sr_events_are_exclude
+      - sideband_only_background_fit_artifact_for_blinded_resonance_cate
+      - sideband_background_fit_visualization_artifact_set_for_blinded_h
+      - blinded_category_mass_plot_artifact_set_with
+      - observed_data_points_in_sidebands_only
+      - full_range_post_fit_background_curve
+      - stacked_signal_on_background_expectation
+    dependencies:
+      - SKILL_SIGNAL_BACKGROUND_STRATEGY_AND_CR_CONSTRAINTS
+      - SKILL_SELECTION_ENGINE_AND_REGIONS
+    handoff_to:
+      - SKILL_PLOTTING_AND_REPORT
+      - SKILL_VISUAL_VERIFICATION
+      - SKILL_SELECTION_ENGINE_AND_REGIONS
+      - SKILL_SIGNAL_BACKGROUND_STRATEGY_AND_CR_CONSTRAINTS
+    invocation_keywords:
+      - "control region signal region blinding and visualization"
+      - "control/signal region blinding and visualization"
+      - "design"
+      - "control"
+      - "signal"
+      - "region"
+      - "blinding"
+      - "visualization"
+  - skill_id: SKILL_SIGNAL_BACKGROUND_STRATEGY_AND_CR_CONSTRAINTS
+    filename: SKILL_SIGNAL_BACKGROUND_STRATEGY_AND_CR_CONSTRAINTS.md
+    source_path: analysis_strategy/signal_background_strategy_and_cr_constraints.md
+    stage: design
+    category: stats
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - sample_classification_artifact_listing_data_signal_background_sa
+      - analysis_target_declaration_artifact_describing_which_process_ar
+      - background_modeling_strategy_artifact_describing_per_process_mod
+      - control_to_signal_constraint_map_artifact_defining_constrained_b
+      - cr_sr_overlap_policy_artifact_for_each_constrained_mapping
+      - outputs_background_modeling_strategy_json
+      - outputs_samples_classification_json
+      - outputs_cr_sr_constraint_map_json
+    dependencies:
+      - SKILL_SAMPLE_REGISTRY_AND_NORMALIZATION
+      - SKILL_SELECTION_ENGINE_AND_REGIONS
+    handoff_to:
+      - SKILL_SIGNAL_SHAPE_AND_SPURIOUS_SIGNAL_MODEL_SELECTION
+      - SKILL_SYSTEMATICS_AND_NUISANCES
+      - SKILL_WORKSPACE_AND_FIT_PYHF
+      - SKILL_PLOTTING_AND_REPORT
+      - SKILL_SELECTION_ENGINE_AND_REGIONS
+    invocation_keywords:
+      - "signal background strategy and cr constraints"
+      - "signal/background strategy and cr constraints"
+      - "design"
+      - "signal"
+      - "background"
+      - "strategy"
+      - "constraints"
+  - skill_id: SKILL_SIGNAL_SHAPE_AND_SPURIOUS_SIGNAL_MODEL_SELECTION
+    filename: SKILL_SIGNAL_SHAPE_AND_SPURIOUS_SIGNAL_MODEL_SELECTION.md
+    source_path: analysis_strategy/signal_shape_and_spurious_signal_model_selection.md
+    stage: design
+    category: stats
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - signal_pdf_artifact_with_fit_parameters_covariance_information_a
+      - background_scan_artifact_listing_all_tested_functional_forms_and
+      - background_choice_artifact_recording_selected_model_and_explicit
+      - spurious_signal_artifact_with_n_spur_sigma_nsig_r_spur_and_pass_
+      - backend_provenance_artifact_recording_pyroot_roofit_as_primary_b
+      - category_wise_signal_shape_artifact_containing_ds_cb_parameters_
+      - outputs_fit_fit_id_signal_pdf_json
+      - outputs_fit_fit_id_background_pdf_scan_json
+      - outputs_fit_fit_id_background_pdf_choice_json
+      - outputs_fit_fit_id_spurious_signal_json
+      - outputs_fit_fit_id_roofit_combined_signal_dscb_parameters_json
+    dependencies:
+      - SKILL_HISTOGRAMMING_AND_TEMPLATES
+      - SKILL_SIGNAL_BACKGROUND_STRATEGY_AND_CR_CONSTRAINTS
+    handoff_to:
+      - SKILL_WORKSPACE_AND_FIT_PYHF
+      - SKILL_SYSTEMATICS_AND_NUISANCES
+      - SKILL_PLOTTING_AND_REPORT
+      - SKILL_SELECTION_ENGINE_AND_REGIONS
+      - SKILL_SIGNAL_BACKGROUND_STRATEGY_AND_CR_CONSTRAINTS
+    invocation_keywords:
+      - "signal shape and spurious signal model selection"
+      - "signal shape and spurious-signal background model selection"
+      - "design"
+      - "signal"
+      - "shape"
+      - "spurious"
+      - "background"
+      - "model"
+  - skill_id: SKILL_ASIMOV_EXPECTED_SIGNIFICANCE_SPLUSB
+    filename: SKILL_ASIMOV_EXPECTED_SIGNIFICANCE_SPLUSB.md
+    source_path: core_pipeline/asimov_expected_significance_splusb.md
+    stage: fit
+    category: stats
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - asimov_expected_significance_artifact_per_fit_with
+      - dataset_type_asimov
+      - generation_hypothesis_signal_plus_background
+      - mu_gen_1
+      - background_parameter_source_describing_the_mu_0_data_fit_snapsho
+      - fit_range_used_for_generation_evaluation
+      - q0_and_z_discovery
+      - optional_sideband_background_fit_provenance_artifact_linking_par
+      - asimov_expected_significance_fit_visualization_or_plot_payload_ar
+    dependencies:
+      - SKILL_WORKSPACE_AND_FIT_PYHF
+      - SKILL_PROFILE_LIKELIHOOD_SIGNIFICANCE
+    handoff_to:
+      - SKILL_PLOTTING_AND_REPORT
+      - SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+      - SKILL_PROFILE_LIKELIHOOD_SIGNIFICANCE
+    invocation_keywords:
+      - "asimov expected significance splusb"
+      - "asimov expected significance (s+b generation)"
+      - "fit"
+      - "asimov"
+      - "expected"
+      - "significance"
+      - "generation"
+  - skill_id: SKILL_HEP_ANALYSIS_ENV_SETUP
+    filename: SKILL_HEP_ANALYSIS_ENV_SETUP.md
+    source_path: .codex/skills/hep-analysis-env-setup/SKILL.md
+    stage: bootstrap
+    category: bootstrap
+    mandatory: true
+    logic_type: engineering
+    inputs:
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - runtime_environment_readiness_state
+      - repo_runtime_wrapper_command_pattern
+      - writable_plot_cache_setup_state
+    dependencies:
+      - NONE
+    handoff_to:
+      - SKILL_BOOTSTRAP_REPO
+      - SKILL_AGENT_PRE_FLIGHT_FACT_CHECK
+      - SKILL_SMOKE_TESTS_AND_REPRODUCIBILITY
+    invocation_keywords:
+      - "hep analysis environment setup"
+      - "environment setup"
+      - "runtime"
+      - "rootenv"
+      - "pyroot"
+      - "roofit"
+      - "pytest"
+      - "smoke"
+  - skill_id: SKILL_BOOTSTRAP_REPO
+    filename: SKILL_BOOTSTRAP_REPO.md
+    source_path: core_pipeline/bootstrap_repo.md
+    stage: bootstrap
+    category: bootstrap
+    mandatory: true
+    logic_type: engineering
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - analysis_package_scaffold_artifact_with_stage_oriented_modules
+      - stage_entrypoint_artifact_enabling_each_stage_to_run_independent
+      - end_to_end_orchestrator_artifact_that_executes_all_stages_consis
+      - minimal_test_artifact_that_verifies_package_integrity
+      - runtime_recovery_artifact_documenting_constructed_restored_pipel
+    dependencies:
+      - SKILL_HEP_ANALYSIS_ENV_SETUP
+    handoff_to:
+      - SKILL_AGENT_PRE_FLIGHT_FACT_CHECK
+      - SKILL_SMOKE_TESTS_AND_REPRODUCIBILITY
+      - SKILL_READ_SUMMARY_AND_VALIDATE
+    invocation_keywords:
+      - "bootstrap repo"
+      - "bootstrap"
+      - "repo"
+  - skill_id: SKILL_CUT_FLOW_AND_YIELDS
+    filename: SKILL_CUT_FLOW_AND_YIELDS.md
+    source_path: core_pipeline/cut_flow_and_yields.md
+    stage: selection
+    category: selections
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - cut_flow_table_artifact_per_sample_with_ordered_step_metrics
+      - region_yield_artifact_per_sample_with_unweighted_counts_weighted
+      - cut_flow_provenance_artifact_linking_steps_to_region_definitions
+      - process_aggregated_cut_flow_artifact
+      - sample_resolved_cut_flow_artifact_unless_explicit_merged_process
+      - nominal_sample_selection_audit_for_cut_flow_central_values
+    dependencies:
+      - SKILL_SELECTION_ENGINE_AND_REGIONS
+      - SKILL_SAMPLE_REGISTRY_AND_NORMALIZATION
+      - SKILL_MC_SAMPLE_DISAMBIGUATION_AND_NOMINAL_SELECTION
+    handoff_to:
+      - SKILL_PLOTTING_AND_REPORT
+      - SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+      - SKILL_HISTOGRAMMING_AND_TEMPLATES
+    invocation_keywords:
+      - "cut flow and yields"
+      - "selection"
+      - "flow"
+      - "yields"
+  - skill_id: SKILL_EVENT_IO_AND_COLUMNAR_MODEL
+    filename: SKILL_EVENT_IO_AND_COLUMNAR_MODEL.md
+    source_path: core_pipeline/event_io_and_columnar_model.md
+    stage: io
+    category: io
+    mandatory: true
+    logic_type: engineering
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - columnar_event_artifact_containing_scalar_event_fields_and_jagge
+      - io_diagnostics_artifact_with_event_counts_and_available_field_in
+      - optional_cache_artifact_for_reuse_in_downstream_stages
+    dependencies:
+      - SKILL_SAMPLE_REGISTRY_AND_NORMALIZATION
+    handoff_to:
+      - SKILL_OBJECT_DEFINITIONS
+      - SKILL_SELECTION_ENGINE_AND_REGIONS
+    invocation_keywords:
+      - "event io and columnar model"
+      - "io"
+      - "event"
+      - "columnar"
+      - "model"
+  - skill_id: SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+    filename: SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW.md
+    source_path: core_pipeline/final_analysis_report_agent_workflow.md
+    stage: reporting
+    category: reporting
+    mandatory: true
+    logic_type: reporting
+    inputs:
+      - analysis_summary_specification
+      - region_definitions
+      - metadata_table_for_open_data_sample_normalization
+      - cut_flow_yield_fit_significance_and_blinding_artifacts_produced_
+    outputs:
+      - final_report_artifact_in_markdown_with_the_following_sections_in
+      - introduction
+      - data_and_monte_carlo_samples
+      - object_definition_and_event_selection
+      - overview_of_the_analysis_strategy
+      - signal_and_control_regions
+      - cut_flow
+      - distributions_in_signal_and_control_regions
+      - systematic_uncertainties
+      - statistical_interpretation
+      - summary
+      - monte_carlo_sample_table_artifact_within_the_report_containing_d
+    dependencies:
+      - SKILL_PLOTTING_AND_REPORT
+      - SKILL_DATA_MC_DISCREPANCY_SANITY_CHECK
+      - SKILL_ASIMOV_EXPECTED_SIGNIFICANCE_SPLUSB
+      - SKILL_SKILL_REFRESH_AND_CHECKPOINTING
+    handoff_to:
+      - SKILL_EXTRACT_NEW_SKILL_FROM_FAILURE
+      - SKILL_FINAL_REPORT_REVIEW_AND_HANDOFF
+      - SKILL_SAMPLE_REGISTRY_AND_NORMALIZATION
+      - SKILL_MC_SAMPLE_DISAMBIGUATION_AND_NOMINAL_SELECTION
+      - SKILL_MC_NORMALIZATION_METADATA_STACKING
+      - SKILL_CONTROL_REGION_SIGNAL_REGION_BLINDING_AND_VISUALIZATION
+      - SKILL_PROFILE_LIKELIHOOD_SIGNIFICANCE
+      - SKILL_ENFORCEMENT_PRE_HANDOFF_GATE
+    invocation_keywords:
+      - "final analysis report agent workflow"
+      - "final analysis report (atlas open data agent workflow)"
+      - "reporting"
+      - "final"
+      - "analysis"
+      - "report"
+      - "atlas"
+      - "open"
+  - skill_id: SKILL_FINAL_REPORT_REVIEW_AND_HANDOFF
+    filename: SKILL_FINAL_REPORT_REVIEW_AND_HANDOFF.md
+    source_path: core_pipeline/final_report_review_and_handoff.md
+    stage: reporting
+    category: reporting
+    mandatory: true
+    logic_type: reporting
+    inputs:
+      - final_analysis_report
+      - cut_flow_and_yield_tables_artifacts
+      - generated_plots
+      - fit_significance_artifacts
+      - run_configuration_files
+      - workflow_execution_logs_manifests
+      - outputs_report_mc_sample_selection_json
+      - outputs_report_skill_extraction_summary_json
+      - outputs_report_enforcement_handoff_gate_json
+    outputs:
+      - overall_run_status
+      - detected_anomalies
+      - issues_requiring_human_attention
+      - handoff_readiness_statement
+      - skill_extraction_gate_result_and_any_blocking_gaps
+      - data_mc_discrepancy_gate_result_and_any_blocking_gaps
+      - skill_refresh_checkpoint_gate_result_and_any_blocking_gaps
+    dependencies:
+      - SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+      - SKILL_EXTRACT_NEW_SKILL_FROM_FAILURE
+      - SKILL_SKILL_REFRESH_AND_CHECKPOINTING
+      - SKILL_ENFORCEMENT_PRE_HANDOFF_GATE
+    handoff_to:
+      - SKILL_PLOTTING_AND_REPORT
+      - SKILL_VISUAL_VERIFICATION
+      - SKILL_MC_SAMPLE_DISAMBIGUATION_AND_NOMINAL_SELECTION
+      - SKILL_PROFILE_LIKELIHOOD_SIGNIFICANCE
+    invocation_keywords:
+      - "final report review and handoff"
+      - "reporting"
+      - "final"
+      - "report"
+      - "review"
+      - "handoff"
+  - skill_id: SKILL_HISTOGRAMMING_AND_TEMPLATES
+    filename: SKILL_HISTOGRAMMING_AND_TEMPLATES.md
+    source_path: core_pipeline/histogramming_and_templates.md
+    stage: histogramming
+    category: histograms
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - per_region_per_observable_per_sample_histogram_template_artifact
+      - histogram_metadata_artifact_with_observable_name_region_sample_a
+      - binning_decision_artifact_when_default_binning_is_used
+    dependencies:
+      - SKILL_SELECTION_ENGINE_AND_REGIONS
+      - SKILL_SAMPLE_REGISTRY_AND_NORMALIZATION
+    handoff_to:
+      - SKILL_FREEZE_ANALYSIS_HISTOGRAM_PRODUCTS
+      - SKILL_SIGNAL_SHAPE_AND_SPURIOUS_SIGNAL_MODEL_SELECTION
+      - SKILL_SYSTEMATICS_AND_NUISANCES
+      - SKILL_HISTOGRAM_PLOTTING_INVARIANTS
+      - SKILL_PLOTTING_AND_REPORT
+    invocation_keywords:
+      - "histogramming and templates"
+      - "histogramming"
+      - "templates"
+  - skill_id: SKILL_PLOTTING_AND_REPORT
+    filename: SKILL_PLOTTING_AND_REPORT.md
+    source_path: core_pipeline/plotting_and_report.md
+    stage: plotting
+    category: plotting
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - outputs_background_modeling_strategy_json
+      - outputs_fit_signal_pdf_json
+      - outputs_fit_background_pdf_choice_json
+      - outputs_fit_spurious_signal_json
+      - outputs_report_blinding_summary_json
+      - outputs_fit_blinded_cr_fit_json
+      - outputs_fit_results_json
+      - outputs_fit_significance_json
+    outputs:
+      - region_plot_artifact_set_for_fit_observables
+      - pre_fit_region_plot_artifact_set_for_control_regions
+      - post_fit_region_plot_artifact_set_for_control_regions
+      - pre_fit_and_post_fit_signal_region_plot_artifact_sets_for_unblin
+      - blinded_signal_region_handling_artifact_documenting_whether_sr_p
+      - cut_flow_visualization_artifact
+      - narrative_report_artifact_integrating_methodology_yields_fit_out
+      - report_markdown_with_embedded_plot_images
+      - artifact_link_inventory_enabling_traceability_from_report_statem
+      - category_resolved_mass_plot_artifact_set_with_stacked_signal_ove
+      - sideband_background_fit_visualization_artifact_set_for_hgg
+      - asimov_expected_significance_fit_visualization_artifact_set_for_h
+      - observed_unblinded_full_range_fit_visualization_artifact_set_for
+      - plot_caption_artifact_content_in_the_report_markdown
+      - discrepancy_artifacts_for_data_mc_checks
+    dependencies:
+      - SKILL_HISTOGRAMMING_AND_TEMPLATES
+      - SKILL_PROFILE_LIKELIHOOD_SIGNIFICANCE
+      - SKILL_CONTROL_REGION_SIGNAL_REGION_BLINDING_AND_VISUALIZATION
+      - SKILL_HISTOGRAM_PLOTTING_INVARIANTS
+    handoff_to:
+      - SKILL_VISUAL_VERIFICATION
+      - SKILL_DATA_MC_DISCREPANCY_SANITY_CHECK
+      - SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+    invocation_keywords:
+      - "plotting and report"
+      - "plotting"
+      - "report"
+  - skill_id: SKILL_PROFILE_LIKELIHOOD_SIGNIFICANCE
+    filename: SKILL_PROFILE_LIKELIHOOD_SIGNIFICANCE.md
+    source_path: core_pipeline/profile_likelihood_significance.md
+    stage: fit
+    category: stats
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - per_fit_significance_artifact_containing_fit_identifiers_poi_met
+      - optional_asimov_significance_artifact_per_fit_containing
+      - asimov_dataset_type
+      - source_pdf_model_provenance
+      - parameter_source_provenance
+      - fit_range_used_for_asimov_generation_evaluation
+      - generation_hypothesis_details
+      - significance_fit_component_payload_artifact_for_plotting
+    dependencies:
+      - SKILL_WORKSPACE_AND_FIT_PYHF
+    handoff_to:
+      - SKILL_ASIMOV_EXPECTED_SIGNIFICANCE_SPLUSB
+      - SKILL_PLOTTING_AND_REPORT
+    invocation_keywords:
+      - "profile likelihood significance"
+      - "profile likelihood discovery significance"
+      - "fit"
+      - "profile"
+      - "likelihood"
+      - "discovery"
+      - "significance"
+  - skill_id: SKILL_READ_SUMMARY_AND_VALIDATE
+    filename: SKILL_READ_SUMMARY_AND_VALIDATE.md
+    source_path: core_pipeline/read_summary_and_validate.md
+    stage: validation
+    category: validation
+    mandatory: true
+    logic_type: engineering
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - normalized_analysis_definition_artifact_with_canonicalized_ident
+      - validation_inventory_artifact_summarizing_number_of_regions_fit_
+      - validation_diagnostic_artifact_describing_any_schema_or_cross_re
+      - overlap_policy_validation_artifact_listing_sr_cr_pairs_and_overl
+      - outputs_summary_normalized_json
+      - console_inventory_with_number_of_sr_cr_fit_ids_observables_and_p
+    dependencies:
+      - SKILL_AGENT_PRE_FLIGHT_FACT_CHECK
+    handoff_to:
+      - SKILL_SAMPLE_REGISTRY_AND_NORMALIZATION
+      - SKILL_CATEGORY_CHANNEL_REGION_PARTITIONING
+      - SKILL_FULL_STATISTICS_EXECUTION_POLICY
+    invocation_keywords:
+      - "read summary and validate"
+      - "validation"
+      - "read"
+      - "summary"
+      - "validate"
+  - skill_id: SKILL_SAMPLE_REGISTRY_AND_NORMALIZATION
+    filename: SKILL_SAMPLE_REGISTRY_AND_NORMALIZATION.md
+    source_path: core_pipeline/sample_registry_and_normalization.md
+    stage: io
+    category: normalization
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - sample_registry_artifact_containing_sample_identity_process_mapp
+      - process_role_mapping_artifact_declaring_per_analysis_target_whic
+      - nominal_vs_alternative_sample_mapping_artifact_per_physics_proce
+      - mc_sample_disambiguation_artifact_when_multiple_candidate_datase
+      - normalization_expression_artifact_describing_how_per_event_weigh
+      - normalization_audit_artifact_listing_missing_inputs_and_warnings
+    dependencies:
+      - SKILL_READ_SUMMARY_AND_VALIDATE
+    handoff_to:
+      - SKILL_MC_SAMPLE_DISAMBIGUATION_AND_NOMINAL_SELECTION
+      - SKILL_EVENT_IO_AND_COLUMNAR_MODEL
+      - SKILL_SIGNAL_BACKGROUND_STRATEGY_AND_CR_CONSTRAINTS
+      - SKILL_MC_NORMALIZATION_METADATA_STACKING
+      - SKILL_OBJECT_DEFINITIONS
+    invocation_keywords:
+      - "sample registry and normalization"
+      - "io"
+      - "sample"
+      - "registry"
+      - "normalization"
+  - skill_id: SKILL_SELECTION_ENGINE_AND_REGIONS
+    filename: SKILL_SELECTION_ENGINE_AND_REGIONS.md
+    source_path: core_pipeline/selection_engine_and_regions.md
+    stage: selection
+    category: selections
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - region_definition_artifact_with_executable_selection_expressions
+      - per_sample_region_mask_yield_artifact
+      - region_consistency_artifact_verifying_references_used_by_fit_con
+      - sr_cr_overlap_matrix_artifact_with_pass_fail_status
+    dependencies:
+      - SKILL_OBJECT_DEFINITIONS
+      - SKILL_CATEGORY_CHANNEL_REGION_PARTITIONING
+    handoff_to:
+      - SKILL_CUT_FLOW_AND_YIELDS
+      - SKILL_HISTOGRAMMING_AND_TEMPLATES
+      - SKILL_SIGNAL_BACKGROUND_STRATEGY_AND_CR_CONSTRAINTS
+    invocation_keywords:
+      - "selection engine and regions"
+      - "selection"
+      - "engine"
+      - "regions"
+  - skill_id: SKILL_SYSTEMATICS_AND_NUISANCES
+    filename: SKILL_SYSTEMATICS_AND_NUISANCES.md
+    source_path: core_pipeline/systematics_and_nuisances.md
+    stage: systematics
+    category: systematics
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - nuisance_model_artifact_listing_nuisance_names_types_affected_co
+      - optional_shape_variation_artifact_set_for_up_down_template_varia
+      - uncertainty_provenance_artifact_documenting_assumptions_and_miss
+      - nominal_vs_variation_sample_mapping_artifact_for_each_process_en
+    dependencies:
+      - SKILL_HISTOGRAMMING_AND_TEMPLATES
+      - SKILL_SIGNAL_BACKGROUND_STRATEGY_AND_CR_CONSTRAINTS
+      - SKILL_MC_SAMPLE_DISAMBIGUATION_AND_NOMINAL_SELECTION
+    handoff_to:
+      - SKILL_WORKSPACE_AND_FIT_PYHF
+    invocation_keywords:
+      - "systematics and nuisances"
+      - "systematics"
+      - "nuisances"
+  - skill_id: SKILL_WORKSPACE_AND_FIT_PYHF
+    filename: SKILL_WORKSPACE_AND_FIT_PYHF.md
+    source_path: core_pipeline/workspace_and_fit_pyhf.md
+    stage: fit
+    category: stats
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - statistical_workspace_artifact_per_fit_configuration
+      - fit_result_artifact_containing_best_fit_poi_estimates_uncertaint
+      - fit_configuration_hash_provenance_artifact_to_ensure_reproducibi
+      - fit_backend_artifact_declaring_primary_backend_and_configuration
+    dependencies:
+      - SKILL_SYSTEMATICS_AND_NUISANCES
+      - SKILL_SIGNAL_SHAPE_AND_SPURIOUS_SIGNAL_MODEL_SELECTION
+    handoff_to:
+      - SKILL_PROFILE_LIKELIHOOD_SIGNIFICANCE
+      - SKILL_ASIMOV_EXPECTED_SIGNIFICANCE_SPLUSB
+      - SKILL_STATTOOL_OPTIONAL_PYHF_BACKEND
+      - SKILL_PLOTTING_AND_REPORT
+    invocation_keywords:
+      - "workspace and fit pyhf"
+      - "workspace and fit (roofit-primary for h->gammagamma)"
+      - "fit"
+      - "workspace"
+      - "roofit"
+      - "primary"
+      - "gammagamma"
+  - skill_id: SKILL_AGENT_PRE_FLIGHT_FACT_CHECK
+    filename: SKILL_AGENT_PRE_FLIGHT_FACT_CHECK.md
+    source_path: governance/agent_pre_flight_fact_check.md
+    stage: validation
+    category: validation
+    mandatory: true
+    logic_type: engineering
+    inputs:
+      - analysis_specification_or_instruction_prompt
+      - analysis_configuration_json_yaml
+      - dataset_description_files
+      - links_to_analysis_documentation
+      - repository_configuration_files
+    outputs:
+      - pass_fail_status
+      - clarified_items
+      - assumptions_recorded_before_execution
+      - skill_refresh_initialization_status_for_the_preflight_ready_chec
+      - outputs_report_preflight_fact_check_json_with
+      - status
+      - checked_items
+      - missing_or_ambiguous
+      - clarifications_received
+      - assumptions
+      - ready_to_execute
+      - skill_refresh_initialized
+    dependencies:
+      - SKILL_BOOTSTRAP_REPO
+    handoff_to:
+      - SKILL_READ_SUMMARY_AND_VALIDATE
+      - SKILL_SAMPLE_REGISTRY_AND_NORMALIZATION
+      - SKILL_SKILL_REFRESH_AND_CHECKPOINTING
+      - SKILL_MC_SAMPLE_DISAMBIGUATION_AND_NOMINAL_SELECTION
+      - SKILL_SIGNAL_BACKGROUND_STRATEGY_AND_CR_CONSTRAINTS
+      - SKILL_CONTROL_REGION_SIGNAL_REGION_BLINDING_AND_VISUALIZATION
+      - SKILL_FULL_STATISTICS_EXECUTION_POLICY
+    invocation_keywords:
+      - "agent pre flight fact check"
+      - "agent pre-flight fact check"
+      - "validation"
+      - "agent"
+      - "flight"
+      - "fact"
+      - "check"
+  - skill_id: SKILL_DATA_MC_DISCREPANCY_SANITY_CHECK
+    filename: SKILL_DATA_MC_DISCREPANCY_SANITY_CHECK.md
+    source_path: governance/data_mc_discrepancy_sanity_check.md
+    stage: validation
+    category: validation
+    mandatory: true
+    logic_type: engineering
+    inputs:
+      - data_vs_mc_comparison_plots_and_tables
+      - region_category_definitions
+      - cut_flow_and_yield_artifacts
+      - normalization_artifacts
+      - event_weight_definition_artifact
+      - sample_registry_mapping_artifacts
+    outputs:
+      - discrepancy_audit_artifact_listing_each_substantial_discrepancy_
+      - region_category
+      - observable
+      - process_grouping
+      - discrepancy_type
+      - approximate_magnitude_and_affected_bins_ranges
+      - check_log_artifact_documenting_which_sanity_checks_were_executed
+      - reporting_note_artifact_that_states_whether_a_concrete_bug_was_f
+      - explicit_no_substantial_discrepancy_status_path_so_zero_issue_ru
+      - outputs_report_data_mc_discrepancy_audit_json
+      - outputs_report_data_mc_check_log_json
+      - discrepancy_summary_paragraph_in
+    dependencies:
+      - SKILL_PLOTTING_AND_REPORT
+    handoff_to:
+      - SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+      - SKILL_VISUAL_VERIFICATION
+      - SKILL_MC_NORMALIZATION_METADATA_STACKING
+      - SKILL_FINAL_REPORT_REVIEW_AND_HANDOFF
+      - SKILL_FULL_STATISTICS_EXECUTION_POLICY
+    invocation_keywords:
+      - "data mc discrepancy sanity check"
+      - "data-mc discrepancy sanity check"
+      - "validation"
+      - "data"
+      - "discrepancy"
+      - "sanity"
+      - "check"
+  - skill_id: SKILL_FULL_STATISTICS_EXECUTION_POLICY
+    filename: SKILL_FULL_STATISTICS_EXECUTION_POLICY.md
+    source_path: governance/full_statistics_execution_policy.md
+    stage: execution_policy
+    category: governance
+    mandatory: true
+    logic_type: engineering
+    inputs:
+      - user_request_and_constraints
+      - analysis_run_configuration
+      - sample_file_inventory
+      - runtime_control_flags
+    outputs:
+      - statistics_policy_artifact
+      - outputs_report_statistics_policy_json
+      - fields
+      - mode_in_full_required_partial_allowed_user_requested_fast_test_t
+      - user_requested_partial
+      - fast_test_used
+      - full_statistics_completed
+      - final_outputs_source
+      - notes
+      - run_manifest_must_clearly_record_event_cap_configuration_and_whe
+      - if_fast_test_is_used_separate_output_roots_should_be_used_for_te
+      - runtime_recovery_artifact_when_missing_pipeline_tooling_was_cons
+    dependencies:
+      - SKILL_AGENT_PRE_FLIGHT_FACT_CHECK
+      - SKILL_SMOKE_TESTS_AND_REPRODUCIBILITY
+    handoff_to:
+      - SKILL_HISTOGRAMMING_AND_TEMPLATES
+      - SKILL_WORKSPACE_AND_FIT_PYHF
+      - SKILL_PROFILE_LIKELIHOOD_SIGNIFICANCE
+      - SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+      - SKILL_FINAL_REPORT_REVIEW_AND_HANDOFF
+    invocation_keywords:
+      - "full statistics execution policy"
+      - "full-statistics execution policy"
+      - "execution_policy"
+      - "full"
+      - "statistics"
+      - "execution"
+      - "policy"
+  - skill_id: SKILL_MC_SAMPLE_DISAMBIGUATION_AND_NOMINAL_SELECTION
+    filename: SKILL_MC_SAMPLE_DISAMBIGUATION_AND_NOMINAL_SELECTION.md
+    source_path: governance/mc_sample_disambiguation_and_nominal_selection.md
+    stage: validation
+    category: validation
+    mandatory: true
+    logic_type: engineering
+    inputs:
+      - available_mc_file_inventory
+      - sample_registry_with_file_paths_and_dataset_names
+      - analysis_objective_and_target_final_state
+      - prior_reports_or_notes_describing_intended_signal_background_def
+    outputs:
+      - mc_sample_disambiguation_artifact_at_outputs_report_mc_sample_se
+      - status
+      - analysis_target
+      - processes
+      - ambiguous_processes
+      - human_clarifications
+      - notes
+      - per_process_entries_in_processes_containing
+      - process_key
+      - analysis_role
+      - selected_nominal_samples
+      - alternative_samples
+    dependencies:
+      - SKILL_SAMPLE_REGISTRY_AND_NORMALIZATION
+    handoff_to:
+      - SKILL_CUT_FLOW_AND_YIELDS
+      - SKILL_SYSTEMATICS_AND_NUISANCES
+      - SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+      - SKILL_AGENT_PRE_FLIGHT_FACT_CHECK
+      - SKILL_MC_NORMALIZATION_METADATA_STACKING
+      - SKILL_FULL_STATISTICS_EXECUTION_POLICY
+    invocation_keywords:
+      - "mc sample disambiguation and nominal selection"
+      - "validation"
+      - "sample"
+      - "disambiguation"
+      - "nominal"
+      - "selection"
+  - skill_id: SKILL_SKILL_REFRESH_AND_CHECKPOINTING
+    filename: SKILL_SKILL_REFRESH_AND_CHECKPOINTING.md
+    source_path: governance/skill_refresh_and_checkpointing.md
+    stage: governance
+    category: governance
+    mandatory: true
+    logic_type: engineering
+    inputs:
+      - active_task_objective_and_selected_analysis_json
+      - list_of_skills_used_in_the_run
+      - canonical_phase_boundaries
+      - execution_timeline_and_failure_recovery_events
+      - required_output_artifact_matrix_for_each_phase
+    outputs:
+      - outputs_report_skill_refresh_plan_json
+      - policy_version
+      - refresh_interval_minutes
+      - checkpoint_ids
+      - checkpoint_requirements
+      - status
+      - outputs_report_skill_refresh_log_jsonl
+      - one_json_object_per_line_with
+      - timestamp_utc
+      - checkpoint_id
+      - trigger
+      - skills_reloaded
+    dependencies:
+      - SKILL_BOOTSTRAP_REPO
+    handoff_to:
+      - SKILL_FINAL_REPORT_REVIEW_AND_HANDOFF
+      - SKILL_AGENT_PRE_FLIGHT_FACT_CHECK
+      - SKILL_JSON_SPEC_DRIVEN_EXECUTION
+      - SKILL_SMOKE_TESTS_AND_REPRODUCIBILITY
+    invocation_keywords:
+      - "skill refresh and checkpointing"
+      - "governance"
+      - "skill"
+      - "refresh"
+      - "checkpointing"
+  - skill_id: SKILL_FREEZE_ANALYSIS_HISTOGRAM_PRODUCTS
+    filename: SKILL_FREEZE_ANALYSIS_HISTOGRAM_PRODUCTS.md
+    source_path: infrastructure/freeze_analysis_histogram_products.md
+    stage: caching
+    category: histograms
+    mandatory: false
+    logic_type: physics
+    inputs:
+      - outputs_hists_templates
+      - outputs_summary_normalized_json
+      - outputs_samples_registry_json
+      - run_provenance
+      - analysis_name_version
+      - git_commit
+      - config_hash
+      - timestamp
+    outputs:
+      - stage_output_artifacts_required_by_downstream_skills
+      - machine_readable_metadata_describing_execution_provenance
+    dependencies:
+      - SKILL_HISTOGRAMMING_AND_TEMPLATES
+    handoff_to:
+      - SKILL_ROOTMLTOOL_CACHED_ANALYSIS
+      - SKILL_PLOTTING_AND_REPORT
+      - SKILL_WORKSPACE_AND_FIT_PYHF
+      - SKILL_SMOKE_TESTS_AND_REPRODUCIBILITY
+    invocation_keywords:
+      - "freeze analysis histogram products"
+      - "caching"
+      - "freeze"
+      - "analysis"
+      - "histogram"
+      - "products"
+  - skill_id: SKILL_ROOTMLTOOL_CACHED_ANALYSIS
+    filename: SKILL_ROOTMLTOOL_CACHED_ANALYSIS.md
+    source_path: infrastructure/rootmltool_cached_analysis.md
+    stage: caching
+    category: other
+    mandatory: false
+    logic_type: engineering
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - stage_output_artifacts_required_by_downstream_skills
+      - machine_readable_metadata_describing_execution_provenance
+    dependencies:
+      - SKILL_HISTOGRAMMING_AND_TEMPLATES
+    handoff_to:
+      - SKILL_HISTOGRAMMING_AND_TEMPLATES
+      - SKILL_PLOTTING_AND_REPORT
+    invocation_keywords:
+      - "rootmltool cached analysis"
+      - "rootmltool cached analysis backend selection"
+      - "caching"
+      - "rootmltool"
+      - "cached"
+      - "analysis"
+      - "backend"
+      - "selection"
+  - skill_id: SKILL_SMOKE_TESTS_AND_REPRODUCIBILITY
+    filename: SKILL_SMOKE_TESTS_AND_REPRODUCIBILITY.md
+    source_path: infrastructure/smoke_tests_and_reproducibility.md
+    stage: validation
+    category: validation
+    mandatory: true
+    logic_type: engineering
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - smoke_test_execution_artifact_with_pass_fail_status_per_critical
+      - run_manifest_artifact_with_inputs_configuration_fingerprint_and_
+      - completion_status_artifact_indicating_whether_all_required_analy
+      - skill_refresh_plan_artifact_outputs_report_skill_refresh_plan_js
+      - skill_refresh_log_artifact_outputs_report_skill_refresh_log_json
+      - skill_checkpoint_status_artifact_outputs_report_skill_checkpoint
+    dependencies:
+      - SKILL_BOOTSTRAP_REPO
+    handoff_to:
+      - SKILL_FULL_STATISTICS_EXECUTION_POLICY
+      - SKILL_PLOTTING_AND_REPORT
+    invocation_keywords:
+      - "smoke tests and reproducibility"
+      - "validation"
+      - "smoke"
+      - "tests"
+      - "reproducibility"
+  - skill_id: SKILL_STATTOOL_OPTIONAL_PYHF_BACKEND
+    filename: SKILL_STATTOOL_OPTIONAL_PYHF_BACKEND.md
+    source_path: infrastructure/stattool_optional_pyhf_backend.md
+    stage: caching
+    category: stats
+    mandatory: false
+    logic_type: physics
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - stage_output_artifacts_required_by_downstream_skills
+      - machine_readable_metadata_describing_execution_provenance
+    dependencies:
+      - SKILL_WORKSPACE_AND_FIT_PYHF
+    handoff_to:
+      - SKILL_PROFILE_LIKELIHOOD_SIGNIFICANCE
+      - SKILL_PLOTTING_AND_REPORT
+    invocation_keywords:
+      - "stattool optional pyhf backend"
+      - "caching"
+      - "stattool"
+      - "optional"
+      - "pyhf"
+      - "backend"
+  - skill_id: SKILL_VISUAL_VERIFICATION
+    filename: SKILL_VISUAL_VERIFICATION.md
+    source_path: infrastructure/visual_verification.md
+    stage: validation
+    category: validation
+    mandatory: true
+    logic_type: engineering
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - object_level_diagnostic_plot_artifacts_for_leading_subleading_ph
+      - event_level_diagnostic_plot_artifacts_for_diphoton_mass_preselec
+      - selection_validation_artifacts_including_cut_flow_visualization_
+      - category_validation_plot_artifacts_for_each_active_category
+      - final_result_plot_artifacts_including_fitted_mass_spectrum_and_p
+      - blinded_sideband_fit_provenance_plot_artifacts_for_hgg
+      - expected_significance_asimov_fit_plot_artifacts_for_hgg
+      - observed_data_full_range_fit_plot_artifacts_for_hgg_when_unblind
+      - pre_fit_and_post_fit_non_signal_region_comparison_plot_artifacts
+      - verification_status_artifact_that_records_presence_absence_of_re
+      - data_mc_discrepancy_artifacts
+      - outputs_report_data_mc_discrepancy_audit_json
+      - outputs_report_data_mc_check_log_json
+    dependencies:
+      - SKILL_PLOTTING_AND_REPORT
+    handoff_to:
+      - SKILL_DATA_MC_DISCREPANCY_SANITY_CHECK
+      - SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+      - SKILL_CONTROL_REGION_SIGNAL_REGION_BLINDING_AND_VISUALIZATION
+      - SKILL_FULL_STATISTICS_EXECUTION_POLICY
+    invocation_keywords:
+      - "visual verification"
+      - "visualization-based verification"
+      - "validation"
+      - "visualization"
+      - "based"
+      - "verification"
+  - skill_id: SKILL_JSON_SPEC_DRIVEN_EXECUTION
+    filename: SKILL_JSON_SPEC_DRIVEN_EXECUTION.md
+    source_path: interfaces/json_spec_driven_execution.md
+    stage: translation
+    category: other
+    mandatory: false
+    logic_type: engineering
+    inputs:
+      - analysis_json_path_provided_by_user_prompt
+      - input_data_mc_directory
+      - runtime_constraints
+    outputs:
+      - outputs_report_spec_validation_summary_json
+      - outputs_report_spec_to_runtime_mapping_json
+      - outputs_report_deviations_from_spec_json
+      - outputs_report_execution_contract_json
+      - checkpoint_entries_in_outputs_report_skill_refresh_log_jsonl_for
+    dependencies:
+      - SKILL_NARRATIVE_TO_ANALYSIS_JSON_TRANSLATOR
+    handoff_to:
+      - SKILL_READ_SUMMARY_AND_VALIDATE
+      - SKILL_SAMPLE_REGISTRY_AND_NORMALIZATION
+      - SKILL_SKILL_REFRESH_AND_CHECKPOINTING
+      - SKILL_FULL_STATISTICS_EXECUTION_POLICY
+      - SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+      - SKILL_FINAL_REPORT_REVIEW_AND_HANDOFF
+    invocation_keywords:
+      - "json spec driven execution"
+      - "json-spec-driven analysis execution"
+      - "translation"
+      - "json"
+      - "spec"
+      - "driven"
+      - "analysis"
+      - "execution"
+  - skill_id: SKILL_NARRATIVE_TO_ANALYSIS_JSON_TRANSLATOR
+    filename: SKILL_NARRATIVE_TO_ANALYSIS_JSON_TRANSLATOR.md
+    source_path: interfaces/narrative_to_analysis_json_translator.md
+    stage: translation
+    category: other
+    mandatory: false
+    logic_type: engineering
+    inputs:
+      - narrative_analysis_text
+    outputs:
+      - generated_analysis_json_draft_analysis_name_analysis_json
+      - gap_report_outputs_report_analysis_json_gap_report_json
+      - source_trace_map_outputs_report_analysis_json_source_trace_json
+    dependencies:
+      - SKILL_AGENT_PRE_FLIGHT_FACT_CHECK
+    handoff_to:
+      - SKILL_JSON_SPEC_DRIVEN_EXECUTION
+      - SKILL_READ_SUMMARY_AND_VALIDATE
+    invocation_keywords:
+      - "narrative to analysis json translator"
+      - "narrative-to-analysis-json translator"
+      - "translation"
+      - "narrative"
+      - "analysis"
+      - "json"
+      - "translator"
+  - skill_id: SKILL_EXTRACT_NEW_SKILL_FROM_FAILURE
+    filename: SKILL_EXTRACT_NEW_SKILL_FROM_FAILURE.md
+    source_path: meta/extract_new_skill_from_failure.md
+    stage: design
+    category: governance
+    mandatory: true
+    logic_type: governance
+    inputs:
+      - final_report
+      - run_logs_and_warning_error_outputs
+      - execution_notes
+      - code_patches_workflow_adjustments_made_during_the_run
+      - unusual_numerical_or_structural_outputs
+    outputs:
+      - candidate_skill_files
+      - candidate_skills_candidate_name_md
+      - run_level_extraction_summary
+      - outputs_report_skill_extraction_summary_json
+      - status
+      - n_candidates
+      - candidates
+      - evidence_sources
+      - promotion_rule
+    dependencies:
+      - SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+    handoff_to:
+      - SKILL_FINAL_REPORT_REVIEW_AND_HANDOFF
+      - SKILL_SMOKE_TESTS_AND_REPRODUCIBILITY
+      - SKILL_SELECTION_ENGINE_AND_REGIONS
+      - SKILL_SIGNAL_BACKGROUND_STRATEGY_AND_CR_CONSTRAINTS
+    invocation_keywords:
+      - "extract new skill from failure"
+      - "design"
+      - "extract"
+      - "skill"
+      - "from"
+      - "failure"
+  - skill_id: SKILL_13TEV25_DETAILS
+    filename: SKILL_13TEV25_DETAILS.md
+    source_path: open_data_specific/13tev25_details.md
+    stage: dataset_specific
+    category: other
+    mandatory: false
+    logic_type: engineering
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - stage_output_artifacts_required_by_downstream_skills
+      - machine_readable_metadata_describing_execution_provenance
+    dependencies:
+      - NONE
+    handoff_to:
+      - SKILL_SAMPLE_REGISTRY_AND_NORMALIZATION
+      - SKILL_MC_NORMALIZATION_METADATA_STACKING
+    invocation_keywords:
+      - "13tev25 details"
+      - "13 tev 2025 data — beta"
+      - "dataset_specific"
+      - "2025"
+      - "data"
+      - "beta"
+  - skill_id: SKILL_HISTOGRAM_PLOTTING_INVARIANTS
+    filename: SKILL_HISTOGRAM_PLOTTING_INVARIANTS.md
+    source_path: physics_facts/histogram_plotting_invariants.md
+    stage: plotting
+    category: plotting
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - 1d_histogram_figures_with_visible_statistical_uncertainties
+      - overlay_figures_with_shared_binning_and_ratio_panels
+      - ratio_panels_with_fixed_0_5_1_5_y_range_and_r_1_reference_line
+      - plot_metadata_showing_binning_and_normalization_choice
+    dependencies:
+      - SKILL_HISTOGRAMMING_AND_TEMPLATES
+    handoff_to:
+      - SKILL_PLOTTING_AND_REPORT
+      - SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+    invocation_keywords:
+      - "histogram plotting invariants"
+      - "plotting"
+      - "histogram"
+      - "invariants"
+  - skill_id: SKILL_MC_NORMALIZATION_METADATA_STACKING
+    filename: SKILL_MC_NORMALIZATION_METADATA_STACKING.md
+    source_path: physics_facts/mc_normalization_metadata_stacking.md
+    stage: design
+    category: normalization
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - skills_metadata_csv
+      - mc_sample_identifiers
+      - target_luminosity_lumi_fb
+    outputs:
+      - metadata_resolution_artifact_mapping_sample_identifiers_to_norma
+      - per_sample_normalization_table_artifact_containing_sample_identi
+      - event_weight_definition_artifact_documenting_the_event_level_wei
+      - normalization_audit_artifact_containing_luminosity_normalized_sa
+      - stacked_yield_summary_artifact_reporting_weighted_contributions_
+      - nominal_reference_selection_artifact_per_physics_process_indicat
+      - norm_table_json_with_per_sample_normalization_terms_and_computed
+      - nominal_vs_alternative_mapping_snippet_in_the_audit_output
+      - report_audit_snippet_summarizing
+      - luminosity_used
+      - normalized_sample_identifiers
+      - missing_metadata_rows
+    dependencies:
+      - SKILL_SAMPLE_REGISTRY_AND_NORMALIZATION
+      - SKILL_13TEV25_DETAILS
+    handoff_to:
+      - SKILL_HISTOGRAMMING_AND_TEMPLATES
+      - SKILL_PLOTTING_AND_REPORT
+      - SKILL_SELECTION_ENGINE_AND_REGIONS
+      - SKILL_SIGNAL_BACKGROUND_STRATEGY_AND_CR_CONSTRAINTS
+    invocation_keywords:
+      - "mc normalization metadata stacking"
+      - "mc normalization from open-data metadata for multi-component stacks"
+      - "design"
+      - "normalization"
+      - "from"
+      - "open"
+      - "data"
+      - "metadata"
+  - skill_id: SKILL_OBJECT_DEFINITIONS
+    filename: SKILL_OBJECT_DEFINITIONS.md
+    source_path: physics_facts/object_definitions.md
+    stage: design
+    category: objects
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - analysis_configuration_and_stage_specific_upstream_artifacts
+      - repository_paths_and_runtime_context_for_the_current_run
+    outputs:
+      - object_augmented_event_artifact_containing_selection_masks_multi
+      - object_definition_metadata_artifact_documenting_thresholds_and_w
+      - object_qa_summary_artifact_with_basic_rates
+    dependencies:
+      - SKILL_EVENT_IO_AND_COLUMNAR_MODEL
+    handoff_to:
+      - SKILL_SELECTION_ENGINE_AND_REGIONS
+      - SKILL_SIGNAL_BACKGROUND_STRATEGY_AND_CR_CONSTRAINTS
+    invocation_keywords:
+      - "object definitions"
+      - "design"
+      - "object"
+      - "definitions"
+  - skill_id: SKILL_BACKGROUND_TEMPLATE_SMOOTHING_POLICY
+    filename: SKILL_BACKGROUND_TEMPLATE_SMOOTHING_POLICY.md
+    source_path: governance/background_template_smoothing_policy.md
+    stage: validation
+    category: validation
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - histogram_template_artifacts
+      - smoothing_policy_configuration
+      - fit_region_definitions
+    outputs:
+      - outputs_report_background_template_smoothing_check_json
+      - outputs_report_background_template_smoothing_provenance_json
+      - smoothing_blocking_gate_status
+    dependencies:
+      - SKILL_ENFORCEMENT_POLICY_DEFAULTS
+      - SKILL_HISTOGRAMMING_AND_TEMPLATES
+    handoff_to:
+      - SKILL_SIGNAL_SHAPE_AND_SPURIOUS_SIGNAL_MODEL_SELECTION
+      - SKILL_SYSTEMATICS_AND_NUISANCES
+      - SKILL_PLOTTING_AND_REPORT
+      - SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+      - SKILL_ENFORCEMENT_PRE_HANDOFF_GATE
+    invocation_keywords:
+      - "background template smoothing policy"
+      - "template smoothing gate"
+      - "smoothing policy"
+      - "validation"
+      - "background"
+      - "templates"
+  - skill_id: SKILL_MC_EFFECTIVE_LUMI_COVERAGE_GATE
+    filename: SKILL_MC_EFFECTIVE_LUMI_COVERAGE_GATE.md
+    source_path: governance/mc_effective_lumi_coverage_gate.md
+    stage: validation
+    category: validation
+    mandatory: true
+    logic_type: physics
+    inputs:
+      - outputs_normalization_norm_table_json
+      - target_luminosity_lumi_fb
+      - threshold_multiplier
+      - sample_to_process_mapping
+    outputs:
+      - outputs_report_mc_effective_lumi_check_json
+      - effective_lumi_blocking_gate_status
+      - per_process_effective_lumi_artifact
+    dependencies:
+      - SKILL_ENFORCEMENT_POLICY_DEFAULTS
+      - SKILL_MC_NORMALIZATION_METADATA_STACKING
+    handoff_to:
+      - SKILL_BACKGROUND_TEMPLATE_SMOOTHING_POLICY
+      - SKILL_WORKSPACE_AND_FIT_PYHF
+      - SKILL_PLOTTING_AND_REPORT
+      - SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+      - SKILL_ENFORCEMENT_PRE_HANDOFF_GATE
+    invocation_keywords:
+      - "mc effective lumi coverage gate"
+      - "effective luminosity gate"
+      - "10x luminosity check"
+      - "normalization validation"
+      - "validation"
+  - skill_id: SKILL_ENFORCEMENT_PRE_HANDOFF_GATE
+    filename: SKILL_ENFORCEMENT_PRE_HANDOFF_GATE.md
+    source_path: governance/enforcement_pre_handoff_gate.md
+    stage: reporting
+    category: governance
+    mandatory: true
+    logic_type: engineering
+    inputs:
+      - outputs_report_background_template_smoothing_check_json
+      - outputs_report_mc_effective_lumi_check_json
+      - outputs_report_data_mc_discrepancy_audit_json
+      - outputs_report_skill_extraction_summary_json
+      - outputs_report_enforcement_policy_defaults_json
+    outputs:
+      - outputs_report_enforcement_handoff_gate_json
+      - handoff_gate_status
+      - handoff_gate_blocking_reasons
+    dependencies:
+      - SKILL_BACKGROUND_TEMPLATE_SMOOTHING_POLICY
+      - SKILL_MC_EFFECTIVE_LUMI_COVERAGE_GATE
+      - SKILL_FINAL_ANALYSIS_REPORT_AGENT_WORKFLOW
+    handoff_to:
+      - SKILL_FINAL_REPORT_REVIEW_AND_HANDOFF
+    invocation_keywords:
+      - "enforcement pre handoff gate"
+      - "pre handoff gate"
+      - "policy enforcement gate"
+      - "reporting gate"
+      - "governance"
+  - skill_id: SKILL_ENFORCEMENT_POLICY_DEFAULTS
+    filename: SKILL_ENFORCEMENT_POLICY_DEFAULTS.md
+    source_path: governance/enforcement_policy_defaults.md
+    stage: governance
+    category: governance
+    mandatory: true
+    logic_type: engineering
+    inputs:
+      - analysis_summary_specification
+      - run_constraints_and_overrides
+    outputs:
+      - outputs_report_enforcement_policy_defaults_json
+      - target_lumi_fb_resolved
+      - threshold_multiplier_resolved
+    dependencies:
+      - SKILL_AGENT_PRE_FLIGHT_FACT_CHECK
+    handoff_to:
+      - SKILL_MC_EFFECTIVE_LUMI_COVERAGE_GATE
+      - SKILL_BACKGROUND_TEMPLATE_SMOOTHING_POLICY
+      - SKILL_ENFORCEMENT_PRE_HANDOFF_GATE
+    invocation_keywords:
+      - "enforcement policy defaults"
+      - "policy defaults"
+      - "lumi default policy"
+      - "threshold default policy"
+      - "governance"

@@ -24,6 +24,21 @@ def run_pipeline(
     max_events: int | None,
     unblind_observed_significance: bool = False,
 ) -> None:
+    from analysis.common import read_json
+    from analysis.vlq_pipeline import is_vlq_summary, run_vlq_analysis
+
+    source_summary = read_json(summary)
+    if is_vlq_summary(source_summary, summary):
+        run_vlq_analysis(
+            source_summary=source_summary,
+            summary_path=summary,
+            inputs=inputs,
+            outputs=outputs,
+            max_events=max_events,
+            unblind_observed_significance=unblind_observed_significance,
+        )
+        return
+
     from analysis.pipeline import run_all_stages
 
     run_all_stages(

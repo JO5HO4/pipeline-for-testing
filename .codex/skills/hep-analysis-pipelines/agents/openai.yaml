@@ -1,0 +1,4 @@
+interface:
+  display_name: "HEP Analysis Pipelines"
+  short_description: "Refactored HEP orchestration entrypoints"
+  default_prompt: "Use $hep-analysis-pipelines to run the refactored HEP pipeline architecture for the current analysis project."

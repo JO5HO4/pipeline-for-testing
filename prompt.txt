@@ -1,0 +1,73 @@
+You are a Codex analysis agent working inside this repository.
+
+Repository boundary:
+- Treat the current working directory as the entire run workspace.
+- Do not read from, write to, copy from, or depend on files outside the current working directory, except for reading the symlinked input ROOT data reachable through input-data/.
+- Do not inspect parent directories, sibling baseline/multiagent runs, or prior attempts outside this workspace.
+- Keep all generated code, run artifacts, logs, plots, reports, and state under the current working directory. Put run products under outputs/.
+
+Baseline skill package:
+- Use the installed baseline/refactored hep-analysis-* skills from .codex/skills/; prefer hep-analysis-meta-pipeline when available.
+- Do not spawn or delegate subagents. Execute the workflow in this session.
+- Keep any baseline workflow state, logs, commands, and reproducibility artifacts under outputs/.
+
+Follow the instructions below to complete a same-charge leptons plus b-jets search using the available 36.1 fb-1 ATLAS open data samples, including data and MC.
+
+What is available:
+- Installed skills in .codex/skills/; consult these for analysis methodology guidance.
+- Prefer the refactored hep-analysis-* skills, especially hep-analysis-meta-pipeline, as the canonical analysis workflow. Do not use the legacy hep-meta-first skill unless the refactored skills are unavailable or you are explicitly repairing a legacy-skill issue.
+- Structured analysis summary, the authoritative reproduction target: analysis/leptons-bjet-vlq-search.json.
+- Input ROOT ntuples, reachable through symlinked open-data inputs: input-data/data and input-data/MC.
+
+Important target rule:
+- This workspace may contain inherited Higgs-to-diphoton scaffold files. Do not treat Higgs-to-diphoton.json or analysis/analysis.summary.json as the VLQ target unless you intentionally replace or rewire that inherited scaffold.
+- analysis/leptons-bjet-vlq-search.json is the authoritative target for this run.
+
+Hard constraints:
+- Do not quote or copy raw text from leptons-bjet-vlq-search.json verbatim in the final report.
+- Use leptons-bjet-vlq-search.json as the primary implementation target and implement the closest feasible reproduction with available open-data observables.
+- Inspect the actual branches and sample names present in the ROOT ntuples before implementing object definitions, sample roles, regions, or statistical interpretation.
+- Lepton definitions, charge requirements, b-tagging, triggers, fake/nonprompt estimates, charge-misidentification estimates, control regions, signal samples, and likelihood ingredients may differ from the reference analysis or may be unavailable. Determine the closest usable equivalents from the available branches and samples.
+- If anything in leptons-bjet-vlq-search.json is inconsistent with the open data samples, including missing variables, different definitions, unavailable observables, missing dedicated VLQ signals, unavailable observed collision data, or unavailable systematic inputs, implement a documented diagnostic replacement only after recording the limitation in the feasibility matrix. A replacement does not inherit the paper-level claim unless claim review explicitly supports it.
+
+Reference feasibility and claim gates:
+- Keep leptons-bjet-vlq-search.json as the faithful paper-spec source of truth. Do not edit it to describe open-data substitutions.
+- Before implementation, produce a reference feasibility matrix in the workflow-standard report or artifact location. Classify each critical paper requirement as available, substituted, unavailable, or not applicable, with evidence, allowed claims, and blocked claims.
+- Dedicated VLQ mass or cross-section exclusion claims are blocked unless dedicated VLQ signal samples and a valid reference-like statistical model are available.
+- Proxy signals, such as SM four-top or other non-VLQ samples, may be used only for diagnostic_proxy or explicitly labeled reinterpretation results.
+- Before finalization, produce a claim-classification artifact assigning every reported result one of: reproduction, reinterpretation, diagnostic_proxy, or blocked.
+- The final report must pass a finalization gate proving that the report source is a completed full-production run over all usable samples, not a smoke, capped, partial, or test run.
+- Do not print paper-level significances, limits, mass limits, or exclusions from regions with invalid background models, zero usable signal, negative-yield clipping, missing fake/nonprompt or charge-misidentification methods required by the claim, or unsupported observed data.
+
+Compatibility rule:
+- Any substitutions or approximations must be explicitly documented.
+- The justification must be written in a dedicated section of the final report titled: "Implementation Differences from Reference Analysis".
+- For each substitution include:
+  - the reference concept, without quoting the JSON;
+  - the observable, sample, or method available in the open data;
+  - the reasoning for the replacement;
+  - the expected impact on the analysis, if relevant;
+  - the allowed claim classification and any blocked paper-level claims.
+
+Blinding and statistical workflow:
+- Follow a blinded workflow for signal regions whenever feasible.
+- First finalize object definitions, sample grouping, control/validation/signal regions, background estimates, signal assumptions, plots, and statistical procedure without tuning on observed signal-region data.
+- Compute expected sensitivity first, using expected significance, expected limit, or expected exclusion reach depending on what is feasible with the available samples and implemented statistical model.
+- Only after the expected workflow is fixed, unblind the signal regions if applicable.
+- Then compute observed results using the fixed selections, fixed model, and observed data.
+- Clearly label expected and observed results separately in outputs and in the final report.
+- If full CLs limits or a reference-like likelihood cannot be implemented from the available samples, document the limitation and provide diagnostic_proxy or blocked results instead of paper-level VLQ limits or exclusions.
+- Smoke, capped, or partial-statistics runs may validate code only and must not be promoted into final report paths.
+
+Mission:
+Complete the analysis. Implement and execute an end-to-end VLQ-style analysis pipeline from input-data/ to outputs/, fully reproducible and CLI-driven, guided by the installed skills and leptons-bjet-vlq-search.json as the reference target. Run this over all usable samples.
+
+Definition of done:
+- All usable data and MC samples are processed.
+- Same-sign dilepton and trilepton object selections, event regions, yields, plots, background/signal sample groupings, and statistical outputs are produced.
+- Expected and observed statistical results are determined where feasible, or explicitly blocked with justification.
+- Any infeasible full-CLs, missing-signal, or missing-background-method limitation is explicitly documented with blocked or diagnostic_proxy claim classification.
+- Selections, histograms, plots, intermediate artifacts, statistical outputs, commands, logs, skill-package-specific workflow artifacts, and a paper-like final report are saved under outputs/ or the workflow-standard state locations inside the current working directory.
+- The final report includes the "Implementation Differences from Reference Analysis" section.
+- The final report includes the claim classification and avoids paper-level observed claims when the feasibility or finalization gates block them.
+- The run is reproducible from documented CLI commands saved under outputs/.
