@@ -1,1 +1,0 @@
-"""Event IO helpers."""

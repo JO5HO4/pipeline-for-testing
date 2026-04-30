@@ -1,1 +1,0 @@
-"""Selection and category definitions."""
