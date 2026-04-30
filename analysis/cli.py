@@ -3,17 +3,45 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from analysis.common import write_json
-from analysis.config.load_summary import normalize_summary
-from analysis.preflight import run_preflight
+from analysis.common import read_json, write_json
 from analysis.runtime import write_runtime_recovery
+from analysis.vlq_pipeline import (
+    build_vlq_registry,
+    inspect_inputs,
+    is_vlq_summary,
+    normalize_vlq_summary,
+    run_vlq_analysis,
+)
+
+
+def _load_vlq_summary(summary: Path) -> tuple[dict, dict]:
+    source_summary = read_json(summary)
+    if not is_vlq_summary(source_summary, summary):
+        raise SystemExit(f"{summary} is not a VLQ same-charge leptons plus b-jets summary")
+    return source_summary, normalize_vlq_summary(source_summary, summary)
 
 
 def bootstrap(summary: Path, outputs: Path) -> None:
-    normalized, errors = normalize_summary(__import__("analysis.common").common.read_json(summary), summary)
+    _, normalized = _load_vlq_summary(summary)
     write_json(normalized, outputs / "summary.normalized.json")
     write_runtime_recovery(outputs / "report" / "runtime_recovery.json")
-    if errors:
+
+
+def preflight(summary: Path, inputs: Path, outputs: Path) -> None:
+    _, normalized = _load_vlq_summary(summary)
+    registry, registry_roles = build_vlq_registry(inputs, normalized)
+    branch_inventory = (
+        inspect_inputs(inputs, registry)
+        if registry
+        else {"status": "blocked", "reason": "No data or MC ROOT files were found under input-data/."}
+    )
+    write_json(normalized, outputs / "summary.normalized.json")
+    write_json(normalized["inventory"], outputs / "validation" / "inventory.json")
+    write_json(branch_inventory, outputs / "validation" / "branch_inventory.json")
+    write_json(registry, outputs / "samples.registry.json")
+    write_json(registry_roles, outputs / "samples.classification.json")
+    write_runtime_recovery(outputs / "report" / "runtime_recovery.json")
+    if branch_inventory.get("status") != "ok":
         raise SystemExit(1)
 
 
@@ -24,25 +52,12 @@ def run_pipeline(
     max_events: int | None,
     unblind_observed_significance: bool = False,
 ) -> None:
-    from analysis.common import read_json
-    from analysis.vlq_pipeline import is_vlq_summary, run_vlq_analysis
-
     source_summary = read_json(summary)
-    if is_vlq_summary(source_summary, summary):
-        run_vlq_analysis(
-            source_summary=source_summary,
-            summary_path=summary,
-            inputs=inputs,
-            outputs=outputs,
-            max_events=max_events,
-            unblind_observed_significance=unblind_observed_significance,
-        )
-        return
-
-    from analysis.pipeline import run_all_stages
-
-    run_all_stages(
-        summary=summary,
+    if not is_vlq_summary(source_summary, summary):
+        raise SystemExit(f"{summary} is not a VLQ same-charge leptons plus b-jets summary")
+    run_vlq_analysis(
+        source_summary=source_summary,
+        summary_path=summary,
         inputs=inputs,
         outputs=outputs,
         max_events=max_events,
@@ -74,7 +89,7 @@ def main() -> None:
     if args.command == "bootstrap":
         bootstrap(Path(args.summary), Path(args.outputs))
     elif args.command == "preflight":
-        run_preflight(Path(args.summary), Path(args.inputs), Path(args.outputs))
+        preflight(Path(args.summary), Path(args.inputs), Path(args.outputs))
     else:
         run_pipeline(
             Path(args.summary),

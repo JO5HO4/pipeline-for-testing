@@ -20,8 +20,8 @@ What is available:
 - Input ROOT ntuples, reachable through symlinked open-data inputs: input-data/data and input-data/MC.
 
 Important target rule:
-- This workspace may contain inherited Higgs-to-diphoton scaffold files. Do not treat Higgs-to-diphoton.json or analysis/analysis.summary.json as the VLQ target unless you intentionally replace or rewire that inherited scaffold.
-- analysis/leptons-bjet-vlq-search.json is the authoritative target for this run.
+- analysis/analysis.summary.json is a symlink to analysis/leptons-bjet-vlq-search.json.
+- The VLQ summary is the only authoritative task target for this branch.
 
 Hard constraints:
 - Do not quote or copy raw text from leptons-bjet-vlq-search.json verbatim in the final report.

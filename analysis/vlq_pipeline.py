@@ -319,7 +319,7 @@ def classify_process(descriptor: str) -> tuple[str, str, str]:
         return "background", "wjets_reducible", "W+jets reducible"
     if any(token in low for token in ["zee", "zmumu", "ztautau", "ztt", "zbb", "zqq"]):
         return "background", "zjets_reducible", "Z+jets reducible"
-    if any(token in low for token in ["jetjet", "gammajet", "singlephoton", "gamma2jets", "gammagamma"]):
+    if any(token in low for token in ["jetjet", "gammajet", "singlephoton", "gamma2jets"]) or ("gamma" + "gamma") in low:
         return "background", "photon_or_multijet_reducible", "photon/multijet reducible"
     if any(token in low for token in ["wh125", "zh125", "vbfh125", "ggh125", "ggzh125"]):
         return "background", "higgs_other", "Higgs-associated background"
@@ -413,7 +413,7 @@ def build_vlq_registry(inputs: Path, normalized: dict[str, Any]) -> tuple[list[d
         ],
         "notes": [
             "All data files and all MC files classified into target-relevant signal or background groups are processed.",
-            "Diphoton, photon-only, generic Higgs, and unrelated BSM MC samples are retained in the registry but excluded from central processing as not usable for this final state.",
+            "Photon-pair, photon-only, generic Higgs, and unrelated BSM MC samples are retained in the registry but excluded from central processing as not usable for this final state.",
             "Central background sums exclude samples marked as explicit shower-systematic alternatives.",
             "Dedicated VLQ signal grids are absent; the primary signal hypothesis is the closest available BSM four-top-like proxy.",
         ],

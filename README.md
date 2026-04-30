@@ -1,20 +1,24 @@
-# H->gammagamma Analysis Pipeline
+# VLQ Baseline Test Pipeline
 
-This repository packages the standalone `analysis/` code for the ATLAS open-data Higgs-to-diphoton workflow. It contains the modular pipeline, configuration assets, and a small portable test suite extracted from the larger analysis workspace.
+This branch is the single-agent baseline starting point for Codex/Claude runs on the ATLAS open-data same-charge leptons plus b-jets reinterpretation. It is built from the April 29 VLQ workspace and cleaned so the VLQ task summary is the only active analysis target.
 
-## What is included
+## Branch Role
 
-- `analysis/`: the analysis package, including CLI entrypoints, histogramming, selection logic, statistical modeling, plotting, and report generation
-- `analysis/analysis.summary.json`: example normalized-analysis input summary
-- `analysis/Higgs-to-diphoton.json`: reference problem description
-- `analysis/regions.yaml`: generated region configuration
-- `tests/`: portable tests for summary normalization and reporting artifact contracts
+- Branch: `vlq_baseline`
+- Skill package: baseline/refactored HEP analysis skills under `.codex/skills/`
+- Agent mode: one session, no delegated subagents
+- Reference target: `analysis/leptons-bjet-vlq-search.json`
 
-## Prerequisites
+## What Is Included
 
-Core Python dependencies are handled by `pyproject.toml`, but the statistical stages also require CERN ROOT with PyROOT and RooFit available in the runtime environment. That dependency is not installed through pip here.
+- `analysis/vlq_pipeline.py`: the runnable VLQ-style analysis pipeline
+- `analysis/analysis.summary.json`: symlink to the VLQ reference summary
+- `analysis/samples/metadata.py`: ROOT sample metadata helpers used by the pipeline
+- `input-data/`: symlink to the 1lepMET30 open-data ROOT samples
+- `prompt.txt`: baseline task prompt for the run agent
+- `tests/`: portable checks for the VLQ branch contract
 
-For lightweight development work that does not execute RooFit stages, a standard virtual environment is enough. For full pipeline execution, use a Python environment where `import ROOT` succeeds. The runtime prefers a repo-local `.rootenv` when present, but it now falls back to the active interpreter if that interpreter already provides PyROOT.
+Generated products belong under `outputs/`; report exports under `reports/` are ignored by git.
 
 ## Install
 
@@ -25,22 +29,16 @@ pip install -U pip
 pip install -e '.[dev]'
 ```
 
-## Common entrypoints
+## Common Entrypoints
 
 ```bash
-hgg-load-summary --summary analysis/analysis.summary.json --out outputs/summary.normalized.json
-hgg-preflight --summary analysis/analysis.summary.json --inputs /path/to/input-data --outputs outputs
-hgg-analysis run --summary analysis/analysis.summary.json --inputs /path/to/input-data --outputs outputs
+vlq-analysis bootstrap --summary analysis/analysis.summary.json --outputs outputs/bootstrap
+vlq-analysis preflight --summary analysis/analysis.summary.json --inputs input-data --outputs outputs/preflight
+vlq-analysis run --summary analysis/analysis.summary.json --inputs input-data --outputs outputs/vlq
 ```
 
-You can also invoke the modules directly with `python -m analysis.<module>`.
-
-## Development
-
-Run the portable tests with:
+For a quick code check:
 
 ```bash
 pytest
 ```
-
-The extracted repository intentionally omits the workspace-specific test that asserted the presence of an existing `.rootenv`, because that assumption does not hold in a fresh standalone checkout.
