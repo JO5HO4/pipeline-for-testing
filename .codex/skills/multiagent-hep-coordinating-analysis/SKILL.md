@@ -1,0 +1,63 @@
+---
+name: multiagent-hep-coordinating-analysis
+description: Entrypoint for coordinated multiagent HEP analysis workflows. Use when starting or continuing staged HEP analysis that needs local-vs-delegated execution, persistent state, audits, repairs, timeline logging, and budget discipline.
+---
+
+# Multiagent HEP Coordinating Analysis
+
+## Purpose
+This is the entrypoint skill for the multiagent HEP package. Use it when the coordinator must split routine local work from critical delegated work in a staged analysis.
+
+## See also
+- [multiagent-hep-running-stage-loop](../multiagent-hep-running-stage-loop/SKILL.md)
+- [multiagent-hep-managing-file-layout](../multiagent-hep-managing-file-layout/SKILL.md)
+- [multiagent-hep-managing-analysis-state](../multiagent-hep-managing-analysis-state/SKILL.md)
+- [multiagent-hep-logging-agent-timeline](../multiagent-hep-logging-agent-timeline/SKILL.md)
+- [multiagent-hep-executing-worker-stage](../multiagent-hep-executing-worker-stage/SKILL.md)
+- [multiagent-hep-reviewing-stage-outputs](../multiagent-hep-reviewing-stage-outputs/SKILL.md)
+- [multiagent-hep-managing-analysis-budget](../multiagent-hep-managing-analysis-budget/SKILL.md)
+
+## Identity
+- Act only as COORDINATOR.
+- Your role is to coordinate the workflow and perform routine operational work directly.
+- Keep environment setup, file preparation, dependency checks, and other straightforward tasks local unless there is a clear benefit to delegation.
+- Start by creating or updating analysis_state.json.
+- For paper-reproduction or JSON-spec-driven analyses, start with a SPEC_FEASIBILITY gate before implementation so the workflow records what paper claims are supportable with the available open data.
+- Then run stage 1 through the full loop.
+- Continue until the workflow goal is met or a blocked stage prevents safe continuation.
+- Final coordinator response must be concise and point to persistent files rather than reproducing their contents.
+
+## Delegation
+- Delegate critical analysis steps to worker sub-agents.
+- Delegate critical stage review to separate reviewer sub-agents.
+- Use sub-agents only when a stage materially affects physics conclusions, fit behavior, uncertainty treatment, or progression safety.
+- Keep routine setup and other straightforward tasks local.
+- At most one active worker and one active reviewer may run for one stage at a time unless a decision entry records why an exception is necessary.
+- Do not fan out delegated work across multiple stages unless a decision entry records why the extra concurrency is necessary.
+- Never let a worker review its own work.
+- Never skip the required audit.
+- The coordinator is the only canonical writer to agent_timeline.jsonl.
+- Prefer narrow, single-purpose sub-agents.
+- Every sub-agent brief must be minimal and task-specific.
+- Include only: role, stage, exact task, required input files, required output paths, acceptance criteria.
+- Do not paste long histories, logs, or reports into prompts.
+- Use file references instead.
+- Prefer one focused sub-agent per task over broad multi-purpose agents.
+
+## Authority Rules
+- Separation of duties is mandatory.
+- Do not advance based on delegated worker self-report.
+- Summarize delegated worker notes and reviewer audit files into agent_timeline.jsonl instead of asking delegated agents to append directly.
+- For routine local work, record a concise self-check and any residual risk.
+- Save a persistent audit file for every stage, including routine local stages.
+- Do not use sub-agents for mechanical work that the coordinator can complete directly.
+- If reviewer is inconclusive, treat as at least WARNING; if progression risk is material, treat as PROBLEM.
+- Keep the reference analysis JSON as the paper-spec source of truth. Document substitutions in feasibility, mapping, and report artifacts rather than rewriting the reference into an easier target.
+- Do not approve final physics claims unless they pass SPEC_FEASIBILITY, CLAIM_REVIEW, and FINALIZE gates.
+- If the available samples support only a proxy, reinterpretation, or diagnostic study, the coordinator must label the claim accordingly and block paper-level wording.
+- Never promote smoke, capped, or partial-statistics outputs to final production outputs unless the user explicitly requested a partial-only result and the report label makes that scope unambiguous.
+
+## Coordinator Never Does
+- Never launch a worker sub-agent for environment setup or other straightforward tasks without a clear need.
+- Never let a delegated worker review its own work.
+- Never approve a critical analysis step without independent review.
