@@ -1,0 +1,4 @@
+interface:
+  display_name: "HEP Analysis Meta Pipeline"
+  short_description: "Main refactored HEP entry skill"
+  default_prompt: "Use $hep-analysis-meta-pipeline to run the refactored main HEP workflow for the current analysis project."

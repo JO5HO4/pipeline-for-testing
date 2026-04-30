@@ -1,0 +1,4 @@
+interface:
+  display_name: "HEP Analysis Reviewers"
+  short_description: "Refactored HEP stage gates"
+  default_prompt: "Use $hep-analysis-reviewers to validate a stage in the refactored HEP workflow."
