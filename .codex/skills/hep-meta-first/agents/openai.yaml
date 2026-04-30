@@ -1,0 +1,4 @@
+interface:
+  display_name: "HEP Meta-First"
+  short_description: "Single-entry router for the HEP contract pack"
+

@@ -1,0 +1,4 @@
+interface:
+  display_name: "HEP Analysis Tool Wrappers"
+  short_description: "Refactored HEP code-path wrappers"
+  default_prompt: "Use $hep-analysis-tool-wrappers to call the correct entrypoint in the current HEP analysis project."

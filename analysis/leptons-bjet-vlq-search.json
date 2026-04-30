@@ -1,0 +1,1362 @@
+{
+  "analysis_metadata": {
+    "experiment": "ATLAS",
+    "collaboration": "ATLAS",
+    "title": "Search for new phenomena in events with same-charge leptons and b-jets in pp collisions at sqrt(s) = 13 TeV with the ATLAS detector",
+    "document_type": "peer-reviewed paper",
+    "journal": "JHEP",
+    "journal_reference": "JHEP 12 (2018) 039",
+    "publication_date": "2019-01-25",
+    "doi": "10.1007/JHEP12(2018)039",
+    "arxiv": "1807.11883",
+    "cern_report_number": "CERN-EP-2018-171",
+    "collision_system": "pp",
+    "center_of_mass_energy_TeV": 13,
+    "integrated_luminosity_fb": 36.1,
+    "luminosity_uncertainty_percent": 2.1,
+    "data_taking_years": [
+      2015,
+      2016
+    ],
+    "detector": "ATLAS",
+    "analysis_short_name": "same_charge_leptons_bjets",
+    "output_filename": "ATLAS_2018_same_charge_leptons_bjets.analysis.json",
+    "primary_final_states": [
+      "same-sign dilepton plus b-jets",
+      "trilepton plus b-jets"
+    ]
+  },
+  "analysis_objectives": [
+    {
+      "objective_id": "OBJ_VLQ",
+      "objective_type": "search",
+      "target": "vector-like quark production",
+      "signal_models": [
+        "B quark pair production",
+        "T quark pair production",
+        "T5/3 quark pair production",
+        "T5/3 quark single production"
+      ],
+      "final_states_used": [
+        "same-sign dilepton plus b-jets",
+        "trilepton plus b-jets"
+      ],
+      "reported_outputs": [
+        "95% CL cross-section limits",
+        "95% CL mass limits"
+      ]
+    },
+    {
+      "objective_id": "OBJ_4TOP_BSM",
+      "objective_type": "search",
+      "target": "BSM four-top-quark production",
+      "signal_models": [
+        "contact interaction EFT benchmark",
+        "2UED/RPP benchmark",
+        "2HDM type-II benchmark"
+      ],
+      "final_states_used": [
+        "same-sign dilepton plus b-jets",
+        "trilepton plus b-jets"
+      ],
+      "reported_outputs": [
+        "95% CL cross-section limits",
+        "95% CL parameter limits"
+      ]
+    },
+    {
+      "objective_id": "OBJ_4TOP_SM",
+      "objective_type": "search",
+      "target": "Standard Model four-top-quark production",
+      "signal_models": [
+        "SM tttt"
+      ],
+      "final_states_used": [
+        "same-sign dilepton plus b-jets",
+        "trilepton plus b-jets"
+      ],
+      "reported_outputs": [
+        "cross-section upper limit"
+      ]
+    },
+    {
+      "objective_id": "OBJ_SSTT",
+      "objective_type": "search",
+      "target": "same-sign top-quark pair production",
+      "signal_models": [
+        "FCNC dark-matter mediator model",
+        "prompt tt subprocess",
+        "on-shell mediator subprocess",
+        "off-shell mediator subprocess"
+      ],
+      "final_states_used": [
+        "exactly two positive leptons plus b-jets"
+      ],
+      "reported_outputs": [
+        "95% CL cross-section limits",
+        "95% CL coupling limits"
+      ]
+    }
+  ],
+  "signal_signatures": [
+    {
+      "signal_id": "SIG_VLQ_BB",
+      "model": "vector-like B-quark pair production",
+      "production_mode": "pair production",
+      "benchmark_scenarios": [
+        "SU(2) singlet branching ratios",
+        "branching-ratio-independent scan"
+      ],
+      "decay_modes_considered": [
+        "B -> Wt",
+        "B -> Hb",
+        "B -> Zb"
+      ],
+      "representative_multilepton_topologies": [
+        "BBbar -> Wt Wtbar -> W-W+b W+W-bbar",
+        "BBbar -> Wt Zbbar -> W-W+b Zbbar"
+      ],
+      "target_region_family": "VLQ_4top",
+      "target_final_state_signature": "same-sign dilepton or trilepton plus jets with at least one b-tagged jet"
+    },
+    {
+      "signal_id": "SIG_VLQ_TT",
+      "model": "vector-like T-quark pair production",
+      "production_mode": "pair production",
+      "benchmark_scenarios": [
+        "SU(2) singlet branching ratios",
+        "branching-ratio-independent scan"
+      ],
+      "decay_modes_considered": [
+        "T -> Wb",
+        "T -> Ht",
+        "T -> Zt"
+      ],
+      "representative_multilepton_topologies": [
+        "TTbar -> Zt Ztbar -> ZW+b ZW-bbar",
+        "TTbar -> Zt Htbar -> ZW+b HW-bbar"
+      ],
+      "target_region_family": "VLQ_4top",
+      "target_final_state_signature": "same-sign dilepton or trilepton plus jets with at least one b-tagged jet"
+    },
+    {
+      "signal_id": "SIG_VLQ_T53_PAIR_SINGLE",
+      "model": "vector-like T5/3 quark production",
+      "production_modes": [
+        "pair production",
+        "single production"
+      ],
+      "decay_modes_considered": [
+        "T5/3 -> Wt"
+      ],
+      "branching_ratio_assumption": "B(T5/3 -> Wt) = 100%",
+      "target_region_family": "VLQ_4top",
+      "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets",
+      "sensitivity_note": "A same-sign lepton pair can arise from a single T5/3 decay when both W bosons decay leptonically."
+    },
+    {
+      "signal_id": "SIG_4TOP_SM",
+      "model": "Standard Model four-top-quark production",
+      "production_mode": "SM production",
+      "target_region_family": "VLQ_4top",
+      "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets",
+      "reported_branching_ratio_to_target_final_state": "12.1%, including leptonically decaying tau leptons"
+    },
+    {
+      "signal_id": "SIG_4TOP_CI",
+      "model": "BSM four-top-quark production via contact interaction",
+      "production_mode": "effective four-fermion contact interaction",
+      "operator_choice": "right-handed top-quark operator only",
+      "target_region_family": "VLQ_4top",
+      "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets"
+    },
+    {
+      "signal_id": "SIG_4TOP_2UED_RPP",
+      "model": "BSM four-top-quark production in 2UED/RPP",
+      "production_mode": "pair production of tier (1,1) states followed by cascades to A(1,1) -> ttbar",
+      "key_model_parameters": [
+        "mKK = 1/R4",
+        "xi = R4/R5"
+      ],
+      "branching_ratio_assumption": "B(A(1,1) -> ttbar) = 100%",
+      "target_region_family": "VLQ_4top",
+      "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets, with additional associated SM objects possible"
+    },
+    {
+      "signal_id": "SIG_4TOP_2HDM",
+      "model": "BSM four-top-quark production in type-II 2HDM",
+      "production_mode": "gg -> ttH/A with H/A -> ttbar",
+      "benchmark_scenarios": [
+        "heavy scalar H only",
+        "degenerate heavy scalar and pseudo-scalar H/A"
+      ],
+      "key_model_parameters": [
+        "mH or mH/A",
+        "tan(beta)"
+      ],
+      "target_region_family": "VLQ_4top",
+      "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets",
+      "kinematic_note": "The paper states that this benchmark is softer than the contact-interaction four-top signature, especially at low masses."
+    },
+    {
+      "signal_id": "SIG_SSTT_DM",
+      "model": "same-sign top-quark pair production in an FCNC dark-matter mediator model",
+      "production_modes": [
+        "prompt tt production",
+        "on-shell s-channel mediator production",
+        "off-shell s-channel mediator production"
+      ],
+      "key_model_parameters": [
+        "mediator mass mV",
+        "coupling to SM particles gSM",
+        "coupling to dark-matter particles gDM"
+      ],
+      "target_region_family": "same_sign_tt",
+      "target_final_state_signature": "exactly two positively charged leptons plus b-jets",
+      "selection_specific_note": "Only positively charged lepton pairs are used because tt production is much larger than tbar tbar production in pp collisions."
+    }
+  ],
+  "background_processes": [
+    {
+      "process_name": "ttW",
+      "category": "irreducible",
+      "estimation_method": "simulation",
+      "role": "major background"
+    },
+    {
+      "process_name": "ttZ",
+      "category": "irreducible",
+      "estimation_method": "simulation",
+      "role": "major background"
+    },
+    {
+      "process_name": "ttH",
+      "category": "irreducible",
+      "estimation_method": "simulation",
+      "role": "major background"
+    },
+    {
+      "process_name": "diboson",
+      "category": "irreducible",
+      "estimation_method": "simulation",
+      "role": "major background"
+    },
+    {
+      "process_name": "SM four-top-quark production",
+      "category": "irreducible",
+      "estimation_method": "simulation",
+      "role": "background in BSM searches and signal in the SM four-top interpretation"
+    },
+    {
+      "process_name": "other rare SM backgrounds",
+      "category": "irreducible",
+      "estimation_method": "simulation",
+      "subcomponents": [
+        "triboson",
+        "VH",
+        "ttt",
+        "ttWW",
+        "tZW",
+        "tZ"
+      ],
+      "role": "subleading"
+    },
+    {
+      "process_name": "fake or non-prompt leptons",
+      "category": "reducible",
+      "estimation_method": "data-driven matrix method",
+      "inputs": [
+        "relaxed and nominal lepton categories",
+        "single-lepton control samples"
+      ],
+      "measured_quantities": [
+        "prompt-lepton efficiency r",
+        "fake/non-prompt lepton efficiency f"
+      ],
+      "parameterization_variables": [
+        "lepton |eta|",
+        "lepton pT",
+        "angular distance to nearest jet",
+        "number of b-tagged jets"
+      ],
+      "reported_efficiency_ranges": {
+        "muons": {
+          "r_percent": "55-97",
+          "f_percent": "7-30"
+        },
+        "electrons": {
+          "r_percent": "70-95",
+          "f_percent": "8-30"
+        }
+      }
+    },
+    {
+      "process_name": "electron charge misidentification",
+      "category": "reducible",
+      "estimation_method": "data-driven",
+      "applies_to": [
+        "ee same-sign dilepton events",
+        "e mu same-sign dilepton events"
+      ],
+      "measurement_sample": "dielectron events with invariant mass consistent with the Z boson",
+      "application_sample": "opposite-charge ee and e mu events passing the analysis selections",
+      "parameterization_variables": [
+        "electron |eta|",
+        "electron pT"
+      ],
+      "reported_probability_range": "2e-5 to 1e-2, reaching 10% at larger |eta|"
+    }
+  ],
+  "signal_regions": [
+    {
+      "region_name": "SR1b2l",
+      "search_family": "VLQ_4top",
+      "lepton_category": "2l",
+      "lepton_flavour_treatment": "inclusive",
+      "lepton_charge_requirement": "same charge (++ or --)",
+      "n_jets": {
+        "min": 1,
+        "max": "not_specified"
+      },
+      "n_btags": {
+        "min": 1,
+        "max": 1
+      },
+      "HT_GeV": {
+        "min": 1000,
+        "max": "not_specified"
+      },
+      "ETmiss_GeV": {
+        "min": 180,
+        "max": "not_specified"
+      },
+      "delta_phi_ll_radians": {
+        "min": "not_specified",
+        "max": "not_specified"
+      },
+      "optimization_target": [
+        "VLQ",
+        "four-top"
+      ],
+      "observed_data_yield": 14,
+      "expected_total_background": {
+        "value": 12.3,
+        "stat_up": 2.2,
+        "stat_down": 2.1,
+        "syst_up": 3.4,
+        "syst_down": 3.4
+      },
+      "reported_significance_sigma": {
+        "BSM_definition": 0.31,
+        "SM_four_top_definition": 0.33
+      }
+    },
+    {
+      "region_name": "SR2b2l",
+      "search_family": "VLQ_4top",
+      "lepton_category": "2l",
+      "lepton_flavour_treatment": "inclusive",
+      "lepton_charge_requirement": "same charge (++ or --)",
+      "n_jets": {
+        "min": 2,
+        "max": "not_specified"
+      },
+      "n_btags": {
+        "min": 2,
+        "max": 2
+      },
+      "HT_GeV": {
+        "min": 1200,
+        "max": "not_specified"
+      },
+      "ETmiss_GeV": {
+        "min": 40,
+        "max": "not_specified"
+      },
+      "delta_phi_ll_radians": {
+        "min": "not_specified",
+        "max": "not_specified"
+      },
+      "optimization_target": [
+        "VLQ",
+        "four-top"
+      ],
+      "observed_data_yield": 10,
+      "expected_total_background": {
+        "value": 9.1,
+        "stat_up": 1.2,
+        "stat_down": 1.1,
+        "syst_up": 1.2,
+        "syst_down": 1.2
+      },
+      "reported_significance_sigma": {
+        "BSM_definition": 0.25,
+        "SM_four_top_definition": 0.38
+      }
+    },
+    {
+      "region_name": "SR3b2l_L",
+      "search_family": "VLQ_4top",
+      "lepton_category": "2l",
+      "lepton_flavour_treatment": "inclusive",
+      "lepton_charge_requirement": "same charge (++ or --)",
+      "n_jets": {
+        "min": 7,
+        "max": "not_specified"
+      },
+      "n_btags": {
+        "min": 3,
+        "max": "not_specified"
+      },
+      "HT_GeV": {
+        "min": 500,
+        "max": 1200
+      },
+      "ETmiss_GeV": {
+        "min": 40,
+        "max": "not_specified"
+      },
+      "delta_phi_ll_radians": {
+        "min": "not_specified",
+        "max": "not_specified"
+      },
+      "optimization_target": [
+        "four-top"
+      ],
+      "observed_data_yield": 12,
+      "expected_total_background": {
+        "value": 6.2,
+        "stat_up": 1.0,
+        "stat_down": 0.8,
+        "syst_up": 1.2,
+        "syst_down": 1.2
+      },
+      "reported_significance_sigma": {
+        "BSM_definition": 1.7,
+        "SM_four_top_definition": 2.1
+      }
+    },
+    {
+      "region_name": "SR3b2l",
+      "search_family": "VLQ_4top",
+      "lepton_category": "2l",
+      "lepton_flavour_treatment": "inclusive",
+      "lepton_charge_requirement": "same charge (++ or --)",
+      "n_jets": {
+        "min": 3,
+        "max": "not_specified"
+      },
+      "n_btags": {
+        "min": 3,
+        "max": "not_specified"
+      },
+      "HT_GeV": {
+        "min": 1200,
+        "max": "not_specified"
+      },
+      "ETmiss_GeV": {
+        "min": 100,
+        "max": "not_specified"
+      },
+      "delta_phi_ll_radians": {
+        "min": "not_specified",
+        "max": "not_specified"
+      },
+      "optimization_target": [
+        "VLQ"
+      ],
+      "observed_data_yield": 4,
+      "expected_total_background": {
+        "value": 2.0,
+        "stat_up": 0.5,
+        "stat_down": 0.2,
+        "syst_up": 0.3,
+        "syst_down": 0.3
+      },
+      "reported_significance_sigma": {
+        "BSM_definition": 1.1,
+        "SM_four_top_definition": 1.6
+      }
+    },
+    {
+      "region_name": "SR1b3l",
+      "search_family": "VLQ_4top",
+      "lepton_category": "3l",
+      "lepton_flavour_treatment": "inclusive",
+      "lepton_charge_requirement": "any",
+      "n_jets": {
+        "min": 1,
+        "max": "not_specified"
+      },
+      "n_btags": {
+        "min": 1,
+        "max": 1
+      },
+      "HT_GeV": {
+        "min": 1000,
+        "max": "not_specified"
+      },
+      "ETmiss_GeV": {
+        "min": 140,
+        "max": "not_specified"
+      },
+      "delta_phi_ll_radians": {
+        "min": "not_specified",
+        "max": "not_specified"
+      },
+      "optimization_target": [
+        "VLQ",
+        "four-top"
+      ],
+      "observed_data_yield": 8,
+      "expected_total_background": {
+        "value": 8.3,
+        "stat_up": 0.9,
+        "stat_down": 0.8,
+        "syst_up": 1.8,
+        "syst_down": 1.8
+      },
+      "reported_significance_sigma": {
+        "BSM_definition": -0.09,
+        "SM_four_top_definition": -0.07
+      }
+    },
+    {
+      "region_name": "SR2b3l",
+      "search_family": "VLQ_4top",
+      "lepton_category": "3l",
+      "lepton_flavour_treatment": "inclusive",
+      "lepton_charge_requirement": "any",
+      "n_jets": {
+        "min": 2,
+        "max": "not_specified"
+      },
+      "n_btags": {
+        "min": 2,
+        "max": 2
+      },
+      "HT_GeV": {
+        "min": 1200,
+        "max": "not_specified"
+      },
+      "ETmiss_GeV": {
+        "min": 100,
+        "max": "not_specified"
+      },
+      "delta_phi_ll_radians": {
+        "min": "not_specified",
+        "max": "not_specified"
+      },
+      "optimization_target": [
+        "VLQ",
+        "four-top"
+      ],
+      "observed_data_yield": 4,
+      "expected_total_background": {
+        "value": 3.7,
+        "stat_up": 0.6,
+        "stat_down": 0.3,
+        "syst_up": 0.4,
+        "syst_down": 0.4
+      },
+      "reported_significance_sigma": {
+        "BSM_definition": 0.14,
+        "SM_four_top_definition": 0.21
+      }
+    },
+    {
+      "region_name": "SR3b3l_L",
+      "search_family": "VLQ_4top",
+      "lepton_category": "3l",
+      "lepton_flavour_treatment": "inclusive",
+      "lepton_charge_requirement": "any",
+      "n_jets": {
+        "min": 5,
+        "max": "not_specified"
+      },
+      "n_btags": {
+        "min": 3,
+        "max": "not_specified"
+      },
+      "HT_GeV": {
+        "min": 500,
+        "max": 1000
+      },
+      "ETmiss_GeV": {
+        "min": 40,
+        "max": "not_specified"
+      },
+      "delta_phi_ll_radians": {
+        "min": "not_specified",
+        "max": "not_specified"
+      },
+      "optimization_target": [
+        "four-top"
+      ],
+      "observed_data_yield": 9,
+      "expected_total_background": {
+        "value": 4.2,
+        "stat_up": 0.4,
+        "stat_down": 0.2,
+        "syst_up": 0.7,
+        "syst_down": 0.7
+      },
+      "reported_significance_sigma": {
+        "BSM_definition": 1.8,
+        "SM_four_top_definition": 2.1
+      }
+    },
+    {
+      "region_name": "SR3b3l",
+      "search_family": "VLQ_4top",
+      "lepton_category": "3l",
+      "lepton_flavour_treatment": "inclusive",
+      "lepton_charge_requirement": "any",
+      "n_jets": {
+        "min": 3,
+        "max": "not_specified"
+      },
+      "n_btags": {
+        "min": 3,
+        "max": "not_specified"
+      },
+      "HT_GeV": {
+        "min": 1000,
+        "max": "not_specified"
+      },
+      "ETmiss_GeV": {
+        "min": 40,
+        "max": "not_specified"
+      },
+      "delta_phi_ll_radians": {
+        "min": "not_specified",
+        "max": "not_specified"
+      },
+      "optimization_target": [
+        "VLQ"
+      ],
+      "observed_data_yield": 3,
+      "expected_total_background": {
+        "value": 2.7,
+        "stat_up": 0.2,
+        "stat_down": 0.2,
+        "syst_up": 0.5,
+        "syst_down": 0.5
+      },
+      "reported_significance_sigma": {
+        "BSM_definition": 0.19,
+        "SM_four_top_definition": 0.6
+      }
+    },
+    {
+      "region_name": "SRttee",
+      "search_family": "same_sign_tt",
+      "paper_region_name": "SRttee",
+      "lepton_category": "exactly 2l",
+      "lepton_flavour_treatment": "ee",
+      "lepton_charge_requirement": "e+ e+",
+      "n_jets": {
+        "min": "not_specified",
+        "max": "not_specified"
+      },
+      "n_btags": {
+        "min": 1,
+        "max": "not_specified"
+      },
+      "HT_GeV": {
+        "min": 750,
+        "max": "not_specified"
+      },
+      "ETmiss_GeV": {
+        "min": 40,
+        "max": "not_specified"
+      },
+      "delta_phi_ll_radians": {
+        "min": 2.5,
+        "max": "not_specified"
+      },
+      "optimization_target": [
+        "same-sign top"
+      ],
+      "observed_data_yield": 9,
+      "expected_total_background": {
+        "value": 7.5,
+        "stat_up": 2.2,
+        "stat_down": 1.8,
+        "syst_up": 2.7,
+        "syst_down": 2.7
+      },
+      "reported_significance_sigma": {
+        "BSM_definition": 0.31
+      }
+    },
+    {
+      "region_name": "SRttemu",
+      "search_family": "same_sign_tt",
+      "paper_region_name": "SRtteμ",
+      "lepton_category": "exactly 2l",
+      "lepton_flavour_treatment": "e mu",
+      "lepton_charge_requirement": "e+ mu+",
+      "n_jets": {
+        "min": "not_specified",
+        "max": "not_specified"
+      },
+      "n_btags": {
+        "min": 1,
+        "max": "not_specified"
+      },
+      "HT_GeV": {
+        "min": 750,
+        "max": "not_specified"
+      },
+      "ETmiss_GeV": {
+        "min": 40,
+        "max": "not_specified"
+      },
+      "delta_phi_ll_radians": {
+        "min": 2.5,
+        "max": "not_specified"
+      },
+      "optimization_target": [
+        "same-sign top"
+      ],
+      "observed_data_yield": 13,
+      "expected_total_background": {
+        "value": 12.2,
+        "stat_up": 1.3,
+        "stat_down": 1.3,
+        "syst_up": 2.5,
+        "syst_down": 2.5
+      },
+      "reported_significance_sigma": {
+        "BSM_definition": 0.16
+      }
+    },
+    {
+      "region_name": "SRttmumu",
+      "search_family": "same_sign_tt",
+      "paper_region_name": "SRttμμ",
+      "lepton_category": "exactly 2l",
+      "lepton_flavour_treatment": "mu mu",
+      "lepton_charge_requirement": "mu+ mu+",
+      "n_jets": {
+        "min": "not_specified",
+        "max": "not_specified"
+      },
+      "n_btags": {
+        "min": 1,
+        "max": "not_specified"
+      },
+      "HT_GeV": {
+        "min": 750,
+        "max": "not_specified"
+      },
+      "ETmiss_GeV": {
+        "min": 40,
+        "max": "not_specified"
+      },
+      "delta_phi_ll_radians": {
+        "min": 2.5,
+        "max": "not_specified"
+      },
+      "optimization_target": [
+        "same-sign top"
+      ],
+      "observed_data_yield": 8,
+      "expected_total_background": {
+        "value": 4.2,
+        "stat_up": 0.6,
+        "stat_down": 0.6,
+        "syst_up": 0.7,
+        "syst_down": 0.7
+      },
+      "reported_significance_sigma": {
+        "BSM_definition": 1.44
+      }
+    }
+  ],
+  "control_regions": [
+    {
+      "region_id": "CR_electron_prompt_r",
+      "official_name": "not_specified",
+      "purpose": "measure prompt-electron efficiency r for the matrix method",
+      "region_type": "single-lepton control sample",
+      "selection": {
+        "event_type": "single-lepton",
+        "ETmiss_GeV": {
+          "min": 150,
+          "max": "not_specified"
+        }
+      },
+      "dominant_process": "W -> e nu"
+    },
+    {
+      "region_id": "CR_electron_fake_f",
+      "official_name": "not_specified",
+      "purpose": "measure fake/non-prompt-electron efficiency f for the matrix method",
+      "region_type": "single-lepton control sample",
+      "selection": {
+        "event_type": "single-lepton",
+        "mT_W_GeV": {
+          "min": "not_specified",
+          "max": 20
+        },
+        "ETmiss_plus_mT_W_GeV": {
+          "min": "not_specified",
+          "max": 60
+        }
+      },
+      "dominant_process": "multijet production including heavy flavour"
+    },
+    {
+      "region_id": "CR_muon_prompt_r",
+      "official_name": "not_specified",
+      "purpose": "measure prompt-muon efficiency r for the matrix method",
+      "region_type": "single-lepton control sample",
+      "selection": {
+        "event_type": "single-lepton",
+        "mT_W_GeV": {
+          "min": 100,
+          "max": "not_specified"
+        }
+      },
+      "dominant_process": "W -> mu nu"
+    },
+    {
+      "region_id": "CR_muon_fake_f",
+      "official_name": "not_specified",
+      "purpose": "measure fake/non-prompt-muon efficiency f for the matrix method",
+      "region_type": "single-lepton control sample",
+      "selection": {
+        "event_type": "single-lepton",
+        "muon_transverse_impact_parameter_significance": {
+          "min": 5,
+          "max": "not_specified"
+        }
+      },
+      "dominant_process": "heavy-flavour hadron decays"
+    },
+    {
+      "region_id": "CR_charge_misID_Zee",
+      "official_name": "not_specified",
+      "purpose": "measure electron charge-misidentification probabilities",
+      "region_type": "dielectron control sample",
+      "selection": {
+        "event_type": "dielectron",
+        "invariant_mass_requirement": "consistent with the Z boson"
+      },
+      "notes": "The fake/non-prompt electron contribution is subtracted with the matrix method before the likelihood fit."
+    },
+    {
+      "region_id": "AR_charge_misID_application",
+      "official_name": "not_specified",
+      "purpose": "apply charge-misidentification probabilities to estimate the charge-misID background yield",
+      "region_type": "opposite-charge application sample",
+      "selection": {
+        "event_type": [
+          "ee",
+          "e mu"
+        ],
+        "charge_requirement": "opposite charge",
+        "other_analysis_requirements": "all analysis criteria except the same-sign requirement"
+      }
+    }
+  ],
+  "fit_setup": [
+    {
+      "fit_id": "FIT_VLQ_4TOP",
+      "search_family": "VLQ_4top",
+      "statistical_strategy": "multi-region counting experiment",
+      "regions_combined": [
+        "SR1b2l",
+        "SR2b2l",
+        "SR3b2l_L",
+        "SR3b2l",
+        "SR1b3l",
+        "SR2b3l",
+        "SR3b3l_L",
+        "SR3b3l"
+      ],
+      "fit_observable": "event counts in the signal regions",
+      "shape_fit": false,
+      "simultaneous_across_regions": true,
+      "control_regions_in_likelihood": [],
+      "test_statistic": "Poisson likelihood ratio",
+      "signal_strength_parameter": "mu",
+      "limit_metric": "RCLs with 95% CL exclusion",
+      "asymptotic_approximation": true,
+      "nuisance_parameter_constraints": [
+        "Gaussian",
+        "log-normal"
+      ],
+      "nuisance_parameter_classes": [
+        {
+          "class": "cross-section and acceptance modeling",
+          "details": {
+            "ttW": "13%",
+            "ttZ": "12%",
+            "diboson": "6%",
+            "ttH": "+6/-9%",
+            "other_irreducible": "50% of nominal yield"
+          }
+        },
+        {
+          "class": "detector modeling",
+          "details": [
+            "b-tagging efficiency and mistagging",
+            "jet energy calibration",
+            "jet energy resolution",
+            "lepton identification efficiency",
+            "pile-up reweighting"
+          ]
+        },
+        {
+          "class": "integrated luminosity",
+          "details": "2.1%"
+        },
+        {
+          "class": "fake/non-prompt lepton background",
+          "details": "Control-sample definition, control-sample statistics, and prompt-subtraction normalization; dominant component typically around 40-50% of the fake/non-prompt yield in the signal regions."
+        },
+        {
+          "class": "charge mis-ID background",
+          "details": "About 20% of the expected charge-misID yield in the signal regions, plus an anti-correlated component from fake/non-prompt subtraction."
+        },
+        {
+          "class": "overall dominant uncertainty",
+          "details": "Statistical uncertainty"
+        }
+      ],
+      "special_treatment": "SM four-top production is removed from the background when the SM four-top signal is tested."
+    },
+    {
+      "fit_id": "FIT_SSTT",
+      "search_family": "same_sign_tt",
+      "statistical_strategy": "multi-region counting experiment",
+      "regions_combined": [
+        "SRttee",
+        "SRttemu",
+        "SRttmumu"
+      ],
+      "fit_observable": "event counts in the signal regions",
+      "shape_fit": false,
+      "simultaneous_across_regions": true,
+      "control_regions_in_likelihood": [],
+      "test_statistic": "Poisson likelihood ratio",
+      "signal_strength_parameter": "mu",
+      "limit_metric": "RCLs with 95% CL exclusion",
+      "asymptotic_approximation": true,
+      "nuisance_parameter_constraints": [
+        "Gaussian",
+        "log-normal"
+      ],
+      "nuisance_parameter_classes": [
+        {
+          "class": "cross-section and acceptance modeling",
+          "details": "Region-dependent; tabled under cross-section x acceptance"
+        },
+        {
+          "class": "detector modeling",
+          "details": [
+            "jet energy scale",
+            "jet energy resolution",
+            "b-tagging efficiency",
+            "lepton identification efficiency",
+            "pile-up reweighting"
+          ]
+        },
+        {
+          "class": "integrated luminosity",
+          "details": "2.1%"
+        },
+        {
+          "class": "fake/non-prompt lepton background",
+          "details": "Dominant in SRttee and SRttemu"
+        },
+        {
+          "class": "charge mis-ID background",
+          "details": "Relevant in SRttee and SRttemu; not relevant in SRttmumu"
+        },
+        {
+          "class": "overall dominant uncertainty",
+          "details": "Statistical uncertainty"
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "result_id": "RES_GLOBAL",
+      "result_type": "global_outcome",
+      "observed_excess": false,
+      "statement": "No statistically significant excess over the expected background is found.",
+      "notable_counting_excesses": [
+        {
+          "region_name": "SR3b2l_L",
+          "reported_excess_sigma": 1.7
+        },
+        {
+          "region_name": "SR3b3l_L",
+          "reported_excess_sigma": 1.8
+        }
+      ],
+      "combined_significance_highlights": {
+        "SM_four_top_observed_sigma": 3.0,
+        "SM_four_top_expected_sigma": 0.9,
+        "largest_BSM_model_significance_sigma": 2.3,
+        "largest_BSM_model": "2HDM"
+      }
+    },
+    {
+      "result_id": "RES_VLQ_B_SINGLET",
+      "result_type": "95CL_mass_limit",
+      "target": "vector-like B quark singlet",
+      "observed_lower_mass_limit_TeV": 1.0,
+      "expected_lower_mass_limit_TeV": 1.01
+    },
+    {
+      "result_id": "RES_VLQ_T_SINGLET",
+      "result_type": "95CL_mass_limit",
+      "target": "vector-like T quark singlet",
+      "observed_lower_mass_limit_TeV": 0.98,
+      "expected_lower_mass_limit_TeV": 0.99
+    },
+    {
+      "result_id": "RES_VLQ_BR_SCAN",
+      "result_type": "branching_ratio_dependent_mass_limits",
+      "target": "vector-like B and T quarks",
+      "reported_format": "95% CL lower-mass-limit contours in branching-ratio planes",
+      "exact_numeric_boundary": "not_specified"
+    },
+    {
+      "result_id": "RES_T53_PAIR",
+      "result_type": "95CL_mass_limit",
+      "target": "vector-like T5/3 quark pair production",
+      "observed_lower_mass_limit_TeV": 1.19,
+      "expected_lower_mass_limit_TeV": 1.21
+    },
+    {
+      "result_id": "RES_T53_PAIR_PLUS_SINGLE",
+      "result_type": "95CL_mass_limit",
+      "target": "vector-like T5/3 quark pair plus single production",
+      "assumption": "T5/3 t W coupling = 1.0",
+      "observed_lower_mass_limit_TeV": 1.6,
+      "expected_lower_mass_limit_TeV": 1.7
+    },
+    {
+      "result_id": "RES_4TOP_SM",
+      "result_type": "95CL_cross_section_upper_limit",
+      "target": "SM four-top-quark production",
+      "observed_upper_limit_fb": 69.2,
+      "expected_upper_limit_fb": 29.0
+    },
+    {
+      "result_id": "RES_4TOP_CI",
+      "result_type": "95CL_cross_section_and_parameter_limit",
+      "target": "four-top-quark production in the contact-interaction benchmark",
+      "observed_cross_section_upper_limit_fb": 38.6,
+      "expected_cross_section_upper_limit_fb": 20.8,
+      "observed_upper_limit_abs_C4t_over_Lambda2_TeV_minus2": 2.6,
+      "expected_upper_limit_abs_C4t_over_Lambda2_TeV_minus2": 1.9
+    },
+    {
+      "result_id": "RES_4TOP_2UED",
+      "result_type": "95CL_parameter_limit",
+      "target": "2UED/RPP four-top-quark benchmark",
+      "parameter": "mKK",
+      "observed_lower_limit_TeV": 1.45,
+      "expected_lower_limit_TeV": 1.48
+    },
+    {
+      "result_id": "RES_4TOP_2HDM",
+      "result_type": "95CL_parameter_contours",
+      "target": "type-II 2HDM four-top-quark benchmark",
+      "reported_planes": [
+        "(mH, tan(beta)) for heavy scalar only",
+        "(mH/A, tan(beta)) for degenerate heavy scalar and pseudo-scalar"
+      ],
+      "exact_numeric_boundary": "not_specified"
+    },
+    {
+      "result_id": "RES_SSTT_GENERIC",
+      "result_type": "95CL_cross_section_upper_limit",
+      "target": "generic uu -> tt production",
+      "assumption": "mediator mass mV = 1 TeV",
+      "observed_upper_limit_fb": 89.0,
+      "expected_upper_limit_fb": 59.0
+    },
+    {
+      "result_id": "RES_SSTT_MODEL_3TEV",
+      "result_type": "95CL_coupling_limit",
+      "target": "FCNC dark-matter mediator model",
+      "assumptions": {
+        "mV_TeV": 3.0,
+        "gDM": 1.0
+      },
+      "observed_upper_limit_gSM": 0.31,
+      "expected_upper_limit_gSM": 0.28
+    },
+    {
+      "result_id": "RES_SSTT_MODEL_1TEV",
+      "result_type": "95CL_coupling_limit",
+      "target": "FCNC dark-matter mediator model",
+      "assumptions": {
+        "mV_TeV": 1.0,
+        "gDM": 1.0
+      },
+      "observed_upper_limit_gSM": 0.14,
+      "expected_upper_limit_gSM": 0.13
+    },
+    {
+      "result_id": "RES_SSTT_SUBPROCESS_CURVES",
+      "result_type": "95CL_cross_section_limit_curves",
+      "target": "same-sign top-quark pair production subprocesses",
+      "subprocesses": [
+        "prompt tt production",
+        "on-shell mediator production",
+        "off-shell mediator production"
+      ],
+      "reported_as_function_of": "mV",
+      "exact_numeric_points": "not_specified"
+    }
+  ],
+  "analysis_design_insights": [
+    {
+      "insight_id": "INSIGHT_REGION_GRID",
+      "statement": "For the VLQ and four-top searches, the preselected sample is first split by lepton multiplicity (2l or 3l) and b-tag multiplicity (1, 2, or >=3), and then by HT and ETmiss requirements."
+    },
+    {
+      "insight_id": "INSIGHT_VLQ_VS_4TOP_SPLIT",
+      "statement": "Signal regions with at least three b-tagged jets are further split: relaxed HT plus high jet multiplicity is used for four-top sensitivity, while high HT plus lower jet multiplicity enhances VLQ sensitivity."
+    },
+    {
+      "insight_id": "INSIGHT_FLAVOUR_HANDLING",
+      "statement": "VLQ/four-top regions use inclusive lepton flavours to increase the statistics of the loosely selected samples used for reducible-background estimation, whereas the same-sign top search splits ee, e mu, and mu mu because the looser optimized selection provides enough statistics."
+    },
+    {
+      "insight_id": "INSIGHT_SSTT_CHARGE_SELECTION",
+      "statement": "The same-sign top search uses exactly two positive leptons, HT > 750 GeV, ETmiss > 40 GeV, at least one b-tagged jet, and |delta phi_ll| > 2.5."
+    },
+    {
+      "insight_id": "INSIGHT_BACKGROUND_MODEL",
+      "statement": "The background model combines simulated irreducible processes with data-driven estimates for fake/non-prompt leptons and electron charge misidentification."
+    },
+    {
+      "insight_id": "INSIGHT_VALIDATION",
+      "statement": "Validation regions kinematically close to the signal regions are defined to test the background model; the smallest reported validation-region p-value is 0.10."
+    }
+  ],
+  "retrieval_features": {
+    "analysis_family": [
+      "BSM search",
+      "same-sign dilepton",
+      "trilepton",
+      "b-jets",
+      "multitop",
+      "vector-like quarks",
+      "same-sign top"
+    ],
+    "common_objects": [
+      "electrons",
+      "muons",
+      "jets",
+      "b-tagged jets",
+      "missing transverse momentum"
+    ],
+    "object_baseline": {
+      "electrons": {
+        "pt_min_GeV": 28,
+        "eta_requirement": "|eta| < 2.47 excluding 1.37 < |eta| < 1.52",
+        "extra_requirement_for_ee_and_emu": "electrons with |eta| > 1.37 are not considered"
+      },
+      "muons": {
+        "pt_min_GeV": 28,
+        "eta_requirement": "|eta| < 2.5"
+      },
+      "jets": {
+        "pt_min_GeV": 25,
+        "eta_requirement": "|eta| < 2.5"
+      },
+      "b_tagging": {
+        "working_point": "77% efficiency"
+      }
+    },
+    "event_preselection": {
+      "common": {
+        "min_jets": 1,
+        "min_nominal_leptons": 2
+      },
+      "same_charge_lepton_category": {
+        "definition": "If exactly two of the three highest-pT leptons satisfy the nominal criteria, they must have the same electric charge.",
+        "ee_mass_veto": {
+          "mee_GeV_min": 15,
+          "Z_window_veto_GeV": 10
+        }
+      },
+      "trilepton_category": {
+        "definition": "If the three highest-pT leptons satisfy the nominal criteria, no requirement is imposed on charge or pair invariant mass."
+      },
+      "same_sign_top_specific": {
+        "exact_lepton_requirement": "exactly two positively charged leptons"
+      }
+    },
+    "region_axes": [
+      "lepton multiplicity category",
+      "lepton flavour",
+      "lepton charge",
+      "jet multiplicity",
+      "b-tag multiplicity",
+      "HT",
+      "ETmiss",
+      "|delta phi_ll|"
+    ],
+    "region_counts": {
+      "signal_regions_total": 11,
+      "signal_regions_VLQ_4top": 8,
+      "signal_regions_same_sign_tt": 3,
+      "validation_regions_total": 7,
+      "background_control_region_types": 6
+    },
+    "validation_regions": [
+      {
+        "region_name": "VR1b2l",
+        "search_family": "VLQ_4top",
+        "n_jets": {
+          "min": 1,
+          "max": "not_specified"
+        },
+        "n_btags": {
+          "min": 1,
+          "max": 1
+        },
+        "lepton_category": "2l",
+        "lepton_charge_requirement": "same charge (++ or --)",
+        "selection": "400 < HT < 2400 GeV or ETmiss < 40 GeV"
+      },
+      {
+        "region_name": "VR2b2l",
+        "search_family": "VLQ_4top",
+        "n_jets": {
+          "min": 2,
+          "max": "not_specified"
+        },
+        "n_btags": {
+          "min": 2,
+          "max": 2
+        },
+        "lepton_category": "2l",
+        "lepton_charge_requirement": "same charge (++ or --)",
+        "selection": "HT > 400 GeV"
+      },
+      {
+        "region_name": "VR3b2l",
+        "search_family": "VLQ_4top",
+        "n_jets": {
+          "min": 3,
+          "max": "not_specified"
+        },
+        "n_btags": {
+          "min": 3,
+          "max": "not_specified"
+        },
+        "lepton_category": "2l",
+        "lepton_charge_requirement": "same charge (++ or --)",
+        "selection": "400 < HT < 1400 GeV or ETmiss < 40 GeV"
+      },
+      {
+        "region_name": "VR1b3l",
+        "search_family": "VLQ_4top",
+        "n_jets": {
+          "min": 1,
+          "max": "not_specified"
+        },
+        "n_btags": {
+          "min": 1,
+          "max": 1
+        },
+        "lepton_category": "3l",
+        "lepton_charge_requirement": "any",
+        "selection": "400 < HT < 2000 GeV or ETmiss < 40 GeV"
+      },
+      {
+        "region_name": "VR2b3l",
+        "search_family": "VLQ_4top",
+        "n_jets": {
+          "min": 2,
+          "max": "not_specified"
+        },
+        "n_btags": {
+          "min": 2,
+          "max": 2
+        },
+        "lepton_category": "3l",
+        "lepton_charge_requirement": "any",
+        "selection": "400 < HT < 2400 GeV or ETmiss < 40 GeV"
+      },
+      {
+        "region_name": "VR3b3l",
+        "search_family": "VLQ_4top",
+        "n_jets": {
+          "min": 3,
+          "max": "not_specified"
+        },
+        "n_btags": {
+          "min": 3,
+          "max": "not_specified"
+        },
+        "lepton_category": "3l",
+        "lepton_charge_requirement": "any",
+        "selection": "HT > 400 GeV"
+      },
+      {
+        "region_name": "VRtt",
+        "search_family": "same_sign_tt",
+        "n_btags": {
+          "min": 1,
+          "max": "not_specified"
+        },
+        "lepton_category": "exactly 2l",
+        "lepton_flavour_treatment": "inclusive",
+        "lepton_charge_requirement": "e- e- or e- mu- or mu- mu-",
+        "selection": "HT > 750 GeV, ETmiss > 40 GeV, |delta phi_ll| > 2.5"
+      }
+    ],
+    "validation_region_rule": "Events that appear in any signal region are vetoed in the validation regions.",
+    "background_estimation_tags": [
+      "MC-modeled irreducible backgrounds",
+      "matrix method for fake/non-prompt leptons",
+      "electron charge-misID estimate from Z->ee"
+    ],
+    "statistical_method_tags": [
+      "multi-region counting experiment",
+      "Poisson likelihood ratio",
+      "CLs-style exclusion",
+      "asymptotic approximation"
+    ],
+    "sensitivity_drivers": [
+      "high HT",
+      "ETmiss requirements",
+      "b-tag multiplicity categories",
+      "jet multiplicity split in >=3 b-tag regions",
+      "same-sign dilepton and trilepton final states",
+      "positive-charge requirement for same-sign top",
+      "large azimuthal separation between leptons in same-sign top search"
+    ],
+    "signal_target_tags": [
+      "vector-like B quark",
+      "vector-like T quark",
+      "vector-like T5/3 quark",
+      "SM four-top",
+      "four-top EFT contact interaction",
+      "2UED/RPP",
+      "2HDM",
+      "same-sign top via FCNC mediator"
+    ],
+    "fit_observable": "event counts per signal region",
+    "shape_information_used_in_limit_setting": false,
+    "lepton_flavour_strategy": {
+      "VLQ_4top": "inclusive",
+      "same_sign_tt": "split into ee, e mu, and mu mu"
+    }
+  }
+}
