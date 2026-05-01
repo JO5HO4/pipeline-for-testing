@@ -22,8 +22,8 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - The first audit for a stage is cycle 1; increment the cycle before each fresh audit after repair.
 - If retry limit is hit, mark the stage blocked, degraded, or needs_revisit and record consequences before continuing.
 - For paper-reproduction or JSON-spec-driven analyses, the workflow must include these hard gates before any final report can be approved:
-  DATA_PROVENANCE -> SPEC_FEASIBILITY -> IMPLEMENTATION_DESIGN -> EXECUTE -> NUMERICAL_SANITY -> CLAIM_REVIEW -> FINALIZE.
-- The coordinator may split EXECUTE into domain-specific stages, but it must not skip DATA_PROVENANCE, SPEC_FEASIBILITY, CLAIM_REVIEW, or FINALIZE when final physics claims are requested.
+  DATA_PROVENANCE -> SPEC_FEASIBILITY -> IMPLEMENTATION_DESIGN -> EXECUTE -> NUMERICAL_SANITY -> CLAIM_REVIEW -> FINALIZE -> FINAL_INDEPENDENT_REVIEW.
+- The coordinator may split EXECUTE into domain-specific stages, but it must not skip DATA_PROVENANCE, SPEC_FEASIBILITY, CLAIM_REVIEW, FINALIZE, or FINAL_INDEPENDENT_REVIEW when final physics claims are requested.
 
 ## Claim Discipline
 - Treat the analysis JSON or paper summary as the faithful reference specification; do not edit it to describe open-data substitutions.
@@ -56,13 +56,14 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - Decide the next stage, required outputs, and required diagnostic plots.
 - If the task does not define stages, infer a reasonable staged decomposition first.
 - For paper-reproduction or JSON-spec-driven analyses, place DATA_PROVENANCE and SPEC_FEASIBILITY before implementation and FINALIZE after claim review.
+- Assign a stable agent_tag for the coordinator's local work or for each delegated worker/reviewer planned for this stage.
 - Classify the next stage as routine or critical_analysis before execution.
 - Treat environment setup, file preparation, dependency checks, and other straightforward tasks as routine unless they materially affect analysis conclusions.
 - Treat stages that materially affect physics conclusions, fit behavior, uncertainty treatment, or progression safety as critical_analysis.
 - Log that inferred plan as the first decision entry in agent_timeline.jsonl.
 - Include a brief rationale for the decomposition so later failures can be traced to stage-planning choices.
 - Write handoff/<stage>/local_brief.txt before routine local execution.
-- The local brief must include: stage, exact task, required input files, required output paths, local audit criteria.
+- The local brief must include: role, agent_tag, stage, exact task, required input files, required output paths, local audit criteria.
 - Write the required worker brief before spawning a worker for a critical_analysis stage.
 - For critical_analysis stages, write handoff/<stage>/reviewer_brief_draft.txt during PLAN only when preliminary reviewer scope is useful.
 - Log a decision entry in agent_timeline.jsonl.
@@ -71,6 +72,7 @@ Used by the coordinator when advancing any stage through planning, execution, au
 ## EXECUTE
 - For routine stages, the coordinator executes locally from handoff/<stage>/local_brief.txt and produces the required outputs, plots, and concise notes.
 - For critical_analysis stages, spawn one worker for the current stage.
+- Include the assigned worker agent_tag in the spawn prompt and immediately record the spawned agent_id and tag in codex_sessions.json.
 - A delegated worker must produce stage outputs, diagnostic plots, and concise notes on assumptions and risks.
 - For critical_analysis stages, finalize handoff/<stage>/reviewer_brief.txt after execution with actual outputs, plots, numerical summaries, and worker risk notes.
 - Log local_execute for routine stages or spawn and complete for delegated stages; the coordinator writes all agent_timeline.jsonl entries.
@@ -78,6 +80,7 @@ Used by the coordinator when advancing any stage through planning, execution, au
 ## AUDIT
 - For routine stages, perform a concise local self-check, save findings to reviews/<stage>/review_<cycle>.json using the shared audit schema with audit_mode local_self_check, and log local_audit.
 - For critical_analysis stages, spawn a separate reviewer for the same stage.
+- Include the assigned reviewer agent_tag in the spawn prompt and immediately record the spawned agent_id and tag in codex_sessions.json.
 - Use a vision-capable reviewer whenever plots/images exist.
 - Reviewer must inspect requested plots visually and check numerical outputs.
 - Reviewer saves findings to reviews/<stage>/review_<cycle>.json using the shared audit schema with audit_mode independent_review.
@@ -107,6 +110,7 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - If observed data are unavailable or are actually MC-like files, observed discovery or limit claims must be blocked or explicitly labeled pseudo-observed diagnostic results.
 - If a statistic uses clipped, floored, or nonnegative-stabilized signed MC yields, classify that statistic as diagnostic_proxy or blocked and explain the raw signed yields and stabilization rule.
 - For mutually exclusive regions or categories, verify a mask sanity artifact that records event counts and overlap checks; identical yields across supposedly distinct regions require repair or a blocked result.
+- Create artifacts/claim_review/report_number_trace.json mapping every numerical value or final claim printed in the report to its source artifact, source JSON path or table row, claim classification, and allowed_in_final_report boolean.
 
 ## FINALIZE Gate
 - Before writing or approving a final report, create artifacts/finalize/finalization_gate.json.
@@ -124,6 +128,19 @@ Used by the coordinator when advancing any stage through planning, execution, au
   - the background model, signal model, or observed-data source is invalid for the printed claim.
 - If the gate fails, write a blocked or diagnostic report instead of a paper-like final result, and record the failed checks in analysis_state.json and agent_timeline.jsonl.
 
+## FINAL_INDEPENDENT_REVIEW Gate
+- After FINALIZE, spawn a fresh independent reviewer whose only task is to critically review the whole analysis end to end.
+- The final independent reviewer must not be the coordinator, any implementation worker, or any reviewer whose earlier approval is being relied on for the final claim.
+- Use an adversarial brief: the reviewer is trying to find reasons the analysis should not be trusted, not summarizing successful execution.
+- Required final-review inputs include the prompt, analysis_state.json, codex_sessions.json, artifacts/data_provenance/data_provenance.json, artifacts/spec_feasibility/reference_feasibility_matrix.json, artifacts/claim_review/claim_classification.json, artifacts/claim_review/report_number_trace.json, artifacts/finalize/finalization_gate.json, the production run manifest, sample registry, yields, statistics, plot manifest, selected plots, reproducibility commands, and final report.
+- The final reviewer must verify that every headline result and every numerical report claim traces through artifacts/claim_review/report_number_trace.json to a machine-readable source artifact.
+- The final reviewer must inspect selected plots visually when plots exist and check that report wording matches the weakest valid claim classification.
+- The final reviewer must write reviews/final_independent_review/review_<cycle>.json using the final-review schema from multiagent-hep-reviewing-stage-outputs.
+- Final handoff is allowed only when the final independent review has no PROBLEM findings and handoff_allowed is true.
+- If the final review finds any PROBLEM, do not hand off. Mark the relevant upstream stage needs_revisit, spawn a repair worker or repair locally as appropriate, rerun the affected stage and all downstream gates from CLAIM_REVIEW onward, then rerun FINAL_INDEPENDENT_REVIEW with a fresh cycle.
+- If the final review finds any WARNING that changes a physics number, region definition, sample role, data provenance decision, claim classification, final report wording, or handoff scope, repair or explicitly degrade the affected claim, rerun CLAIM_REVIEW and FINALIZE, then rerun FINAL_INDEPENDENT_REVIEW.
+- If the final review finds only documented limitations that do not change claim scope, the coordinator may proceed as degraded only if the review explicitly sets handoff_allowed true and records the allowed claim scope.
+
 ## Upstream Revisit Rule
 - If the required audit finds that the root cause is in an earlier stage, do not continue forward.
 - Log a decision naming the upstream stage that must be revisited.
@@ -133,6 +150,7 @@ Used by the coordinator when advancing any stage through planning, execution, au
 ## Routine Local Brief Template
 ```text
 stage: <stage>
+agent_tag: <tag assigned by coordinator>
 exact task: <stage goal and specific artifacts to produce>
 required input files:
 - <path>

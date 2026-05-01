@@ -24,9 +24,11 @@ Used by a worker when executing or repairing one delegated critical_analysis sta
 - Worker must read analysis_state.json and latest relevant review files first.
 - Worker must read artifacts/data_provenance/data_provenance.json when it exists and must not produce observed paper-level claims outside the allowed observed-data scope recorded there.
 - Worker must read artifacts/spec_feasibility/reference_feasibility_matrix.json when it exists and must keep outputs within the allowed claim scope recorded there.
+- Repair workers must read the latest reviews/final_independent_review/review_<cycle>.json when the repair follows final independent review findings.
 - Worker writes only required outputs for the stage.
 - Worker must produce requested plots for review.
 - Worker must leave concise machine-readable notes.
+- Worker must preserve the assigned agent_tag in notes and output metadata where practical.
 - Worker must not append to agent_timeline.jsonl; the coordinator summarizes worker notes there.
 - Worker must not declare stage approval.
 - Worker must not turn substituted proxy ingredients into paper-level claims.
@@ -40,6 +42,7 @@ Used by a worker when executing or repairing one delegated critical_analysis sta
 ## Worker Brief Template
 ```text
 role: worker
+agent_tag: <tag assigned by coordinator>
 stage: <stage>
 exact task: <stage goal, specific artifacts to produce, and any upstream findings from analysis_state.json that constrain this stage’s decisions>
 required input files:
