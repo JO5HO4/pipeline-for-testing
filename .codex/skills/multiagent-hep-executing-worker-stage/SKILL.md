@@ -24,7 +24,7 @@ Used by a worker when executing or repairing one delegated critical_analysis sta
 - Worker must read analysis_state.json and latest relevant review files first.
 - Worker must read artifacts/data_provenance/data_provenance.json when it exists and must not produce observed paper-level claims outside the allowed observed-data scope recorded there.
 - Worker must read artifacts/spec_feasibility/reference_feasibility_matrix.json when it exists and must keep outputs within the allowed claim scope recorded there.
-- Worker must update or preserve outputs/evaluation_scorecard.json when the assigned stage changes run completeness, gate status, artifact paths, or claim scope.
+- Worker must update or preserve outputs/evaluation_scorecard.json and outputs/test_outcome_summary.json when the assigned stage changes run completeness, sample accounting, gate status, artifact paths, or claim scope.
 - Repair workers must read the latest reviews/final_artifact_review/review_<cycle>.json or reviews/final_claim_review/review_<cycle>.json when the repair follows final review findings.
 - Worker writes only required outputs for the stage.
 - Worker must produce requested plots for review.

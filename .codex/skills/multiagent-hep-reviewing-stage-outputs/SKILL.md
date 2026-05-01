@@ -35,7 +35,7 @@ Used when a stage audit must be recorded; reviewer agents load it for critical_a
 - The final artifact reviewer is an adversarial whole-analysis auditor focused on artifact integrity and reproducibility.
 - The final artifact reviewer must not implement repairs or edit analysis outputs.
 - Treat successful code execution as insufficient evidence for handoff.
-- Review the prompt, state, session registry, outputs/evaluation_scorecard.json, provenance, feasibility, execution, numerical outputs, plots, claim classification, finalization gate, report number trace, final report, and reproducibility command together.
+- Review the prompt, state, session registry, outputs/evaluation_scorecard.json, outputs/test_outcome_summary.json, provenance, feasibility, execution, numerical outputs, plots, claim classification, finalization gate, report number trace, final report, and reproducibility command together.
 - Veto progression to final claim review if required artifacts are missing, stale, contradictory, non-reproducible, incomplete, or sourced from smoke, capped, partial, or still-running production.
 - If a problem is found, name the upstream stage that must be redone and specify the minimal required repair.
 
@@ -64,6 +64,7 @@ Used when a stage audit must be recorded; reviewer agents load it for critical_a
 Record severity PROBLEM and set can_proceed false when any of these apply to the audited stage or downstream claim:
 - A partial, smoke, capped, or incomplete run is being treated as production or final.
 - A run reports final physics results without clear processed/all sample counts and no event-cap evidence.
+- The scorecard sample_scope is missing, ambiguous, contradicted by the sample registry/progress/run manifest, or omits exclusion reasons for unprocessed samples.
 - A data provenance artifact is missing, inconclusive, or not independently reviewed before observed results are computed or reported.
 - A paper-level claim is made from a substituted proxy implementation without an approved feasibility matrix and claim classification.
 - Observed significance, limits, mass limits, or exclusions are reported when observed data are unavailable, are MC-like pseudo-data, or were used before the expected workflow was fixed.
@@ -74,6 +75,9 @@ Record severity PROBLEM and set can_proceed false when any of these apply to the
 - A result lacks one of these claim classifications: reproduction, reinterpretation, diagnostic_proxy, blocked.
 - The final report source cannot be traced to a completed full-statistics production run.
 - outputs/evaluation_scorecard.json is missing, stale, contradicted by source artifacts, or says handoff is blocked while the report claims final handoff.
+- outputs/evaluation_scorecard.json uses artifact paths that are not repo-root-relative, or the listed paths do not resolve.
+- outputs/test_outcome_summary.json is missing, contradicts outputs/evaluation_scorecard.json, or contradicts the final report tone.
+- A baseline-style `not_applicable` final review gate is used in a multiagent run, or a final review gate is marked pass without a real review artifact.
 - The report number trace is missing, incomplete, or contradicted by the source artifacts.
 - A required final artifact review or final claim review is missing, or either was performed by the same agent that implemented or approved the affected final claim.
 
@@ -132,7 +136,7 @@ Record severity PROBLEM and set can_proceed false when any of these apply to the
 },
 "artifact_checks": [
     {
-    "check": "scorecard|production_run|data_provenance|feasibility|claim_classification|number_trace|plots|reproducibility|final_report",
+    "check": "scorecard|test_outcome_summary|sample_scope|artifact_paths|production_run|data_provenance|feasibility|claim_classification|number_trace|plots|reproducibility|final_report",
     "source_artifact": "<path or missing>",
     "status": "PASS|WARNING|PROBLEM",
     "issue": "<empty or concise issue>"
@@ -142,7 +146,7 @@ Record severity PROBLEM and set can_proceed false when any of these apply to the
     {
     "id": "V1",
     "severity": "PROBLEM",
-    "category": "scorecard|data_provenance|partial_run|statistics|report_trace|plot|reproducibility|artifact|other",
+    "category": "scorecard|test_outcome_summary|sample_scope|artifact_paths|data_provenance|partial_run|statistics|report_trace|plot|reproducibility|artifact|other",
     "artifact": "<path or logical name>",
     "issue": "<concise statement>",
     "evidence": "<specific evidence>",
@@ -200,7 +204,7 @@ Record severity PROBLEM and set can_proceed false when any of these apply to the
     {
     "id": "V1",
     "severity": "PROBLEM",
-    "category": "claim|data_provenance|partial_run|statistics|report_trace|plot|reproducibility|scorecard|other",
+    "category": "claim|data_provenance|partial_run|statistics|report_trace|plot|reproducibility|scorecard|test_outcome_summary|other",
     "artifact": "<path or logical name>",
     "issue": "<concise statement>",
     "evidence": "<specific evidence>",
@@ -227,7 +231,9 @@ Record severity PROBLEM and set can_proceed false when any of these apply to the
 - A WARNING that changes a physics number, region definition, sample role, data provenance decision, or claim scope must trigger repair unless the coordinator explicitly degrades the affected claim classification.
 - A reviewer may approve diagnostic output while blocking paper-level claims; in that case can_proceed may be true only if the coordinator records the affected results as diagnostic_proxy or blocked.
 - FINAL_ARTIFACT_REVIEW passes only when status is PASS or CONDITIONAL_PASS and veto_findings is empty.
-- FINAL_CLAIM_REVIEW passes only when status is PASS or CONDITIONAL_PASS, handoff_allowed is true, veto_findings is empty, and outputs/evaluation_scorecard.json also records handoff_allowed true.
+- FINAL_ARTIFACT_REVIEW must fail if scorecard sample counts do not agree with the sample registry, progress artifact, and production manifest, or if scorecard artifact paths are not repo-root-relative and resolvable.
+- FINAL_CLAIM_REVIEW passes only when status is PASS or CONDITIONAL_PASS, handoff_allowed is true, veto_findings is empty, and outputs/evaluation_scorecard.json plus outputs/test_outcome_summary.json also record handoff_allowed true with matching claim scope.
+- FINAL_CLAIM_REVIEW must fail if the report tone is stronger than outputs/test_outcome_summary.json final_status allows.
 - Any final-review PROBLEM requires repair and fresh FINAL_ARTIFACT_REVIEW and FINAL_CLAIM_REVIEW cycles after the affected stage and downstream gates are rerun.
 - Any final-review WARNING that changes a physics number, region definition, sample role, data provenance decision, claim classification, report wording, or handoff scope requires repair or explicit claim degradation before handoff.
 
@@ -265,6 +271,7 @@ required input files:
 - analysis_state.json
 - codex_sessions.json
 - outputs/evaluation_scorecard.json
+- outputs/test_outcome_summary.json
 - artifacts/data_provenance/data_provenance.json
 - artifacts/spec_feasibility/reference_feasibility_matrix.json
 - artifacts/claim_review/claim_classification.json
@@ -272,6 +279,7 @@ required input files:
 - artifacts/finalize/finalization_gate.json
 - <production run manifest>
 - <sample registry>
+- <sample exclusion reasons>
 - <yields and statistics artifacts>
 - <plot manifest and selected plots>
 - <final report>
@@ -281,9 +289,11 @@ required output paths:
 acceptance criteria:
 - use audit_mode: final_artifact_review
 - verify outputs/evaluation_scorecard.json against source artifacts
+- verify outputs/test_outcome_summary.json agrees with outputs/evaluation_scorecard.json and the final report
+- verify every scorecard artifact path is repo-root-relative and resolves
 - verify every reported final number appears in report_number_trace.json
 - inspect selected plots visually when present
-- verify processed/all sample counts and event-cap status
+- verify processed/all sample counts, registered-vs-usable sample scope, excluded-sample reasons, and event-cap status against the registry, progress artifact, and production manifest
 - verify data provenance, feasibility, claim classification, finalization gate, production manifest, and reproducibility evidence agree
 - set handoff_allowed false and name rerun_required_from_stage if repair is needed
 ```
@@ -298,6 +308,7 @@ required input files:
 - prompt.txt
 - analysis_state.json
 - outputs/evaluation_scorecard.json
+- outputs/test_outcome_summary.json
 - reviews/final_artifact_review/review_<cycle>.json
 - artifacts/data_provenance/data_provenance.json
 - artifacts/spec_feasibility/reference_feasibility_matrix.json
@@ -312,7 +323,8 @@ acceptance criteria:
 - use audit_mode: final_claim_review
 - verify every headline claim and reported number against report_number_trace.json and source artifacts
 - verify report tone matches the weakest allowed claim classification
+- verify report tone matches outputs/test_outcome_summary.json final_status, including blocked or diagnostic-only status
 - inspect selected plots visually when present and check captions/conclusions
-- verify outputs/evaluation_scorecard.json agrees with the allowed handoff scope
+- verify outputs/evaluation_scorecard.json and outputs/test_outcome_summary.json agree with the allowed handoff scope
 - set handoff_allowed false and name rerun_required_from_stage if repair is needed
 ```
