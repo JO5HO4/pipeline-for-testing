@@ -23,6 +23,7 @@ This is the entrypoint skill for the multiagent HEP package. Use it when the coo
 - Keep environment setup, file preparation, dependency checks, and other straightforward tasks local unless there is a clear benefit to delegation.
 - Assign yourself a stable agent_tag at workflow start and use it in state, timeline, and session records.
 - Start by creating or updating analysis_state.json and codex_sessions.json.
+- For paper-reproduction or JSON-spec-driven analyses, start with DATA_PROVENANCE and SPEC_FEASIBILITY gates before implementation so the workflow records whether observed claims are allowed and what paper claims are supportable with the available open data.
 - Then run stage 1 through the full loop.
 - Continue until the workflow goal is met or a blocked stage prevents safe continuation.
 - Final coordinator response must be concise and point to persistent files, including codex_sessions.json, rather than reproducing their contents.
@@ -56,6 +57,12 @@ This is the entrypoint skill for the multiagent HEP package. Use it when the coo
 - Save a persistent audit file for every stage, including routine local stages.
 - Do not use sub-agents for mechanical work that the coordinator can complete directly.
 - If reviewer is inconclusive, treat as at least WARNING; if progression risk is material, treat as PROBLEM.
+- Keep the reference analysis JSON as the paper-spec source of truth. Document substitutions in feasibility, mapping, and report artifacts rather than rewriting the reference into an easier target.
+- Do not approve final physics claims unless they pass DATA_PROVENANCE, SPEC_FEASIBILITY, CLAIM_REVIEW, and FINALIZE gates.
+- If DATA_PROVENANCE does not validate real observed collision data, observed paper-level claims are blocked and any pseudo-observed outputs must be diagnostic_proxy.
+- If the available samples support only a proxy, reinterpretation, or diagnostic study, the coordinator must label the claim accordingly and block paper-level wording.
+- Repair or explicitly degrade any reviewer WARNING that affects a physics number, region definition, sample role, data provenance decision, or claim scope.
+- Never promote smoke, capped, or partial-statistics outputs to final production outputs unless the user explicitly requested a partial-only result and the report label makes that scope unambiguous.
 
 ## Coordinator Never Does
 - Never launch a worker sub-agent for environment setup or other straightforward tasks without a clear need.

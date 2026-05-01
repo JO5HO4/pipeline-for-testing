@@ -22,12 +22,16 @@ Used by a worker when executing or repairing one delegated critical_analysis sta
 - Worker is used only for a delegated critical_analysis stage or repair.
 - Worker executes only the assigned stage.
 - Worker must read analysis_state.json and latest relevant review files first.
+- Worker must read artifacts/data_provenance/data_provenance.json when it exists and must not produce observed paper-level claims outside the allowed observed-data scope recorded there.
+- Worker must read artifacts/spec_feasibility/reference_feasibility_matrix.json when it exists and must keep outputs within the allowed claim scope recorded there.
 - Worker writes only required outputs for the stage.
 - Worker must produce requested plots for review.
 - Worker must leave concise machine-readable notes.
 - Worker must preserve the assigned agent_tag in notes and output metadata where practical.
 - Worker must not append to agent_timeline.jsonl; the coordinator summarizes worker notes there.
 - Worker must not declare stage approval.
+- Worker must not turn substituted proxy ingredients into paper-level claims.
+- Worker must flag negative-yield clipping, pseudo-observed data, missing signal models, missing background methods, partial/capped inputs, and duplicated or overlapping mutually exclusive region masks in its machine-readable notes when they affect downstream statistics.
 
 ## Required Outputs
 - Stage outputs.
@@ -47,4 +51,6 @@ required output paths:
 - artifacts/<stage>/<file>
 acceptance criteria:
 - <criterion>
+- preserve observed-claim boundaries from data provenance
+- preserve claim classification boundaries from the feasibility matrix
 ```
