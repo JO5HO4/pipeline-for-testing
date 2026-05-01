@@ -1,11 +1,11 @@
 ---
 name: multiagent-hep-coordination
-description: "Single entrypoint package for coordinated multiagent HEP analysis workflows. Use when a HEP run needs staged local/delegated execution, persistent state, reviewer audits, repair cycles, final quality review, scorecard/test-summary consistency, and session tracking without loading many separate coordination skills."
+description: "Single entrypoint package for coordinated multiagent HEP analysis workflows. Use when a HEP run needs staged local/delegated execution, persistent state, reviewer audits, repair cycles, final artifact/claim review, scorecard/test-summary consistency, and session tracking without loading many separate coordination skills."
 ---
 
 # Multiagent HEP Coordination
 
-Use this as the only multiagent HEP coordination entrypoint. It handles the workflow mechanics; physics quality gates come from the analysis spec, HEP skills, `hep-root-runtime-repair`, `hep-analysis-evaluation-scorecard`, and `hep-final-quality-review`.
+Use this as the only multiagent HEP coordination entrypoint. It handles the workflow mechanics; physics quality gates come from the analysis spec, HEP skills, `hep-root-runtime-repair`, and `hep-analysis-evaluation-scorecard`. When `hep-final-quality-review` is installed, use it as the final review package; otherwise use this package's review contracts and final-review handoff references for final artifact and claim review.
 
 ## Core Rules
 
@@ -14,7 +14,7 @@ Use this as the only multiagent HEP coordination entrypoint. It handles the work
 - Never let a worker review its own work.
 - Use file references in handoff briefs, not pasted logs.
 - Maintain `analysis_state.json`, `codex_sessions.json`, `agent_timeline.jsonl`, `handoff/`, and `reviews/`.
-- Do not hand off final results until independent final review and scorecard/test-summary checks pass.
+- Do not hand off final results until independent final artifact/claim reviews and scorecard/test-summary checks pass.
 
 ## Stage Spine
 
@@ -33,7 +33,7 @@ FINAL_ARTIFACT_REVIEW
 FINAL_CLAIM_REVIEW
 ```
 
-`RUNTIME_REPAIR` uses `hep-root-runtime-repair`. Final review uses `hep-final-quality-review`.
+`RUNTIME_REPAIR` uses `hep-root-runtime-repair`. Final review uses `hep-final-quality-review` when that skill is installed; otherwise use [review-contracts.md](references/review-contracts.md) and [final-review-handoff.md](references/final-review-handoff.md).
 
 ## Load References As Needed
 
@@ -50,4 +50,4 @@ Final handoff is allowed only when:
 - all critical stages are independently reviewed or explicitly blocked;
 - `outputs/evaluation_scorecard.json` and `outputs/test_outcome_summary.json` agree;
 - runtime repair evidence exists when ROOT-backed fallback/blocking was needed;
-- sample scope, number trace, plots, claims, and reproducibility pass final quality review.
+- sample scope, number trace, plots, claims, and reproducibility pass the installed final quality review or the coordination-native final artifact/claim reviews.
