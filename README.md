@@ -1,11 +1,11 @@
-# VLQ Baseline Test Pipeline
+# VLQ Quality Review Test Pipeline
 
-This branch is the single-agent baseline starting point for Codex/Claude runs on the ATLAS open-data same-charge leptons plus b-jets reinterpretation. It is built from the April 29 VLQ workspace and cleaned so the VLQ task summary is the only active analysis target.
+This branch is the single-agent baseline plus final quality-review starting point for Codex/Claude runs on the ATLAS open-data same-charge leptons plus b-jets reinterpretation. It is built from the April 29 VLQ workspace and cleaned so the VLQ task summary is the only active analysis target, using the final quality-review package without the multiagent coordination package.
 
 ## Branch Role
 
-- Branch: `vlq_baseline`
-- Skill package: baseline/refactored HEP analysis skills under `.codex/skills/`
+- Branch: `vlq_quality_review`
+- Skill package: baseline/refactored HEP analysis skills, ROOT runtime repair, and final quality review under `.codex/skills/`
 - Agent mode: one session, no delegated subagents
 - Reference target: `analysis/leptons-bjet-vlq-search.json`
 
