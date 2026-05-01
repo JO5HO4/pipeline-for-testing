@@ -23,7 +23,6 @@ Every pipeline stage must leave a compact, machine-readable trail.
 - execution contract
 - skill refresh or checkpoint log
 - artifact inventory
-- `outputs/evaluation_scorecard.json`
 - final handoff status
 
 ## Logging rules
