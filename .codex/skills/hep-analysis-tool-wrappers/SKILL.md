@@ -1,6 +1,6 @@
 ---
 name: hep-analysis-tool-wrappers
-description: Use when you need the refactored HEP tool-wrapper skills from this installed skill pack to call entrypoints in the current analysis project safely: runtime and preflight, summary loading, sample registry and metadata, selection and partition execution, histogram and template production, fit and significance execution, or report packaging.
+description: "Use when you need the refactored HEP tool-wrapper skills from this installed skill pack to call entrypoints in the current analysis project safely: runtime and preflight, summary loading, sample registry and metadata, selection and partition execution, histogram and template production, fit and significance execution, or report packaging."
 ---
 
 # HEP Analysis Tool Wrappers
