@@ -24,6 +24,7 @@ Used when a stage audit must be recorded; reviewer agents load it for critical_a
 - Reviewer must inspect requested plots visually and check numerical outputs.
 - Reviewer must reason about what could go wrong in this specific stage’s physics, not just follow a checklist.
 - Reviewer must state consequence chains, not just local defects.
+- Reviewer must check numerical invariants that protect final claims, including processed/all sample counts, event caps, region/category overlap, category or flavor distinctness, negative signed yields, and data provenance decisions.
 - Reviewer must not append to agent_timeline.jsonl; the coordinator summarizes the saved audit file.
 - Reviewer has veto authority for progression when a stage would allow an unsupported physics claim, even if the code ran successfully.
 - Reviewer must distinguish implementation success from claim validity.
@@ -38,14 +39,20 @@ Used when a stage audit must be recorded; reviewer agents load it for critical_a
 - partial-statistics or smoke-output promotion
 - observed-data provenance and blinding order
 - signed-weight or negative-yield handling
+- region/category mask overlap and duplicated yields
+- pseudo-observed result labeling
 
 ## Mandatory Veto Findings
 Record severity PROBLEM and set can_proceed false when any of these apply to the audited stage or downstream claim:
 - A partial, smoke, capped, or incomplete run is being treated as production or final.
+- A run reports final physics results without clear processed/all sample counts and no event-cap evidence.
+- A data provenance artifact is missing, inconclusive, or not independently reviewed before observed results are computed or reported.
 - A paper-level claim is made from a substituted proxy implementation without an approved feasibility matrix and claim classification.
 - Observed significance, limits, mass limits, or exclusions are reported when observed data are unavailable, are MC-like pseudo-data, or were used before the expected workflow was fixed.
+- Pseudo-observed values are headlined, summarized, or phrased as observed physics results rather than clearly labeled diagnostic_proxy outputs.
 - A dedicated signal model, background method, fake/nonprompt estimate, charge-misidentification estimate, systematic source, or likelihood ingredient required for the claim is unavailable and the result is not labeled diagnostic_proxy or blocked.
 - Negative or signed MC yields are silently clipped, zeroed, or otherwise stabilized and then used to print significances or limits as if the statistical model were valid.
+- Mutually exclusive regions, categories, or flavor channels have identical yields or unexplained overlaps without a reviewed mask sanity artifact.
 - A result lacks one of these claim classifications: reproduction, reinterpretation, diagnostic_proxy, blocked.
 - The final report source cannot be traced to a completed full-statistics production run.
 
@@ -78,6 +85,7 @@ Record severity PROBLEM and set can_proceed false when any of these apply to the
 "required_repairs": ["<short item>"],
 "can_proceed": true,
 "claim_classification_required": true,
+"data_provenance_required": true,
 "scope_note": "<short note if scope was reduced>"
 }
 ```
@@ -89,7 +97,8 @@ Record severity PROBLEM and set can_proceed false when any of these apply to the
 - Use audit_mode local_self_check for routine stages and audit_mode independent_review for delegated critical_analysis stages.
 - If review scope was reduced, the auditor must say what was skipped in scope_note.
 - For routine local self-checks, the coordinator must record any residual risk explicitly.
-- Missing feasibility or finalization artifacts are PROBLEM findings for SPEC_FEASIBILITY, CLAIM_REVIEW, FINALIZE, or any stage that prints final physics claims.
+- Missing data provenance, feasibility, claim-classification, or finalization artifacts are PROBLEM findings for DATA_PROVENANCE, SPEC_FEASIBILITY, CLAIM_REVIEW, FINALIZE, or any stage that prints final physics claims.
+- A WARNING that changes a physics number, region definition, sample role, data provenance decision, or claim scope must trigger repair unless the coordinator explicitly degrades the affected claim classification.
 - A reviewer may approve diagnostic output while blocking paper-level claims; in that case can_proceed may be true only if the coordinator records the affected results as diagnostic_proxy or blocked.
 
 ## Reviewer Brief Template
@@ -110,5 +119,6 @@ acceptance criteria:
 - inspect requested plots visually when present
 - check numerical outputs
 - check reference feasibility, claim classification, observed-data provenance, and partial-run status when relevant
+- check processed/all sample counts, event caps, region/category overlap sanity, flavor/category distinctness, negative-yield handling, and pseudo-observed labeling when relevant
 - save findings in the required audit schema
 ```

@@ -22,8 +22,8 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - The first audit for a stage is cycle 1; increment the cycle before each fresh audit after repair.
 - If retry limit is hit, mark the stage blocked, degraded, or needs_revisit and record consequences before continuing.
 - For paper-reproduction or JSON-spec-driven analyses, the workflow must include these hard gates before any final report can be approved:
-  SPEC_FEASIBILITY -> IMPLEMENTATION_DESIGN -> EXECUTE -> NUMERICAL_SANITY -> CLAIM_REVIEW -> FINALIZE.
-- The coordinator may split EXECUTE into domain-specific stages, but it must not skip SPEC_FEASIBILITY, CLAIM_REVIEW, or FINALIZE when final physics claims are requested.
+  DATA_PROVENANCE -> SPEC_FEASIBILITY -> IMPLEMENTATION_DESIGN -> EXECUTE -> NUMERICAL_SANITY -> CLAIM_REVIEW -> FINALIZE.
+- The coordinator may split EXECUTE into domain-specific stages, but it must not skip DATA_PROVENANCE, SPEC_FEASIBILITY, CLAIM_REVIEW, or FINALIZE when final physics claims are requested.
 
 ## Claim Discipline
 - Treat the analysis JSON or paper summary as the faithful reference specification; do not edit it to describe open-data substitutions.
@@ -31,6 +31,17 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - Every final result must have a claim classification: reproduction, reinterpretation, diagnostic_proxy, or blocked.
 - Paper-level observed significances, exclusions, mass limits, or cross-section limits are allowed only when the feasibility matrix and claim review support that classification.
 - Smoke or capped runs validate code only. They must never be copied, summarized, or promoted as final physics outputs.
+- Pseudo-observed data may be processed as diagnostics only; pseudo-observed numbers must not be headlined, summarized, or phrased as observed physics results.
+- Negative or signed MC yields that are clipped, floored, or otherwise stabilized for a statistic force the affected result to diagnostic_proxy or blocked unless a reviewed statistical model justifies the treatment.
+
+## DATA_PROVENANCE Gate
+- Before implementation, create artifacts/data_provenance/data_provenance.json.
+- Classify every input-data/data ROOT file as real_observed_collision_data, pseudo_observed_mc_like_data, or unusable.
+- Record filename evidence, tree/schema evidence, branch evidence, event-weight or metadata evidence when available, and the decision rule.
+- Include a top-level observed_claims_allowed boolean and a short reason.
+- Treat DATA_PROVENANCE as critical_analysis when any observed result, discovery significance, limit, or data/MC comparison may be reported.
+- Require independent review of the data provenance artifact before observed results are computed or reported.
+- If data provenance is pseudo_observed_mc_like_data, unavailable, mixed, or inconclusive, observed paper-level claims are blocked. Pseudo-observed values may appear only as clearly labeled diagnostic_proxy outputs.
 
 ## SPEC_FEASIBILITY Gate
 - Before implementation, create artifacts/spec_feasibility/reference_feasibility_matrix.json.
@@ -44,7 +55,7 @@ Used by the coordinator when advancing any stage through planning, execution, au
 ## PLAN
 - Decide the next stage, required outputs, and required diagnostic plots.
 - If the task does not define stages, infer a reasonable staged decomposition first.
-- For paper-reproduction or JSON-spec-driven analyses, place SPEC_FEASIBILITY before implementation and FINALIZE after claim review.
+- For paper-reproduction or JSON-spec-driven analyses, place DATA_PROVENANCE and SPEC_FEASIBILITY before implementation and FINALIZE after claim review.
 - Classify the next stage as routine or critical_analysis before execution.
 - Treat environment setup, file preparation, dependency checks, and other straightforward tasks as routine unless they materially affect analysis conclusions.
 - Treat stages that materially affect physics conclusions, fit behavior, uncertainty treatment, or progression safety as critical_analysis.
@@ -76,6 +87,7 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - If a routine-stage self-check reports any PROBLEM, repair locally, save updated outputs, and rerun the local self-check with a fresh audit file.
 - If review reports any PROBLEM on a critical_analysis stage, spawn a new worker for repair.
 - If review reports WARNING with can_proceed true, proceed only as degraded and record the warning in downstream_notes or global_risks.
+- A WARNING that changes a physics number, region definition, sample role, data provenance decision, or claim scope requires repair or an explicit degraded claim classification before proceeding.
 - Repair worker must read the latest review file before acting.
 - Repair worker must address only the cited findings plus necessary adjacent fixes.
 - After delegated repair, spawn a fresh reviewer.
@@ -89,10 +101,12 @@ Used by the coordinator when advancing any stage through planning, execution, au
 
 ## CLAIM_REVIEW Gate
 - Before finalization, create artifacts/claim_review/claim_classification.json mapping every reported result to reproduction, reinterpretation, diagnostic_proxy, or blocked.
-- Verify every result against artifacts/spec_feasibility/reference_feasibility_matrix.json and the implemented runtime artifacts.
+- Verify every result against artifacts/data_provenance/data_provenance.json, artifacts/spec_feasibility/reference_feasibility_matrix.json, and the implemented runtime artifacts.
 - Mark a result blocked when it depends on unavailable critical ingredients, clipped negative yields, zero usable signal proxy, invalid or unstable background models, unsupported observed data, or partial/capped inputs.
 - Observed results must be computed only after the expected workflow is fixed and must be labeled separately from expected results.
 - If observed data are unavailable or are actually MC-like files, observed discovery or limit claims must be blocked or explicitly labeled pseudo-observed diagnostic results.
+- If a statistic uses clipped, floored, or nonnegative-stabilized signed MC yields, classify that statistic as diagnostic_proxy or blocked and explain the raw signed yields and stabilization rule.
+- For mutually exclusive regions or categories, verify a mask sanity artifact that records event counts and overlap checks; identical yields across supposedly distinct regions require repair or a blocked result.
 
 ## FINALIZE Gate
 - Before writing or approving a final report, create artifacts/finalize/finalization_gate.json.
@@ -100,10 +114,13 @@ Used by the coordinator when advancing any stage through planning, execution, au
   - a smoke, test, capped, or partial-statistics run is being promoted as final without an explicit user request for partial-only results;
   - not all usable samples were processed, or progress/status artifacts do not show completion;
   - the final report source is not the full production run;
+  - artifacts/data_provenance/data_provenance.json is missing, inconclusive, or not independently reviewed before observed results are reported;
   - expected results were not computed before observed results where blinding or signal-sensitive regions apply;
   - a result lacks claim classification;
   - observed significance, limits, mass limits, or exclusions are printed for blocked or diagnostic-only regions as paper-level claims;
+  - pseudo-observed values are headlined, summarized, or phrased as observed physics results;
   - negative or signed MC yields were silently clipped and then used to print significance or limits;
+  - mutually exclusive region or category masks lack an overlap sanity check, or supposedly distinct regions have identical yields without a reviewed explanation;
   - the background model, signal model, or observed-data source is invalid for the printed claim.
 - If the gate fails, write a blocked or diagnostic report instead of a paper-like final result, and record the failed checks in analysis_state.json and agent_timeline.jsonl.
 

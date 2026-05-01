@@ -22,6 +22,14 @@ What is available:
 - Structured analysis summary, the authoritative reproduction target: analysis/Higgs-to-diphoton.json.
 - Input ROOT ntuples, reachable through symlinked open-data inputs: input-data/data and input-data/MC.
 
+Data provenance and finalization guardrails:
+- Before any observed result is computed or reported, write a data provenance artifact under outputs/ that classifies every input-data/data ROOT file as real observed collision data, pseudo-observed MC-like data, or unusable. Include filename evidence, tree/schema evidence, branch evidence, and the decision rule.
+- Observed paper-level claims are blocked unless the data provenance artifact validates real observed collision data. Pseudo-observed values may appear only in clearly labeled diagnostic artifacts or a clearly labeled diagnostic report section.
+- The final report must not headline or summarize pseudo-observed numerical results as observed physics results.
+- The finalization gate must fail if the production run is partial, capped, smoke-only, still running, or has processed fewer than all usable samples. A report may still be written, but it must be labeled blocked or diagnostic rather than complete.
+- If any region or category has negative signed MC background or signal yield that is clipped for a statistic, the corresponding significance or limit is diagnostic_proxy or blocked. Do not present clipped-yield statistics as physical paper-level results.
+- For mutually exclusive regions or categories, including any flavor-split or category-split rows, write a mask sanity artifact showing event counts and overlap checks. Identical yields across supposedly distinct regions or categories require repair or explicit blocking.
+
 Hard constraints:
 - Do not quote or copy raw text from Higgs-to-diphoton.json verbatim in the final report.
 - Use Higgs-to-diphoton.json as the primary implementation target and implement the analysis to closely reproduce it with available open-data observables.

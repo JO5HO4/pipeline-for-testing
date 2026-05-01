@@ -50,9 +50,11 @@ Used by the coordinator when creating or updating the persistent state for the c
 "global_risks": ["<short item>"],
 "claim_policy": {
     "reference_spec": "<path to authoritative analysis JSON or paper summary>",
+    "data_provenance": "artifacts/data_provenance/data_provenance.json",
     "feasibility_matrix": "artifacts/spec_feasibility/reference_feasibility_matrix.json",
     "claim_classification": "artifacts/claim_review/claim_classification.json",
     "finalization_gate": "artifacts/finalize/finalization_gate.json",
+    "observed_claims_allowed": false,
     "allowed_final_claims": ["<short item>"],
     "blocked_final_claims": ["<short item>"]
 },
@@ -82,8 +84,10 @@ Used by the coordinator when creating or updating the persistent state for the c
 - completed_stages.downstream_notes: Short retained notes for downstream stages.
 - global_risks: Cross-stage risk list.
 - claim_policy.reference_spec: Path to the faithful paper/spec source of truth; do not rewrite it to match substitutions.
+- claim_policy.data_provenance: Path to the reviewed data provenance artifact that decides whether observed paper-level claims are allowed.
 - claim_policy.feasibility_matrix: Path to the reviewed requirement-by-requirement feasibility matrix.
 - claim_policy.claim_classification: Path to the result-level claim classification artifact.
 - claim_policy.finalization_gate: Path to the final report gate artifact.
+- claim_policy.observed_claims_allowed: Boolean copied from data provenance review; false blocks observed paper-level claims.
 - claim_policy.allowed_final_claims and blocked_final_claims: Short cross-stage claim boundaries that constrain reporting.
 - budget: Shared budget state, note, and scope reductions.
