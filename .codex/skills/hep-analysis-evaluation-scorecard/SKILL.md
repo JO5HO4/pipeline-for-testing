@@ -22,6 +22,7 @@ Use this skill in every baseline or multiagent HEP testing run. It creates compa
 - Observed paper-level claims are allowed only when data provenance validates real observed collision data and the observed signal region was intentionally unblinded after the expected workflow was fixed.
 - Pseudo-observed values may appear only as clearly labeled `diagnostic_proxy` outputs.
 - A final report sourced from a smoke, capped, partial, still-running, or incomplete production run must be marked `blocked` or `diagnostic_complete`, not `complete`.
+- If a ROOT-backed statistical backend is required for the intended claim, diagnostic fallback is allowed only after `hep-root-runtime-repair` writes a runtime repair-attempt artifact and the scorecard points to it.
 - Negative or signed MC yields that are clipped, floored, or otherwise stabilized force the affected statistic to `diagnostic_proxy` or `blocked` unless a reviewed statistical model explicitly justifies the treatment.
 - Mutually exclusive regions, categories, or flavor channels need mask-overlap sanity evidence. Identical yields across supposedly distinct regions require repair or an explicit blocking explanation.
 - Every final result needs one claim classification: `reproduction`, `reinterpretation`, `diagnostic_proxy`, or `blocked`.
@@ -115,6 +116,7 @@ Use this shape and keep all artifact paths repo-root-relative:
     "finalization_gate": "<path or missing>",
     "final_artifact_review": "<path or not_applicable or missing>",
     "final_claim_review": "<path or not_applicable or missing>",
+    "root_runtime_repair_attempts": "<path or not_applicable or missing>",
     "final_report": "<path or missing>",
     "reproducibility_commands": "<path or missing>",
     "test_outcome_summary": "outputs/test_outcome_summary.json"
@@ -123,6 +125,7 @@ Use this shape and keep all artifact paths repo-root-relative:
     "tests_run": [],
     "pytest_status": "pass|fail|not_run|unavailable",
     "root_status": "available|unavailable|unknown",
+    "root_runtime_repair_status": "available|repaired|unavailable_after_repair_attempts|not_required|missing",
     "plots_present": false,
     "report_number_trace_complete": false
   },
@@ -167,6 +170,7 @@ The scorecard is not a substitute for the underlying artifacts. It is an index a
 
 - `outputs/evaluation_scorecard.json` and `outputs/test_outcome_summary.json` agree on `final_status`, `handoff_allowed`, `paper_level_claims_allowed`, and diagnostic scope.
 - The scorecard points to required source artifacts with repo-root-relative paths that resolve.
+- Any unavailable ROOT-backed statistical backend has a resolving root-runtime repair-attempt artifact before fallback or blocked status is accepted.
 - Sample accounting agrees with the registry, progress artifacts, and run manifest.
 - Gate statuses support the claim scope printed in the report.
 - Branch-role review requirements are satisfied.
