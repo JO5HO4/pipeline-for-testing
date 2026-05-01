@@ -26,13 +26,15 @@ The artifact reviewer must fail if artifacts are missing, stale, contradictory, 
 
 Spawn a separate final claim reviewer after artifact review passes. The reviewer must inspect final report wording, captions, headline numbers, tables, conclusions, and claim scope.
 
-Use `hep-final-quality-review` modules for:
+When `hep-final-quality-review` is installed, use its modules for:
 
 - artifact integrity;
 - statistical quality;
 - number trace;
 - plot/caption review;
 - claim scope.
+
+When it is not installed, the final artifact and claim reviewers must still cover the same topics using this package's review contracts and the required inputs above.
 
 ## Handoff
 
