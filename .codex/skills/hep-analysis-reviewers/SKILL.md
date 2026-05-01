@@ -21,7 +21,6 @@ Use this skill when the task is to validate a stage, block unsafe progression, o
 2. Pair the reviewer with:
    - `references/patterns/shared/review_rubric.md`
    - `references/patterns/shared/evidence_requirements.md`
-   - `../hep-analysis-evaluation-scorecard/SKILL.md` when finalization, handoff, or claim scope is affected
 3. When a reviewer blocks, route to the smallest matching inversion or generator instead of rerunning everything.
 
 ## What This Skill Covers

@@ -14,7 +14,6 @@ Use this as the single session-skill entrypoint for the refactored HEP workflow 
    - `references/patterns/shared/hep_domain_guardrails.md`
    - `references/patterns/shared/pipeline_logging_contract.md`
    - `references/patterns/shared/artifact_matrix.md`
-   - `../hep-analysis-evaluation-scorecard/SKILL.md`
 3. Load only the bundled local pattern file needed for the current stage or blocker.
 4. Prefer the bundled local pattern files under `references/patterns/` over the legacy `.codex/skills/hep-meta-first/references/` contracts.
 
