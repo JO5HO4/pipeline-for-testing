@@ -14,6 +14,7 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - [multiagent-hep-executing-worker-stage](../multiagent-hep-executing-worker-stage/SKILL.md)
 - [multiagent-hep-reviewing-stage-outputs](../multiagent-hep-reviewing-stage-outputs/SKILL.md)
 - [multiagent-hep-managing-analysis-budget](../multiagent-hep-managing-analysis-budget/SKILL.md)
+- [hep-root-runtime-repair](../hep-root-runtime-repair/SKILL.md)
 
 ## Loop
 - For every stage, run PLAN -> EXECUTE -> AUDIT -> REPAIR -> PROCEED.
@@ -22,8 +23,8 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - The first audit for a stage is cycle 1; increment the cycle before each fresh audit after repair.
 - If retry limit is hit, mark the stage blocked, degraded, or needs_revisit and record consequences before continuing.
 - For paper-reproduction or JSON-spec-driven analyses, the workflow must include these hard gates before any final report can be approved:
-  DATA_PROVENANCE -> SPEC_FEASIBILITY -> IMPLEMENTATION_DESIGN -> EXECUTE -> NUMERICAL_SANITY -> CLAIM_REVIEW -> FINALIZE -> FINAL_ARTIFACT_REVIEW -> FINAL_CLAIM_REVIEW.
-- The coordinator may split EXECUTE into domain-specific stages, but it must not skip DATA_PROVENANCE, SPEC_FEASIBILITY, CLAIM_REVIEW, FINALIZE, FINAL_ARTIFACT_REVIEW, or FINAL_CLAIM_REVIEW when final physics claims are requested.
+  RUNTIME_REPAIR when ROOT-backed statistical capability is required -> DATA_PROVENANCE -> SPEC_FEASIBILITY -> IMPLEMENTATION_DESIGN -> EXECUTE -> NUMERICAL_SANITY -> CLAIM_REVIEW -> FINALIZE -> FINAL_ARTIFACT_REVIEW -> FINAL_CLAIM_REVIEW.
+- The coordinator may split EXECUTE into domain-specific stages, but it must not skip RUNTIME_REPAIR when a required ROOT-backed backend is missing, DATA_PROVENANCE, SPEC_FEASIBILITY, CLAIM_REVIEW, FINALIZE, FINAL_ARTIFACT_REVIEW, or FINAL_CLAIM_REVIEW when final physics claims are requested.
 
 ## Claim Discipline
 - Treat the analysis JSON or paper summary as the faithful reference specification; do not edit it to describe open-data substitutions.
@@ -32,7 +33,17 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - Paper-level observed significances, exclusions, mass limits, or cross-section limits are allowed only when the feasibility matrix and claim review support that classification.
 - Smoke or capped runs validate code only. They must never be copied, summarized, or promoted as final physics outputs.
 - Pseudo-observed data may be processed as diagnostics only; pseudo-observed numbers must not be headlined, summarized, or phrased as observed physics results.
+- Missing PyROOT, RooFit, RooStats, ROOT, or `root-config` may justify diagnostic fallback only after `hep-root-runtime-repair` records runtime discovery and repair attempts.
 - Negative or signed MC yields that are clipped, floored, or otherwise stabilized for a statistic force the affected result to diagnostic_proxy or blocked unless a reviewed statistical model justifies the treatment.
+
+## RUNTIME_REPAIR Gate
+- Run this gate before DATA_PROVENANCE when the reference analysis or intended claim needs a ROOT-backed statistical backend and the current runtime cannot prove PyROOT/RooFit/RooStats availability.
+- Use `hep-root-runtime-repair` locally; environment setup is routine unless the repair decision changes claim scope.
+- Write `artifacts/runtime/root_runtime_repair_attempts.json` and add it to analysis_state.json claim_policy plus outputs/evaluation_scorecard.json.
+- Try existing runtime discovery first, then generic conda/mamba repair to `<workspace>/.rootenv` when available.
+- Do not hardcode host-specific containers into the workflow. If the user provides a local container command, try it as a documented host-specific attempt and save the exact command and result in the repair artifact.
+- If RooFit smoke passes, use the repaired runtime for ROOT-backed stages before considering fallback.
+- If repair fails, continue only with blocked or diagnostic_proxy claim scope and cite the repair artifact in feasibility, claim review, finalization, scorecard, and final report.
 
 ## DATA_PROVENANCE Gate
 - Before implementation, create artifacts/data_provenance/data_provenance.json.
@@ -136,8 +147,8 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - After FINALIZE, spawn a fresh independent reviewer whose only task is artifact and run-integrity review.
 - The artifact reviewer must not be the coordinator, any implementation worker, or any reviewer whose earlier approval is being relied on for final artifact integrity.
 - Use an adversarial brief: the reviewer is trying to find missing, stale, partial, contradictory, or non-reproducible artifacts.
-- Required artifact-review inputs include the prompt, analysis_state.json, codex_sessions.json, outputs/evaluation_scorecard.json, outputs/test_outcome_summary.json, artifacts/data_provenance/data_provenance.json, artifacts/spec_feasibility/reference_feasibility_matrix.json, artifacts/claim_review/claim_classification.json, artifacts/claim_review/report_number_trace.json, artifacts/finalize/finalization_gate.json, the production run manifest, sample registry, sample exclusion reasons, yields, statistics, plot manifest, selected plots, reproducibility commands, and final report.
-- The artifact reviewer must verify that outputs/evaluation_scorecard.json and outputs/test_outcome_summary.json agree with each other and with source artifacts, that scorecard artifact paths are repo-root-relative and resolve, that sample_scope counts agree with the registry/progress/run manifest, that the production run processed all usable samples or is explicitly blocked, that no smoke/capped/partial run is promoted as final, that plot files exist and are inspectable when plots exist, and that every final report number is present in artifacts/claim_review/report_number_trace.json.
+- Required artifact-review inputs include the prompt, analysis_state.json, codex_sessions.json, outputs/evaluation_scorecard.json, outputs/test_outcome_summary.json, artifacts/runtime/root_runtime_repair_attempts.json when ROOT-backed capability was missing or required, artifacts/data_provenance/data_provenance.json, artifacts/spec_feasibility/reference_feasibility_matrix.json, artifacts/claim_review/claim_classification.json, artifacts/claim_review/report_number_trace.json, artifacts/finalize/finalization_gate.json, the production run manifest, sample registry, sample exclusion reasons, yields, statistics, plot manifest, selected plots, reproducibility commands, and final report.
+- The artifact reviewer must verify that outputs/evaluation_scorecard.json and outputs/test_outcome_summary.json agree with each other and with source artifacts, that scorecard artifact paths are repo-root-relative and resolve, that ROOT-backed fallback or blocked status has a resolving root-runtime repair artifact when relevant, that sample_scope counts agree with the registry/progress/run manifest, that the production run processed all usable samples or is explicitly blocked, that no smoke/capped/partial run is promoted as final, that plot files exist and are inspectable when plots exist, and that every final report number is present in artifacts/claim_review/report_number_trace.json.
 - The artifact reviewer must veto progression if sample scope is undefined, sample counts are missing or contradictory, excluded samples lack reasons, artifact paths are output-relative instead of repo-root-relative, or the outcome summary contradicts the scorecard.
 - The artifact reviewer must write reviews/final_artifact_review/review_<cycle>.json using the final-artifact-review schema from multiagent-hep-reviewing-stage-outputs.
 - If the artifact review finds any PROBLEM, do not proceed to FINAL_CLAIM_REVIEW. Mark the relevant upstream stage needs_revisit, spawn a repair worker or repair locally as appropriate, rerun the affected stage and all downstream gates from CLAIM_REVIEW onward, then rerun FINAL_ARTIFACT_REVIEW with a fresh cycle.
