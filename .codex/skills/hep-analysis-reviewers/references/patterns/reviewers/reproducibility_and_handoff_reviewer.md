@@ -19,6 +19,7 @@ Verify that the run used the approved statistics scope, produced reproducibility
 - smoke or reproducibility artifacts
 - skill refresh or checkpoint logs
 - enforcement handoff gate
+- `outputs/evaluation_scorecard.json`
 - final report package
 - skill extraction summary
 
@@ -32,6 +33,7 @@ Verify that the run used the approved statistics scope, produced reproducibility
 ## Common failure modes
 
 - partial-statistics run presented as final
+- missing or contradictory evaluation scorecard
 - checkpoint artifacts missing at stage boundaries
 - enforcement handoff gate absent or failing
 - no skill extraction summary after a completed run
@@ -47,8 +49,8 @@ Verify that the run used the approved statistics scope, produced reproducibility
 ### ASSERTIONS
 
 1. A reviewer verdict artifact or conversation note for `Reproducibility and Handoff Reviewer` exists and records exactly one verdict from `pass`, `conditional_pass`, `block`, or `fail`.
-2. The required evidence is present on disk or in the conversation: the run manifest, smoke or reproducibility artifacts, skill refresh or checkpoint logs, the enforcement handoff gate, the final report package, and the skill extraction summary.
-3. The evidence explicitly confirms that the enforcement handoff gate is passing and that no partial-statistics run is being presented as a final central result.
+2. The required evidence is present on disk or in the conversation: the run manifest, smoke or reproducibility artifacts, skill refresh or checkpoint logs, `outputs/evaluation_scorecard.json`, the enforcement handoff gate, the final report package, and the skill extraction summary.
+3. The evidence explicitly confirms that the evaluation scorecard and enforcement handoff gate are passing and that no partial-statistics run is being presented as a final central result.
 
 ### REPAIR
 

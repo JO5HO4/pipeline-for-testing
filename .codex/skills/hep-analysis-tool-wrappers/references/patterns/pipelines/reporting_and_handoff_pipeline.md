@@ -14,12 +14,13 @@ Derived from:
 |---|---|---|---|---|
 | Plot and report assembly | reviewed physics artifacts | `report_package_generator.md`, `report_packaging_wrapper.md` | `blinding_and_visualization_reviewer.md` | report draft, plot manifest, and captions exist |
 | Discrepancy audit | report draft, plots, yields | `data_mc_discrepancy_reviewer.md` | same reviewer | discrepancy audit exists even for zero-issue runs |
-| Handoff enforcement | report package, enforcement artifacts | `reproducibility_and_handoff_reviewer.md` | same reviewer | enforcement handoff gate is `ok` |
+| Handoff enforcement | report package, enforcement artifacts, `outputs/evaluation_scorecard.json` | `reproducibility_and_handoff_reviewer.md`, `../../../../hep-analysis-evaluation-scorecard/SKILL.md` | same reviewer | evaluation scorecard exists and enforcement handoff gate is `ok` |
 | Failure extraction | reviewer findings and run logs | `failure_to_skill_inversion.md` | `reproducibility_and_handoff_reviewer.md` | handoff package includes remediation or candidate skill notes |
 
 ## Gates
 
 - no final handoff without an explicit discrepancy artifact
+- no final handoff without `outputs/evaluation_scorecard.json`
 - no final handoff without an explicit enforcement gate result
 
 ## Dependencies
@@ -34,7 +35,7 @@ Derived from:
 
 ## Logging requirements
 
-- log report paths, plot manifest paths, discrepancy verdicts, and final handoff status
+- log report paths, plot manifest paths, scorecard path, discrepancy verdicts, and final handoff status
 - attach candidate-skill notes when repeated failures were observed
 
 ## Verification Gate
@@ -42,7 +43,7 @@ Derived from:
 ### ASSERTIONS
 
 1. The `Plot and report assembly` stage produced the report draft, plot manifest, and caption evidence before the pipeline advanced to discrepancy review.
-2. The `Discrepancy audit` stage produced an explicit discrepancy artifact even for a zero-issue run, and the `Handoff enforcement` stage recorded an enforcement handoff gate result of `ok` before handoff.
+2. The `Discrepancy audit` stage produced an explicit discrepancy artifact even for a zero-issue run, and the `Handoff enforcement` stage recorded `outputs/evaluation_scorecard.json` plus an enforcement handoff gate result of `ok` before handoff.
 3. The `Failure extraction` stage added remediation notes or explicit candidate-skill notes to the handoff package before the pipeline marked handoff complete, and each completed stage was backed by a `pass` or `conditional_pass` reviewer outcome.
 
 ### REPAIR
