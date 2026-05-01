@@ -22,8 +22,8 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - The first audit for a stage is cycle 1; increment the cycle before each fresh audit after repair.
 - If retry limit is hit, mark the stage blocked, degraded, or needs_revisit and record consequences before continuing.
 - For paper-reproduction or JSON-spec-driven analyses, the workflow must include these hard gates before any final report can be approved:
-  DATA_PROVENANCE -> SPEC_FEASIBILITY -> IMPLEMENTATION_DESIGN -> EXECUTE -> NUMERICAL_SANITY -> CLAIM_REVIEW -> FINALIZE -> FINAL_INDEPENDENT_REVIEW.
-- The coordinator may split EXECUTE into domain-specific stages, but it must not skip DATA_PROVENANCE, SPEC_FEASIBILITY, CLAIM_REVIEW, FINALIZE, or FINAL_INDEPENDENT_REVIEW when final physics claims are requested.
+  DATA_PROVENANCE -> SPEC_FEASIBILITY -> IMPLEMENTATION_DESIGN -> EXECUTE -> NUMERICAL_SANITY -> CLAIM_REVIEW -> FINALIZE -> FINAL_ARTIFACT_REVIEW -> FINAL_CLAIM_REVIEW.
+- The coordinator may split EXECUTE into domain-specific stages, but it must not skip DATA_PROVENANCE, SPEC_FEASIBILITY, CLAIM_REVIEW, FINALIZE, FINAL_ARTIFACT_REVIEW, or FINAL_CLAIM_REVIEW when final physics claims are requested.
 
 ## Claim Discipline
 - Treat the analysis JSON or paper summary as the faithful reference specification; do not edit it to describe open-data substitutions.
@@ -111,6 +111,7 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - If a statistic uses clipped, floored, or nonnegative-stabilized signed MC yields, classify that statistic as diagnostic_proxy or blocked and explain the raw signed yields and stabilization rule.
 - For mutually exclusive regions or categories, verify a mask sanity artifact that records event counts and overlap checks; identical yields across supposedly distinct regions require repair or a blocked result.
 - Create artifacts/claim_review/report_number_trace.json mapping every numerical value or final claim printed in the report to its source artifact, source JSON path or table row, claim classification, and allowed_in_final_report boolean.
+- Update outputs/evaluation_scorecard.json with the claim-review status, report-number-trace status, and allowed or blocked final-claim scope.
 
 ## FINALIZE Gate
 - Before writing or approving a final report, create artifacts/finalize/finalization_gate.json.
@@ -127,19 +128,30 @@ Used by the coordinator when advancing any stage through planning, execution, au
   - mutually exclusive region or category masks lack an overlap sanity check, or supposedly distinct regions have identical yields without a reviewed explanation;
   - the background model, signal model, or observed-data source is invalid for the printed claim.
 - If the gate fails, write a blocked or diagnostic report instead of a paper-like final result, and record the failed checks in analysis_state.json and agent_timeline.jsonl.
+- Update outputs/evaluation_scorecard.json with the finalization status before any final review is spawned.
 
-## FINAL_INDEPENDENT_REVIEW Gate
-- After FINALIZE, spawn a fresh independent reviewer whose only task is to critically review the whole analysis end to end.
-- The final independent reviewer must not be the coordinator, any implementation worker, or any reviewer whose earlier approval is being relied on for the final claim.
-- Use an adversarial brief: the reviewer is trying to find reasons the analysis should not be trusted, not summarizing successful execution.
-- Required final-review inputs include the prompt, analysis_state.json, codex_sessions.json, artifacts/data_provenance/data_provenance.json, artifacts/spec_feasibility/reference_feasibility_matrix.json, artifacts/claim_review/claim_classification.json, artifacts/claim_review/report_number_trace.json, artifacts/finalize/finalization_gate.json, the production run manifest, sample registry, yields, statistics, plot manifest, selected plots, reproducibility commands, and final report.
-- The final reviewer must verify that every headline result and every numerical report claim traces through artifacts/claim_review/report_number_trace.json to a machine-readable source artifact.
-- The final reviewer must inspect selected plots visually when plots exist and check that report wording matches the weakest valid claim classification.
-- The final reviewer must write reviews/final_independent_review/review_<cycle>.json using the final-review schema from multiagent-hep-reviewing-stage-outputs.
-- Final handoff is allowed only when the final independent review has no PROBLEM findings and handoff_allowed is true.
-- If the final review finds any PROBLEM, do not hand off. Mark the relevant upstream stage needs_revisit, spawn a repair worker or repair locally as appropriate, rerun the affected stage and all downstream gates from CLAIM_REVIEW onward, then rerun FINAL_INDEPENDENT_REVIEW with a fresh cycle.
-- If the final review finds any WARNING that changes a physics number, region definition, sample role, data provenance decision, claim classification, final report wording, or handoff scope, repair or explicitly degrade the affected claim, rerun CLAIM_REVIEW and FINALIZE, then rerun FINAL_INDEPENDENT_REVIEW.
-- If the final review finds only documented limitations that do not change claim scope, the coordinator may proceed as degraded only if the review explicitly sets handoff_allowed true and records the allowed claim scope.
+## FINAL_ARTIFACT_REVIEW Gate
+- After FINALIZE, spawn a fresh independent reviewer whose only task is artifact and run-integrity review.
+- The artifact reviewer must not be the coordinator, any implementation worker, or any reviewer whose earlier approval is being relied on for final artifact integrity.
+- Use an adversarial brief: the reviewer is trying to find missing, stale, partial, contradictory, or non-reproducible artifacts.
+- Required artifact-review inputs include the prompt, analysis_state.json, codex_sessions.json, outputs/evaluation_scorecard.json, artifacts/data_provenance/data_provenance.json, artifacts/spec_feasibility/reference_feasibility_matrix.json, artifacts/claim_review/claim_classification.json, artifacts/claim_review/report_number_trace.json, artifacts/finalize/finalization_gate.json, the production run manifest, sample registry, yields, statistics, plot manifest, selected plots, reproducibility commands, and final report.
+- The artifact reviewer must verify that outputs/evaluation_scorecard.json agrees with the source artifacts, that the production run processed all usable samples or is explicitly blocked, that no smoke/capped/partial run is promoted as final, that plot files exist and are inspectable when plots exist, and that every final report number is present in artifacts/claim_review/report_number_trace.json.
+- The artifact reviewer must write reviews/final_artifact_review/review_<cycle>.json using the final-artifact-review schema from multiagent-hep-reviewing-stage-outputs.
+- If the artifact review finds any PROBLEM, do not proceed to FINAL_CLAIM_REVIEW. Mark the relevant upstream stage needs_revisit, spawn a repair worker or repair locally as appropriate, rerun the affected stage and all downstream gates from CLAIM_REVIEW onward, then rerun FINAL_ARTIFACT_REVIEW with a fresh cycle.
+- If the artifact review finds any WARNING that changes a physics number, region definition, sample role, data provenance decision, claim classification, final report source, reproducibility status, or handoff scope, repair or explicitly degrade the affected claim, rerun CLAIM_REVIEW and FINALIZE, then rerun FINAL_ARTIFACT_REVIEW.
+
+## FINAL_CLAIM_REVIEW Gate
+- After FINAL_ARTIFACT_REVIEW passes or conditionally passes with handoff-compatible limitations, spawn a separate fresh independent reviewer whose only task is final claim and report-scope review.
+- The claim reviewer must not be the coordinator, any implementation worker, the final artifact reviewer, or any reviewer whose earlier approval is being relied on for the final claim.
+- Use an adversarial brief: the reviewer is trying to find overclaims, misleading wording, unsupported numbers, pseudo-observed misuse, or paper-level claims that should be blocked.
+- Required claim-review inputs include all FINAL_ARTIFACT_REVIEW inputs plus reviews/final_artifact_review/review_<cycle>.json.
+- The claim reviewer must verify that every headline result and every numerical report claim traces through artifacts/claim_review/report_number_trace.json to a machine-readable source artifact, that report wording matches the weakest valid claim classification, and that outputs/evaluation_scorecard.json agrees with the allowed handoff scope.
+- The claim reviewer must inspect selected plots visually when plots exist and check that captions and conclusions do not overstate diagnostic or blocked outputs.
+- The claim reviewer must write reviews/final_claim_review/review_<cycle>.json using the final-claim-review schema from multiagent-hep-reviewing-stage-outputs.
+- Final handoff is allowed only when FINAL_ARTIFACT_REVIEW and FINAL_CLAIM_REVIEW have no PROBLEM findings, the final claim review sets handoff_allowed true, and outputs/evaluation_scorecard.json records handoff_allowed true.
+- If the claim review finds any PROBLEM, do not hand off. Mark the relevant upstream stage needs_revisit, spawn a repair worker or repair locally as appropriate, rerun the affected stage and all downstream gates from CLAIM_REVIEW onward, then rerun FINAL_ARTIFACT_REVIEW and FINAL_CLAIM_REVIEW with fresh cycles.
+- If the claim review finds any WARNING that changes a physics number, region definition, sample role, data provenance decision, claim classification, final report wording, or handoff scope, repair or explicitly degrade the affected claim, rerun CLAIM_REVIEW and FINALIZE, then rerun both final reviews.
+- If both final reviews find only documented limitations that do not change claim scope, the coordinator may proceed as degraded only if the final claim review explicitly sets handoff_allowed true and records the allowed claim scope.
 
 ## Upstream Revisit Rule
 - If the required audit finds that the root cause is in an earlier stage, do not continue forward.

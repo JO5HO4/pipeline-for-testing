@@ -59,7 +59,9 @@ Used by the coordinator when creating or updating the persistent state for the c
     "claim_classification": "artifacts/claim_review/claim_classification.json",
     "report_number_trace": "artifacts/claim_review/report_number_trace.json",
     "finalization_gate": "artifacts/finalize/finalization_gate.json",
-    "final_independent_review": "reviews/final_independent_review/review_<cycle>.json",
+    "evaluation_scorecard": "outputs/evaluation_scorecard.json",
+    "final_artifact_review": "reviews/final_artifact_review/review_<cycle>.json",
+    "final_claim_review": "reviews/final_claim_review/review_<cycle>.json",
     "observed_claims_allowed": false,
     "handoff_allowed": false,
     "allowed_final_claims": ["<short item>"],
@@ -97,8 +99,10 @@ Used by the coordinator when creating or updating the persistent state for the c
 - claim_policy.claim_classification: Path to the result-level claim classification artifact.
 - claim_policy.report_number_trace: Path to the artifact mapping final report numbers and claims to machine-readable source artifacts.
 - claim_policy.finalization_gate: Path to the final report gate artifact.
-- claim_policy.final_independent_review: Path to the latest whole-analysis final independent review.
+- claim_policy.evaluation_scorecard: Path to the shared run-quality scorecard.
+- claim_policy.final_artifact_review: Path to the latest final artifact/run-integrity review.
+- claim_policy.final_claim_review: Path to the latest final claim/report-scope review.
 - claim_policy.observed_claims_allowed: Boolean copied from data provenance review; false blocks observed paper-level claims.
-- claim_policy.handoff_allowed: Boolean copied from final independent review; false blocks final handoff.
+- claim_policy.handoff_allowed: Boolean copied from the final claim review and scorecard; false blocks final handoff.
 - claim_policy.allowed_final_claims and blocked_final_claims: Short cross-stage claim boundaries that constrain reporting.
 - budget: Shared budget state, note, and scope reductions.

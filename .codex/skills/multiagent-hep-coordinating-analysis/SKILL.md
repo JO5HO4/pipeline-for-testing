@@ -25,7 +25,7 @@ This is the entrypoint skill for the multiagent HEP package. Use it when the coo
 - Start by creating or updating analysis_state.json and codex_sessions.json.
 - For paper-reproduction or JSON-spec-driven analyses, start with DATA_PROVENANCE and SPEC_FEASIBILITY gates before implementation so the workflow records whether observed claims are allowed and what paper claims are supportable with the available open data.
 - Then run stage 1 through the full loop.
-- Continue until the workflow goal is met, including FINAL_INDEPENDENT_REVIEW, or a blocked stage prevents safe continuation.
+- Continue until the workflow goal is met, including FINAL_ARTIFACT_REVIEW and FINAL_CLAIM_REVIEW, or a blocked stage prevents safe continuation.
 - Final coordinator response must be concise and point to persistent files, including codex_sessions.json, rather than reproducing their contents.
 
 ## Delegation
@@ -63,11 +63,12 @@ This is the entrypoint skill for the multiagent HEP package. Use it when the coo
 - If DATA_PROVENANCE does not validate real observed collision data, observed paper-level claims are blocked and any pseudo-observed outputs must be diagnostic_proxy.
 - If the available samples support only a proxy, reinterpretation, or diagnostic study, the coordinator must label the claim accordingly and block paper-level wording.
 - Repair or explicitly degrade any reviewer WARNING that affects a physics number, region definition, sample role, data provenance decision, or claim scope.
-- If the final independent reviewer finds a PROBLEM, rerun the named upstream stage and every downstream gate from CLAIM_REVIEW onward before requesting another final review.
+- If either final reviewer finds a PROBLEM, rerun the named upstream stage and every downstream gate from CLAIM_REVIEW onward before requesting fresh FINAL_ARTIFACT_REVIEW and FINAL_CLAIM_REVIEW.
 - Never promote smoke, capped, or partial-statistics outputs to final production outputs unless the user explicitly requested a partial-only result and the report label makes that scope unambiguous.
+- Keep outputs/evaluation_scorecard.json current and ensure it agrees with analysis_state.json, finalization, and both final reviews before handoff.
 
 ## Coordinator Never Does
 - Never launch a worker sub-agent for environment setup or other straightforward tasks without a clear need.
 - Never let a delegated worker review its own work.
 - Never approve a critical analysis step without independent review.
-- Never bypass, self-perform, or override the FINAL_INDEPENDENT_REVIEW gate for final handoff.
+- Never bypass, self-perform, or override the FINAL_ARTIFACT_REVIEW or FINAL_CLAIM_REVIEW gates for final handoff.
