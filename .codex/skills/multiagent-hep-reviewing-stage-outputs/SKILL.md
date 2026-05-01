@@ -16,6 +16,7 @@ Used when a stage audit must be recorded; reviewer agents load it for critical_a
 ## Use Boundary
 - Reviewer sub-agents load this skill only for a critical_analysis stage or when progression risk is material.
 - The coordinator uses the same audit file schema for routine local self-checks.
+- The final independent reviewer also loads this skill for FINAL_INDEPENDENT_REVIEW and follows the stricter final-review contract below.
 
 ## Reviewer Contract
 - Reviewer is an independent auditor, not an implementer.
@@ -29,6 +30,16 @@ Used when a stage audit must be recorded; reviewer agents load it for critical_a
 - Reviewer must not append to agent_timeline.jsonl; the coordinator summarizes the saved audit file.
 - Reviewer has veto authority for progression when a stage would allow an unsupported physics claim, even if the code ran successfully.
 - Reviewer must distinguish implementation success from claim validity.
+
+## Final Independent Review Contract
+- The final independent reviewer is an adversarial whole-analysis auditor.
+- The final independent reviewer must not implement repairs or edit analysis outputs.
+- Treat successful code execution as insufficient evidence for handoff.
+- Review the prompt, state, provenance, feasibility, execution, numerical outputs, plots, claim classification, finalization gate, report number trace, final report, and reproducibility command together.
+- Veto final handoff if any headline claim, numerical table value, plot statement, or conclusion cannot be traced to a machine-readable source artifact.
+- Veto final handoff if the report tone is stronger than the weakest valid claim classification.
+- Veto final handoff if the report promotes pseudo-observed, partial, smoke, capped, clipped-yield, or unsupported-proxy results as paper-level physics.
+- If a problem is found, name the upstream stage that must be redone and specify the minimal required repair.
 
 ## Priority Issue Classes
 - data/MC agreement
@@ -56,6 +67,8 @@ Record severity PROBLEM and set can_proceed false when any of these apply to the
 - Mutually exclusive regions, categories, or flavor channels have identical yields or unexplained overlaps without a reviewed mask sanity artifact.
 - A result lacks one of these claim classifications: reproduction, reinterpretation, diagnostic_proxy, blocked.
 - The final report source cannot be traced to a completed full-statistics production run.
+- The report number trace is missing, incomplete, or contradicted by the source artifacts.
+- The final independent review is missing or was performed by the same agent that implemented or approved the affected final claim.
 
 ## Required Audit File Format
 ```json
@@ -92,6 +105,55 @@ Record severity PROBLEM and set can_proceed false when any of these apply to the
 }
 ```
 
+## Final Independent Review File Format
+```json
+{
+"stage": "FINAL_INDEPENDENT_REVIEW",
+"cycle": 1,
+"audit_mode": "final_independent_review",
+"auditor_role": "final_reviewer",
+"auditor_id": "<agent id>",
+"auditor_tag": "<stable agent_tag>",
+"status": "PASS|CONDITIONAL_PASS|FAIL",
+"handoff_allowed": false,
+"paper_level_claims_allowed": false,
+"diagnostic_claims_allowed": true,
+"summary": "<short critical assessment>",
+"artifacts_reviewed": {
+    "files": ["<path>"],
+    "plots": ["<path>"]
+},
+"number_trace_checks": [
+    {
+    "report_location": "<section/table/claim>",
+    "reported_value": "<value or claim>",
+    "source_artifact": "<path>",
+    "source_key": "<json path, table row, or plot id>",
+    "claim_classification": "reproduction|reinterpretation|diagnostic_proxy|blocked",
+    "status": "PASS|WARNING|PROBLEM",
+    "issue": "<empty or concise issue>"
+    }
+],
+"veto_findings": [
+    {
+    "id": "V1",
+    "severity": "PROBLEM",
+    "category": "claim|data_provenance|partial_run|statistics|report_trace|plot|reproducibility|other",
+    "artifact": "<path or logical name>",
+    "issue": "<concise statement>",
+    "evidence": "<specific evidence>",
+    "consequence": "<downstream consequence>",
+    "upstream_stage_to_revisit": "<stage>",
+    "recommended_fix": "<actionable repair step>"
+    }
+],
+"warning_findings": [],
+"required_repairs": ["<short item>"],
+"rerun_required_from_stage": "<stage or none>",
+"scope_note": "<allowed degraded scope if any>"
+}
+```
+
 ## Review Logic
 - can_proceed must be false if any finding has severity PROBLEM.
 - WARNING findings may proceed only as degraded: set can_proceed true, require the coordinator to mark the stage degraded, and copy the warning into downstream_notes or global_risks.
@@ -102,6 +164,9 @@ Record severity PROBLEM and set can_proceed false when any of these apply to the
 - Missing data provenance, feasibility, claim-classification, or finalization artifacts are PROBLEM findings for DATA_PROVENANCE, SPEC_FEASIBILITY, CLAIM_REVIEW, FINALIZE, or any stage that prints final physics claims.
 - A WARNING that changes a physics number, region definition, sample role, data provenance decision, or claim scope must trigger repair unless the coordinator explicitly degrades the affected claim classification.
 - A reviewer may approve diagnostic output while blocking paper-level claims; in that case can_proceed may be true only if the coordinator records the affected results as diagnostic_proxy or blocked.
+- FINAL_INDEPENDENT_REVIEW passes only when status is PASS or CONDITIONAL_PASS, handoff_allowed is true, and veto_findings is empty.
+- Any final-review PROBLEM requires repair and a fresh final independent review cycle after the affected stage and downstream gates are rerun.
+- Any final-review WARNING that changes a physics number, region definition, sample role, data provenance decision, claim classification, report wording, or handoff scope requires repair or explicit claim degradation before handoff.
 
 ## Reviewer Brief Template
 ```text
@@ -124,4 +189,36 @@ acceptance criteria:
 - check reference feasibility, claim classification, observed-data provenance, and partial-run status when relevant
 - check processed/all sample counts, event caps, region/category overlap sanity, flavor/category distinctness, negative-yield handling, and pseudo-observed labeling when relevant
 - save findings in the required audit schema
+```
+
+## Final Reviewer Brief Template
+```text
+role: final_reviewer
+agent_tag: <tag assigned by coordinator>
+stage: FINAL_INDEPENDENT_REVIEW
+exact task: Critically review the whole analysis end to end and look for reasons final handoff should be blocked. Do not summarize success; verify claims, numbers, plots, provenance, finalization, and reproducibility.
+required input files:
+- prompt.txt
+- analysis_state.json
+- codex_sessions.json
+- artifacts/data_provenance/data_provenance.json
+- artifacts/spec_feasibility/reference_feasibility_matrix.json
+- artifacts/claim_review/claim_classification.json
+- artifacts/claim_review/report_number_trace.json
+- artifacts/finalize/finalization_gate.json
+- <production run manifest>
+- <sample registry>
+- <yields and statistics artifacts>
+- <plot manifest and selected plots>
+- <final report>
+- <reproducibility commands>
+required output paths:
+- reviews/final_independent_review/review_<cycle>.json
+acceptance criteria:
+- use audit_mode: final_independent_review
+- verify every reported final number against report_number_trace.json and source artifacts
+- inspect selected plots visually when present
+- verify processed/all sample counts and event-cap status
+- verify data provenance, feasibility, claim classification, finalization gate, and report wording agree
+- set handoff_allowed false and name rerun_required_from_stage if repair is needed
 ```
