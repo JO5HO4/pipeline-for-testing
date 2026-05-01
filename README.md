@@ -1,11 +1,11 @@
-# Hyy Baseline Test Pipeline
+# Hyy Quality Review Test Pipeline
 
-This branch is the single-agent baseline starting point for Codex/Claude runs on the ATLAS open-data Higgs-to-diphoton workflow. It keeps the normal diphoton scaffold, reference summary, and portable checks needed to begin a fresh run.
+This branch is the single-agent baseline plus final quality-review starting point for Codex/Claude runs on the ATLAS open-data Higgs-to-diphoton workflow. It keeps the normal diphoton scaffold, reference summary, portable checks, and final quality-review package without the multiagent coordination package.
 
 ## Branch Role
 
-- Branch: `hyy_baseline`
-- Skill package: baseline/refactored HEP analysis skills under `.codex/skills/`
+- Branch: `hyy_quality_review`
+- Skill package: baseline/refactored HEP analysis skills, ROOT runtime repair, and final quality review under `.codex/skills/`
 - Agent mode: one session, no delegated subagents
 - Reference target: `analysis/Higgs-to-diphoton.json`
 
