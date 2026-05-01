@@ -1,11 +1,11 @@
-# Hyy Multiagent Test Pipeline
+# Hyy Multiagent Quality Review Test Pipeline
 
-This branch is the multiagent starting point for Codex/Claude runs on the ATLAS open-data Higgs-to-diphoton workflow. It keeps the normal diphoton scaffold, reference summary, and portable checks needed to begin a fresh coordinated run.
+This branch is the multiagent plus final quality-review starting point for Codex/Claude runs on the ATLAS open-data Higgs-to-diphoton workflow. It keeps the normal diphoton scaffold, reference summary, portable checks, multiagent coordination package, and final quality-review package.
 
 ## Branch Role
 
-- Branch: `hyy_multiagent`
-- Skill package: multiagent HEP workflow under `.codex/skills/`
+- Branch: `hyy_multiagent_quality_review`
+- Skill package: baseline/refactored HEP analysis skills, ROOT runtime repair, multiagent coordination, and final quality review under `.codex/skills/`
 - Agent mode: coordinator plus delegated workers/reviewers when useful
 - Reference target: `analysis/Higgs-to-diphoton.json`
 
