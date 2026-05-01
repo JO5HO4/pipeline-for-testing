@@ -1,11 +1,11 @@
-# VLQ Multiagent Test Pipeline
+# VLQ Multiagent Quality Review Test Pipeline
 
-This branch is the multiagent starting point for Codex/Claude runs on the ATLAS open-data same-charge leptons plus b-jets reinterpretation. It is built from the April 29 VLQ workspace and cleaned so the VLQ task summary is the only active analysis target.
+This branch is the multiagent plus final quality-review starting point for Codex/Claude runs on the ATLAS open-data same-charge leptons plus b-jets reinterpretation. It is built from the April 29 VLQ workspace and cleaned so the VLQ task summary is the only active analysis target, using both the multiagent coordination and final quality-review packages.
 
 ## Branch Role
 
-- Branch: `vlq_multiagent`
-- Skill package: multiagent HEP workflow under `.codex/skills/`
+- Branch: `vlq_multiagent_quality_review`
+- Skill package: baseline/refactored HEP analysis skills, ROOT runtime repair, multiagent coordination, and final quality review under `.codex/skills/`
 - Agent mode: coordinator plus delegated workers/reviewers when useful
 - Reference target: `analysis/leptons-bjet-vlq-search.json`
 
