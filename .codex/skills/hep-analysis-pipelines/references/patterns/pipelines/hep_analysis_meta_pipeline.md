@@ -24,7 +24,7 @@ Derived from the source meta-skill and its reference library.
 | 7. Signal and background fitting or statistical setup | reviewed model artifacts exist | `systematics_and_workspace_generator.md`, `fit_and_significance_wrapper.md`, `blinding_and_fit_policy_inversion.md` | `statistical_readiness_reviewer.md` | workspace, fit, and significance outputs satisfy central-claim policy or are explicitly blocked |
 | 8. Validation and cross-checks | statistical outputs exist or are explicitly blocked | `blinding_and_visualization_reviewer.md`, `data_mc_discrepancy_reviewer.md`, `reproducibility_and_handoff_reviewer.md` | same reviewers | visual, discrepancy, and reproducibility evidence are explicit |
 | 9. Result packaging | validated outputs exist | `report_package_generator.md`, `report_packaging_wrapper.md` | `blinding_and_visualization_reviewer.md` | report package and plot manifest are reviewer-ready |
-| 10. Report and log generation | report package exists | `reporting_and_handoff_pipeline.md`, `failure_to_skill_inversion.md` | `reproducibility_and_handoff_reviewer.md` | handoff package, enforcement status, and next-step notes are explicit |
+| 10. Report and log generation | report package exists | `reporting_and_handoff_pipeline.md`, `failure_to_skill_inversion.md`, `../../../../hep-analysis-evaluation-scorecard/SKILL.md` | `reproducibility_and_handoff_reviewer.md` | handoff package, evaluation scorecard, enforcement status, and next-step notes are explicit |
 
 ## Stage-specific requirements
 
@@ -77,7 +77,7 @@ Derived from the source meta-skill and its reference library.
 
 ### 10. Report and log generation
 
-- handoff is invalid unless the enforcement gate and reviewer verdict both allow it
+- handoff is invalid unless the evaluation scorecard, enforcement gate, and reviewer verdict all allow it
 - every completed run must include failure-extraction notes or an explicit no-new-skill result
 
 ## Logging requirements
@@ -89,6 +89,7 @@ Use `../shared/pipeline_logging_contract.md` for every stage. The minimum log bu
 - stage-by-stage assumptions and deviations
 - reviewer outcomes
 - final handoff state
+- evaluation scorecard path and verdict
 
 ## Escalation paths
 
