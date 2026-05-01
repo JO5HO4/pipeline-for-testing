@@ -21,6 +21,7 @@ These files must exist or be referenced when relevant; not every agent should re
 - codex_sessions.json
 - agent_timeline.jsonl
 - outputs/evaluation_scorecard.json for run-quality summary and handoff status
+- outputs/test_outcome_summary.json for compact final status, claim permission, blockers, and headline diagnostic numbers
 - handoff/<stage>/local_brief.txt for routine stages
 - handoff/<stage>/worker_brief.txt for delegated critical_analysis stages
 - handoff/<stage>/reviewer_brief_draft.txt during PLAN for delegated critical_analysis stages
@@ -42,3 +43,4 @@ These files must exist or be referenced when relevant; not every agent should re
 - Save final artifact reviews to reviews/final_artifact_review/review_<cycle>.json and final claim reviews to reviews/final_claim_review/review_<cycle>.json.
 - Use the shared audit schema for both local self-checks and independent reviews.
 - Always use forward slashes.
+- Paths written into scorecard and summary artifacts must be repo-root-relative.

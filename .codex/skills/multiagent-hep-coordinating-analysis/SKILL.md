@@ -65,7 +65,8 @@ This is the entrypoint skill for the multiagent HEP package. Use it when the coo
 - Repair or explicitly degrade any reviewer WARNING that affects a physics number, region definition, sample role, data provenance decision, or claim scope.
 - If either final reviewer finds a PROBLEM, rerun the named upstream stage and every downstream gate from CLAIM_REVIEW onward before requesting fresh FINAL_ARTIFACT_REVIEW and FINAL_CLAIM_REVIEW.
 - Never promote smoke, capped, or partial-statistics outputs to final production outputs unless the user explicitly requested a partial-only result and the report label makes that scope unambiguous.
-- Keep outputs/evaluation_scorecard.json current and ensure it agrees with analysis_state.json, finalization, and both final reviews before handoff.
+- Keep outputs/evaluation_scorecard.json and outputs/test_outcome_summary.json current and ensure they agree with analysis_state.json, finalization, and both final reviews before handoff.
+- Before handoff, verify scorecard sample_scope counts against the sample registry, progress artifact, and run manifest; unresolved scope ambiguity blocks handoff.
 
 ## Coordinator Never Does
 - Never launch a worker sub-agent for environment setup or other straightforward tasks without a clear need.

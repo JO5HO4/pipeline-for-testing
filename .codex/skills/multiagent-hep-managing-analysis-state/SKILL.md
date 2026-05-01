@@ -60,9 +60,17 @@ Used by the coordinator when creating or updating the persistent state for the c
     "report_number_trace": "artifacts/claim_review/report_number_trace.json",
     "finalization_gate": "artifacts/finalize/finalization_gate.json",
     "evaluation_scorecard": "outputs/evaluation_scorecard.json",
+    "test_outcome_summary": "outputs/test_outcome_summary.json",
+    "sample_registry": "<repo-root-relative path or missing>",
+    "sample_exclusion_reasons": "<repo-root-relative path or missing>",
     "final_artifact_review": "reviews/final_artifact_review/review_<cycle>.json",
     "final_claim_review": "reviews/final_claim_review/review_<cycle>.json",
-    "observed_claims_allowed": false,
+    "real_observed_data_validated": false,
+    "observed_signal_region_unblinded": false,
+    "observed_diagnostic_results_allowed": false,
+    "observed_paper_level_claims_allowed": false,
+    "paper_level_claims_allowed": false,
+    "diagnostic_claims_allowed": true,
     "handoff_allowed": false,
     "allowed_final_claims": ["<short item>"],
     "blocked_final_claims": ["<short item>"]
@@ -100,9 +108,17 @@ Used by the coordinator when creating or updating the persistent state for the c
 - claim_policy.report_number_trace: Path to the artifact mapping final report numbers and claims to machine-readable source artifacts.
 - claim_policy.finalization_gate: Path to the final report gate artifact.
 - claim_policy.evaluation_scorecard: Path to the shared run-quality scorecard.
+- claim_policy.test_outcome_summary: Path to the short verdict summary that must agree with the scorecard.
+- claim_policy.sample_registry: Path to the sample registry used for registered-vs-usable sample accounting.
+- claim_policy.sample_exclusion_reasons: Path to the artifact explaining every excluded or unprocessed registered sample.
 - claim_policy.final_artifact_review: Path to the latest final artifact/run-integrity review.
 - claim_policy.final_claim_review: Path to the latest final claim/report-scope review.
-- claim_policy.observed_claims_allowed: Boolean copied from data provenance review; false blocks observed paper-level claims.
+- claim_policy.real_observed_data_validated: Boolean copied from data provenance review; false blocks observed paper-level claims.
+- claim_policy.observed_signal_region_unblinded: Boolean recording whether observed signal-region results were intentionally unblinded after expected workflow completion.
+- claim_policy.observed_diagnostic_results_allowed: Boolean recording whether pseudo-observed or observed diagnostics may be reported with diagnostic labels.
+- claim_policy.observed_paper_level_claims_allowed: Boolean recording whether observed results may be used for paper-level claims.
+- claim_policy.paper_level_claims_allowed: Boolean recording whether any paper-level claim is allowed by provenance, feasibility, execution, and claim review.
+- claim_policy.diagnostic_claims_allowed: Boolean recording whether diagnostic or reinterpretation claims are allowed.
 - claim_policy.handoff_allowed: Boolean copied from the final claim review and scorecard; false blocks final handoff.
 - claim_policy.allowed_final_claims and blocked_final_claims: Short cross-stage claim boundaries that constrain reporting.
 - budget: Shared budget state, note, and scope reductions.

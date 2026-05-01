@@ -38,7 +38,7 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - Before implementation, create artifacts/data_provenance/data_provenance.json.
 - Classify every input-data/data ROOT file as real_observed_collision_data, pseudo_observed_mc_like_data, or unusable.
 - Record filename evidence, tree/schema evidence, branch evidence, event-weight or metadata evidence when available, and the decision rule.
-- Include a top-level observed_claims_allowed boolean and a short reason.
+- Include explicit booleans for real_observed_data_validated, observed_signal_region_unblinded, observed_diagnostic_results_allowed, observed_paper_level_claims_allowed, paper_level_claims_allowed, diagnostic_claims_allowed, and a short reason.
 - Treat DATA_PROVENANCE as critical_analysis when any observed result, discovery significance, limit, or data/MC comparison may be reported.
 - Require independent review of the data provenance artifact before observed results are computed or reported.
 - If data provenance is pseudo_observed_mc_like_data, unavailable, mixed, or inconclusive, observed paper-level claims are blocked. Pseudo-observed values may appear only as clearly labeled diagnostic_proxy outputs.
@@ -47,7 +47,7 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - Before implementation, create artifacts/spec_feasibility/reference_feasibility_matrix.json.
 - Classify each critical reference requirement as available, substituted, unavailable, or not_applicable.
 - For each substituted or unavailable requirement, record evidence, the proposed replacement if any, expected analysis impact, allowed_claims, and blocked_claims.
-- Include checks for sample roles, real observed data availability, trigger/object branch availability, signal samples, control/fake/background methods, statistical model ingredients, and systematic inputs when relevant.
+- Include checks for sample roles, sample registry completeness, usable-sample scope, real observed data availability, trigger/object branch availability, signal samples, control/fake/background methods, statistical model ingredients, and systematic inputs when relevant.
 - Treat SPEC_FEASIBILITY as critical_analysis unless the user explicitly requested a purely mechanical exercise.
 - Require independent review of the feasibility matrix before downstream implementation begins.
 - If a critical paper ingredient is unavailable, continue only with an explicitly diagnostic or reinterpretation claim path, or mark the workflow blocked.
@@ -111,7 +111,8 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - If a statistic uses clipped, floored, or nonnegative-stabilized signed MC yields, classify that statistic as diagnostic_proxy or blocked and explain the raw signed yields and stabilization rule.
 - For mutually exclusive regions or categories, verify a mask sanity artifact that records event counts and overlap checks; identical yields across supposedly distinct regions require repair or a blocked result.
 - Create artifacts/claim_review/report_number_trace.json mapping every numerical value or final claim printed in the report to its source artifact, source JSON path or table row, claim classification, and allowed_in_final_report boolean.
-- Update outputs/evaluation_scorecard.json with the claim-review status, report-number-trace status, and allowed or blocked final-claim scope.
+- Update outputs/evaluation_scorecard.json with the claim-review status, report-number-trace status, sample_scope counts, and allowed or blocked final-claim scope.
+- Ensure all scorecard artifact paths are repo-root-relative and update outputs/test_outcome_summary.json with the current diagnostic or blocked status.
 
 ## FINALIZE Gate
 - Before writing or approving a final report, create artifacts/finalize/finalization_gate.json.
@@ -128,14 +129,16 @@ Used by the coordinator when advancing any stage through planning, execution, au
   - mutually exclusive region or category masks lack an overlap sanity check, or supposedly distinct regions have identical yields without a reviewed explanation;
   - the background model, signal model, or observed-data source is invalid for the printed claim.
 - If the gate fails, write a blocked or diagnostic report instead of a paper-like final result, and record the failed checks in analysis_state.json and agent_timeline.jsonl.
-- Update outputs/evaluation_scorecard.json with the finalization status before any final review is spawned.
+- Update outputs/evaluation_scorecard.json and outputs/test_outcome_summary.json with the finalization status before any final review is spawned.
+- Before spawning final review, verify that all paths in outputs/evaluation_scorecard.json are repo-root-relative and resolve, and that sample_scope counts agree with the sample registry, progress artifact, and production run manifest.
 
 ## FINAL_ARTIFACT_REVIEW Gate
 - After FINALIZE, spawn a fresh independent reviewer whose only task is artifact and run-integrity review.
 - The artifact reviewer must not be the coordinator, any implementation worker, or any reviewer whose earlier approval is being relied on for final artifact integrity.
 - Use an adversarial brief: the reviewer is trying to find missing, stale, partial, contradictory, or non-reproducible artifacts.
-- Required artifact-review inputs include the prompt, analysis_state.json, codex_sessions.json, outputs/evaluation_scorecard.json, artifacts/data_provenance/data_provenance.json, artifacts/spec_feasibility/reference_feasibility_matrix.json, artifacts/claim_review/claim_classification.json, artifacts/claim_review/report_number_trace.json, artifacts/finalize/finalization_gate.json, the production run manifest, sample registry, yields, statistics, plot manifest, selected plots, reproducibility commands, and final report.
-- The artifact reviewer must verify that outputs/evaluation_scorecard.json agrees with the source artifacts, that the production run processed all usable samples or is explicitly blocked, that no smoke/capped/partial run is promoted as final, that plot files exist and are inspectable when plots exist, and that every final report number is present in artifacts/claim_review/report_number_trace.json.
+- Required artifact-review inputs include the prompt, analysis_state.json, codex_sessions.json, outputs/evaluation_scorecard.json, outputs/test_outcome_summary.json, artifacts/data_provenance/data_provenance.json, artifacts/spec_feasibility/reference_feasibility_matrix.json, artifacts/claim_review/claim_classification.json, artifacts/claim_review/report_number_trace.json, artifacts/finalize/finalization_gate.json, the production run manifest, sample registry, sample exclusion reasons, yields, statistics, plot manifest, selected plots, reproducibility commands, and final report.
+- The artifact reviewer must verify that outputs/evaluation_scorecard.json and outputs/test_outcome_summary.json agree with each other and with source artifacts, that scorecard artifact paths are repo-root-relative and resolve, that sample_scope counts agree with the registry/progress/run manifest, that the production run processed all usable samples or is explicitly blocked, that no smoke/capped/partial run is promoted as final, that plot files exist and are inspectable when plots exist, and that every final report number is present in artifacts/claim_review/report_number_trace.json.
+- The artifact reviewer must veto progression if sample scope is undefined, sample counts are missing or contradictory, excluded samples lack reasons, artifact paths are output-relative instead of repo-root-relative, or the outcome summary contradicts the scorecard.
 - The artifact reviewer must write reviews/final_artifact_review/review_<cycle>.json using the final-artifact-review schema from multiagent-hep-reviewing-stage-outputs.
 - If the artifact review finds any PROBLEM, do not proceed to FINAL_CLAIM_REVIEW. Mark the relevant upstream stage needs_revisit, spawn a repair worker or repair locally as appropriate, rerun the affected stage and all downstream gates from CLAIM_REVIEW onward, then rerun FINAL_ARTIFACT_REVIEW with a fresh cycle.
 - If the artifact review finds any WARNING that changes a physics number, region definition, sample role, data provenance decision, claim classification, final report source, reproducibility status, or handoff scope, repair or explicitly degrade the affected claim, rerun CLAIM_REVIEW and FINALIZE, then rerun FINAL_ARTIFACT_REVIEW.
@@ -145,10 +148,10 @@ Used by the coordinator when advancing any stage through planning, execution, au
 - The claim reviewer must not be the coordinator, any implementation worker, the final artifact reviewer, or any reviewer whose earlier approval is being relied on for the final claim.
 - Use an adversarial brief: the reviewer is trying to find overclaims, misleading wording, unsupported numbers, pseudo-observed misuse, or paper-level claims that should be blocked.
 - Required claim-review inputs include all FINAL_ARTIFACT_REVIEW inputs plus reviews/final_artifact_review/review_<cycle>.json.
-- The claim reviewer must verify that every headline result and every numerical report claim traces through artifacts/claim_review/report_number_trace.json to a machine-readable source artifact, that report wording matches the weakest valid claim classification, and that outputs/evaluation_scorecard.json agrees with the allowed handoff scope.
+- The claim reviewer must verify that every headline result and every numerical report claim traces through artifacts/claim_review/report_number_trace.json to a machine-readable source artifact, that report wording matches the weakest valid claim classification, that the report tone matches outputs/test_outcome_summary.json final_status, and that outputs/evaluation_scorecard.json agrees with the allowed handoff scope.
 - The claim reviewer must inspect selected plots visually when plots exist and check that captions and conclusions do not overstate diagnostic or blocked outputs.
 - The claim reviewer must write reviews/final_claim_review/review_<cycle>.json using the final-claim-review schema from multiagent-hep-reviewing-stage-outputs.
-- Final handoff is allowed only when FINAL_ARTIFACT_REVIEW and FINAL_CLAIM_REVIEW have no PROBLEM findings, the final claim review sets handoff_allowed true, and outputs/evaluation_scorecard.json records handoff_allowed true.
+- Final handoff is allowed only when FINAL_ARTIFACT_REVIEW and FINAL_CLAIM_REVIEW have no PROBLEM findings, the final claim review sets handoff_allowed true, and outputs/evaluation_scorecard.json plus outputs/test_outcome_summary.json both record handoff_allowed true with matching claim scope.
 - If the claim review finds any PROBLEM, do not hand off. Mark the relevant upstream stage needs_revisit, spawn a repair worker or repair locally as appropriate, rerun the affected stage and all downstream gates from CLAIM_REVIEW onward, then rerun FINAL_ARTIFACT_REVIEW and FINAL_CLAIM_REVIEW with fresh cycles.
 - If the claim review finds any WARNING that changes a physics number, region definition, sample role, data provenance decision, claim classification, final report wording, or handoff scope, repair or explicitly degrade the affected claim, rerun CLAIM_REVIEW and FINALIZE, then rerun both final reviews.
 - If both final reviews find only documented limitations that do not change claim scope, the coordinator may proceed as degraded only if the final claim review explicitly sets handoff_allowed true and records the allowed claim scope.
