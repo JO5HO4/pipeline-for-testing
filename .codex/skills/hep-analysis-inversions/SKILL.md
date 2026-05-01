@@ -1,6 +1,6 @@
 ---
 name: hep-analysis-inversions
-description: Use when you need the refactored HEP inversion skills from this installed skill pack: blocker routing, signal-signature and likelihood intake, sample-strategy branching, blinding and fit-policy decisions, or failure-to-skill diagnosis for the current analysis project.
+description: "Use when you need the refactored HEP inversion skills from this installed skill pack: blocker routing, signal-signature and likelihood intake, sample-strategy branching, blinding and fit-policy decisions, or failure-to-skill diagnosis for the current analysis project."
 ---
 
 # HEP Analysis Inversions
