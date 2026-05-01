@@ -14,62 +14,21 @@ Baseline skill package:
 Follow the instructions below to complete a Higgs-to-diphoton search using the 36.1 fb-1 ATLAS open data samples, including data and MC.
 
 What is available:
-- Installed skills in .codex/skills/; consult these for analysis methodology guidance.
-- Prefer the refactored hep-analysis-* skills, especially hep-analysis-meta-pipeline, as the canonical analysis workflow. Do not use the legacy hep-meta-first skill unless the refactored skills are unavailable or you are explicitly repairing a legacy-skill issue.
+- Installed skills in .codex/skills/; use these as the source of workflow, validation, scorecard, finalization, and claim-review requirements.
 - Structured analysis summary, the authoritative reproduction target: analysis/Higgs-to-diphoton.json.
 - Input ROOT ntuples, reachable through symlinked open-data inputs: input-data/data and input-data/MC.
 
-Data provenance and finalization guardrails:
-- Before any observed result is computed or reported, write a data provenance artifact under outputs/ that classifies every input-data/data ROOT file as real observed collision data, pseudo-observed MC-like data, or unusable. Include filename evidence, tree/schema evidence, branch evidence, and the decision rule.
-- Observed paper-level claims are blocked unless the data provenance artifact validates real observed collision data. Pseudo-observed values may appear only in clearly labeled diagnostic artifacts or a clearly labeled diagnostic report section.
-- The final report must not headline or summarize pseudo-observed numerical results as observed physics results.
-- The finalization gate must fail if the production run is partial, capped, smoke-only, still running, or has processed fewer than all usable samples. A report may still be written, but it must be labeled blocked or diagnostic rather than complete.
-- If any region or category has negative signed MC background or signal yield that is clipped for a statistic, the corresponding significance or limit is diagnostic_proxy or blocked. Do not present clipped-yield statistics as physical paper-level results.
-- For mutually exclusive regions or categories, including any flavor-split or category-split rows, write a mask sanity artifact showing event counts and overlap checks. Identical yields across supposedly distinct regions or categories require repair or explicit blocking.
-
-Hard constraints:
-- Do not quote or copy raw text from Higgs-to-diphoton.json verbatim in the final report.
-- Use Higgs-to-diphoton.json as the primary implementation target and implement the analysis to closely reproduce it with available open-data observables.
-- Inspect the actual branches present in the ROOT ntuples before implementing object definitions, selections, categories, or fits.
-- Photon identification, isolation, categorization, calibration, and trigger variables may differ from the reference analysis era. Determine the closest usable equivalents from the available branches.
-- If anything in Higgs-to-diphoton.json is inconsistent with the open data samples, including missing variables, different definitions, unavailable observables, unavailable observed collision data, or unavailable systematic inputs, implement a documented diagnostic replacement only after recording the limitation in the feasibility matrix. A replacement does not inherit the paper-level claim unless claim review explicitly supports it.
-
-Reference feasibility and claim gates:
-- Keep Higgs-to-diphoton.json as the faithful paper-spec source of truth. Do not edit it to describe open-data substitutions.
-- Before implementation, produce a reference feasibility matrix in the workflow-standard report or artifact location. Classify each critical paper requirement as available, substituted, unavailable, or not applicable, with evidence, allowed claims, and blocked claims.
-- Before finalization, produce a claim-classification artifact assigning every reported result one of: reproduction, reinterpretation, diagnostic_proxy, or blocked.
-- The final report must pass a finalization gate proving that the report source is a completed full-production run over all usable samples, not a smoke, capped, partial, or test run.
-- Observed discovery significance is allowed only if the observed-data source is validated as real observed data, not MC-like files in a data directory. If only pseudo-observed or MC-like data are available, block observed discovery claims or label them pseudo-observed diagnostic results.
-- Do not print paper-level significances from regions or fits with invalid background models, zero usable signal, negative-yield clipping, or unsupported observed data.
-
-Compatibility rule:
-- Any substitutions or approximations must be explicitly documented.
-- The justification must be written in a dedicated section of the final report titled: "Implementation Differences from Reference Analysis".
-- For each substitution include:
-  - the reference concept, without quoting the JSON;
-  - the observable or method available in the open data;
-  - the reasoning for the replacement;
-  - the expected impact on the analysis, if relevant;
-  - the allowed claim classification and any blocked paper-level claims.
-
-Blinding and significance workflow:
-- Follow a blinded workflow whenever the analysis has a signal-sensitive mass window or region.
-- First finalize selections, categories, background model, signal model, validation plots, and statistical procedure without using observed data in the signal-sensitive region to tune choices.
-- Compute the expected discovery significance first, using an Asimov, MC-derived, or otherwise justified expected-data procedure appropriate to the implemented statistical model.
-- Only after the expected-significance workflow is fixed, unblind the relevant signal-sensitive region if applicable.
-- Then compute the observed discovery significance using the fixed selections, fixed model, and observed data.
-- Clearly label expected and observed significances separately in outputs and in the final report.
-- If blinding is not meaningful for a specific approximation, explain why and still report expected and observed results separately where feasible.
-- Expected significance must be computed before any observed signal-region result.
-- Smoke, capped, or partial-statistics runs may validate code only and must not be promoted into final report paths.
+Workflow source:
+- Treat the analysis summary as the physics target and do not edit it to describe open-data substitutions.
+- Inspect the actual ROOT branches and sample names before implementing object definitions, selections, categories, fits, or report claims.
+- Document any unavailable reference ingredients, substitutions, or approximations in workflow artifacts and in the final report.
 
 Mission:
 Complete the analysis. Implement and execute an end-to-end diphoton analysis pipeline from input-data/ to outputs/, fully reproducible and CLI-driven, guided by the installed skills and Higgs-to-diphoton.json as the reference target. Run this over all usable samples.
 
 Definition of done:
-- All usable data and MC samples are processed.
-- Expected and observed discovery significances are determined or explicitly blocked with justification.
-- Selections, histograms, plots, intermediate artifacts, statistical outputs, commands, logs, skill-package-specific workflow artifacts, and a paper-like final report are saved under outputs/ or the workflow-standard state locations inside the current working directory.
-- The final report includes the "Implementation Differences from Reference Analysis" section.
-- The final report includes the claim classification and avoids paper-level observed claims when the feasibility or finalization gates block them.
+- All usable data and MC samples are processed, or any blocker is explicitly recorded.
+- Selections, histograms, plots, intermediate artifacts, statistical outputs, commands, logs, skill-package-specific workflow artifacts, outputs/evaluation_scorecard.json, and a paper-like final report are saved under outputs/ or the workflow-standard state locations inside the current working directory.
+- The final report includes the "Implementation Differences from Reference Analysis" section when substitutions or approximations were needed.
+- The final report respects the claim classification and finalization outcomes produced by the skills.
 - The run is reproducible from documented CLI commands saved under outputs/.
