@@ -18,7 +18,6 @@ Generated runtime skill packages:
 - `hep-root-runtime-repair`: ROOT/PyROOT/RooFit runtime discovery and repair gate before diagnostic fallback
 - `hep-analysis-evaluation-scorecard`: shared run-quality scorecard required for baseline and multiagent testing
 - `hep-meta-first`: preserved legacy single-entry pack
-- `hep-final-quality-review`: general final HEP quality gate for artifacts, statistics, plots, number trace, claim scope, and handoff
 
 Refactored runtime skills are self-contained.
 Each one bundles its local pattern references under:
