@@ -22,6 +22,7 @@ These files must exist or be referenced when relevant; not every agent should re
 - agent_timeline.jsonl
 - outputs/evaluation_scorecard.json for run-quality summary and handoff status
 - outputs/test_outcome_summary.json for compact final status, claim permission, blockers, and headline diagnostic numbers
+- artifacts/runtime/root_runtime_repair_attempts.json when ROOT-backed capability is required or unavailable
 - handoff/<stage>/local_brief.txt for routine stages
 - handoff/<stage>/worker_brief.txt for delegated critical_analysis stages
 - handoff/<stage>/reviewer_brief_draft.txt during PLAN for delegated critical_analysis stages

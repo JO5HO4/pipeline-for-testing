@@ -15,6 +15,7 @@ Generated runtime skill packages:
 - `hep-analysis-reviewers`: validation and gate entry skill
 - `hep-analysis-tool-wrappers`: repository command and workflow wrapper entry skill
 - `hep-analysis-env-setup`: runtime environment setup helper
+- `hep-root-runtime-repair`: ROOT/PyROOT/RooFit runtime discovery and repair gate before diagnostic fallback
 - `hep-analysis-evaluation-scorecard`: shared run-quality scorecard required for baseline and multiagent testing
 - `hep-meta-first`: preserved legacy single-entry pack
 

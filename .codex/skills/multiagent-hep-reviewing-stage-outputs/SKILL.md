@@ -65,6 +65,7 @@ Record severity PROBLEM and set can_proceed false when any of these apply to the
 - A partial, smoke, capped, or incomplete run is being treated as production or final.
 - A run reports final physics results without clear processed/all sample counts and no event-cap evidence.
 - The scorecard sample_scope is missing, ambiguous, contradicted by the sample registry/progress/run manifest, or omits exclusion reasons for unprocessed samples.
+- A ROOT-backed backend was required or missing, but diagnostic fallback or blocked status lacks a resolving root-runtime repair-attempt artifact.
 - A data provenance artifact is missing, inconclusive, or not independently reviewed before observed results are computed or reported.
 - A paper-level claim is made from a substituted proxy implementation without an approved feasibility matrix and claim classification.
 - Observed significance, limits, mass limits, or exclusions are reported when observed data are unavailable, are MC-like pseudo-data, or were used before the expected workflow was fixed.
@@ -136,7 +137,7 @@ Record severity PROBLEM and set can_proceed false when any of these apply to the
 },
 "artifact_checks": [
     {
-    "check": "scorecard|test_outcome_summary|sample_scope|artifact_paths|production_run|data_provenance|feasibility|claim_classification|number_trace|plots|reproducibility|final_report",
+    "check": "scorecard|test_outcome_summary|sample_scope|root_runtime_repair|artifact_paths|production_run|data_provenance|feasibility|claim_classification|number_trace|plots|reproducibility|final_report",
     "source_artifact": "<path or missing>",
     "status": "PASS|WARNING|PROBLEM",
     "issue": "<empty or concise issue>"
@@ -146,7 +147,7 @@ Record severity PROBLEM and set can_proceed false when any of these apply to the
     {
     "id": "V1",
     "severity": "PROBLEM",
-    "category": "scorecard|test_outcome_summary|sample_scope|artifact_paths|data_provenance|partial_run|statistics|report_trace|plot|reproducibility|artifact|other",
+    "category": "scorecard|test_outcome_summary|sample_scope|root_runtime_repair|artifact_paths|data_provenance|partial_run|statistics|report_trace|plot|reproducibility|artifact|other",
     "artifact": "<path or logical name>",
     "issue": "<concise statement>",
     "evidence": "<specific evidence>",
@@ -232,6 +233,7 @@ Record severity PROBLEM and set can_proceed false when any of these apply to the
 - A reviewer may approve diagnostic output while blocking paper-level claims; in that case can_proceed may be true only if the coordinator records the affected results as diagnostic_proxy or blocked.
 - FINAL_ARTIFACT_REVIEW passes only when status is PASS or CONDITIONAL_PASS and veto_findings is empty.
 - FINAL_ARTIFACT_REVIEW must fail if scorecard sample counts do not agree with the sample registry, progress artifact, and production manifest, or if scorecard artifact paths are not repo-root-relative and resolvable.
+- FINAL_ARTIFACT_REVIEW must fail if a ROOT-backed statistical backend was required but fallback or blocked status has no root-runtime repair-attempt artifact.
 - FINAL_CLAIM_REVIEW passes only when status is PASS or CONDITIONAL_PASS, handoff_allowed is true, veto_findings is empty, and outputs/evaluation_scorecard.json plus outputs/test_outcome_summary.json also record handoff_allowed true with matching claim scope.
 - FINAL_CLAIM_REVIEW must fail if the report tone is stronger than outputs/test_outcome_summary.json final_status allows.
 - Any final-review PROBLEM requires repair and fresh FINAL_ARTIFACT_REVIEW and FINAL_CLAIM_REVIEW cycles after the affected stage and downstream gates are rerun.
@@ -272,6 +274,7 @@ required input files:
 - codex_sessions.json
 - outputs/evaluation_scorecard.json
 - outputs/test_outcome_summary.json
+- artifacts/runtime/root_runtime_repair_attempts.json when ROOT-backed capability was required or missing
 - artifacts/data_provenance/data_provenance.json
 - artifacts/spec_feasibility/reference_feasibility_matrix.json
 - artifacts/claim_review/claim_classification.json
@@ -290,6 +293,7 @@ acceptance criteria:
 - use audit_mode: final_artifact_review
 - verify outputs/evaluation_scorecard.json against source artifacts
 - verify outputs/test_outcome_summary.json agrees with outputs/evaluation_scorecard.json and the final report
+- verify ROOT-backed fallback or blocked status is backed by a resolving root-runtime repair-attempt artifact when relevant
 - verify every scorecard artifact path is repo-root-relative and resolves
 - verify every reported final number appears in report_number_trace.json
 - inspect selected plots visually when present

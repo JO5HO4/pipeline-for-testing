@@ -61,6 +61,7 @@ Used by the coordinator when creating or updating the persistent state for the c
     "finalization_gate": "artifacts/finalize/finalization_gate.json",
     "evaluation_scorecard": "outputs/evaluation_scorecard.json",
     "test_outcome_summary": "outputs/test_outcome_summary.json",
+    "root_runtime_repair": "artifacts/runtime/root_runtime_repair_attempts.json",
     "sample_registry": "<repo-root-relative path or missing>",
     "sample_exclusion_reasons": "<repo-root-relative path or missing>",
     "final_artifact_review": "reviews/final_artifact_review/review_<cycle>.json",
@@ -109,6 +110,7 @@ Used by the coordinator when creating or updating the persistent state for the c
 - claim_policy.finalization_gate: Path to the final report gate artifact.
 - claim_policy.evaluation_scorecard: Path to the shared run-quality scorecard.
 - claim_policy.test_outcome_summary: Path to the short verdict summary that must agree with the scorecard.
+- claim_policy.root_runtime_repair: Path to ROOT/PyROOT/RooFit runtime discovery and repair attempts when a ROOT-backed backend is required or missing.
 - claim_policy.sample_registry: Path to the sample registry used for registered-vs-usable sample accounting.
 - claim_policy.sample_exclusion_reasons: Path to the artifact explaining every excluded or unprocessed registered sample.
 - claim_policy.final_artifact_review: Path to the latest final artifact/run-integrity review.
