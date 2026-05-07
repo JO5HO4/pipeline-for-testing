@@ -2,7 +2,7 @@
   "analysis_metadata": {
     "experiment": "ATLAS",
     "collaboration": "ATLAS",
-    "title": "Search for new phenomena in events with same-charge leptons and b-jets in pp collisions at sqrt(s) = 13 TeV with the ATLAS detector",
+    "title": "Open-data proxy reinterpretation of same-charge leptons plus b-jets selections",
     "document_type": "peer-reviewed paper",
     "journal": "JHEP",
     "journal_reference": "JHEP 12 (2018) 039",
@@ -20,81 +20,44 @@
     ],
     "detector": "ATLAS",
     "analysis_short_name": "same_charge_leptons_bjets",
-    "output_filename": "ATLAS_2018_same_charge_leptons_bjets.analysis.json",
+    "output_filename": "ATLAS_2018_same_charge_leptons_bjets.open_data_proxy.analysis.json",
     "primary_final_states": [
       "same-sign dilepton plus b-jets",
       "trilepton plus b-jets"
-    ]
+    ],
+    "open_data_reinterpretation": true,
+    "reference_analysis_title": "Search for new phenomena in events with same-charge leptons and b-jets in pp collisions at sqrt(s) = 13 TeV with the ATLAS detector",
+    "analysis_scope_note": "This JSON intentionally describes what can be executed with the available ATLAS open-data ntuples. It preserves the same-charge dilepton/trilepton object and region structure, but does not request official VLQ mass limits, full CLs limits, fake-lepton matrix-method reproduction, or electron charge-misID calibration when the required signal grids and auxiliary inputs are absent.",
+    "open_data_analysis_short_name": "same_charge_leptons_bjets_open_data_proxy"
   },
   "analysis_objectives": [
     {
-      "objective_id": "OBJ_VLQ",
-      "objective_type": "search",
-      "target": "vector-like quark production",
+      "objective_id": "OBJ_OPEN_DATA_PROXY",
+      "objective_type": "diagnostic_reinterpretation",
+      "target": "same-charge dilepton and trilepton plus b-jets open-data proxy analysis",
       "signal_models": [
-        "B quark pair production",
-        "T quark pair production",
-        "T5/3 quark pair production",
-        "T5/3 quark single production"
+        "available BSM four-top-like proxy samples",
+        "available heavy-top or other top-rich proxy samples when present",
+        "SM four-top sample as a named comparison sample when present"
       ],
       "final_states_used": [
         "same-sign dilepton plus b-jets",
         "trilepton plus b-jets"
       ],
       "reported_outputs": [
-        "95% CL cross-section limits",
-        "95% CL mass limits"
-      ]
-    },
-    {
-      "objective_id": "OBJ_4TOP_BSM",
-      "objective_type": "search",
-      "target": "BSM four-top-quark production",
-      "signal_models": [
-        "contact interaction EFT benchmark",
-        "2UED/RPP benchmark",
-        "2HDM type-II benchmark"
+        "cutflows and central sample accounting",
+        "signal-region and validation-region yields",
+        "control-proxy diagnostics for fake/non-prompt and charge-misID studies",
+        "diagnostic expected and observed counting-proxy sensitivity",
+        "explicit list of blocked official VLQ/CLs/mass-limit claims"
       ],
-      "final_states_used": [
-        "same-sign dilepton plus b-jets",
-        "trilepton plus b-jets"
-      ],
-      "reported_outputs": [
-        "95% CL cross-section limits",
-        "95% CL parameter limits"
-      ]
-    },
-    {
-      "objective_id": "OBJ_4TOP_SM",
-      "objective_type": "search",
-      "target": "Standard Model four-top-quark production",
-      "signal_models": [
-        "SM tttt"
-      ],
-      "final_states_used": [
-        "same-sign dilepton plus b-jets",
-        "trilepton plus b-jets"
-      ],
-      "reported_outputs": [
-        "cross-section upper limit"
-      ]
-    },
-    {
-      "objective_id": "OBJ_SSTT",
-      "objective_type": "search",
-      "target": "same-sign top-quark pair production",
-      "signal_models": [
-        "FCNC dark-matter mediator model",
-        "prompt tt subprocess",
-        "on-shell mediator subprocess",
-        "off-shell mediator subprocess"
-      ],
-      "final_states_used": [
-        "exactly two positive leptons plus b-jets"
-      ],
-      "reported_outputs": [
-        "95% CL cross-section limits",
-        "95% CL coupling limits"
+      "blocked_reference_outputs": [
+        "95% CL VLQ mass limits",
+        "branching-ratio-dependent VLQ contours",
+        "official CLs cross-section limits",
+        "fake/non-prompt matrix-method background estimate",
+        "electron charge-misID calibrated background estimate",
+        "full nuisance-parameter likelihood reproduction"
       ]
     }
   ],
@@ -117,7 +80,8 @@
         "BBbar -> Wt Zbbar -> W-W+b Zbbar"
       ],
       "target_region_family": "VLQ_4top",
-      "target_final_state_signature": "same-sign dilepton or trilepton plus jets with at least one b-tagged jet"
+      "target_final_state_signature": "same-sign dilepton or trilepton plus jets with at least one b-tagged jet",
+      "open_data_status": "reference-only; no dedicated open-data signal grid available for central mass-limit interpretation"
     },
     {
       "signal_id": "SIG_VLQ_TT",
@@ -137,7 +101,8 @@
         "TTbar -> Zt Htbar -> ZW+b HW-bbar"
       ],
       "target_region_family": "VLQ_4top",
-      "target_final_state_signature": "same-sign dilepton or trilepton plus jets with at least one b-tagged jet"
+      "target_final_state_signature": "same-sign dilepton or trilepton plus jets with at least one b-tagged jet",
+      "open_data_status": "reference-only; no dedicated open-data signal grid available for central mass-limit interpretation"
     },
     {
       "signal_id": "SIG_VLQ_T53_PAIR_SINGLE",
@@ -152,7 +117,8 @@
       "branching_ratio_assumption": "B(T5/3 -> Wt) = 100%",
       "target_region_family": "VLQ_4top",
       "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets",
-      "sensitivity_note": "A same-sign lepton pair can arise from a single T5/3 decay when both W bosons decay leptonically."
+      "sensitivity_note": "A same-sign lepton pair can arise from a single T5/3 decay when both W bosons decay leptonically.",
+      "open_data_status": "reference-only; no dedicated open-data signal grid available for central mass-limit interpretation"
     },
     {
       "signal_id": "SIG_4TOP_SM",
@@ -160,7 +126,8 @@
       "production_mode": "SM production",
       "target_region_family": "VLQ_4top",
       "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets",
-      "reported_branching_ratio_to_target_final_state": "12.1%, including leptonically decaying tau leptons"
+      "reported_branching_ratio_to_target_final_state": "12.1%, including leptonically decaying tau leptons",
+      "open_data_status": "possible proxy or comparison target only when matching local samples are present"
     },
     {
       "signal_id": "SIG_4TOP_CI",
@@ -168,7 +135,8 @@
       "production_mode": "effective four-fermion contact interaction",
       "operator_choice": "right-handed top-quark operator only",
       "target_region_family": "VLQ_4top",
-      "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets"
+      "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets",
+      "open_data_status": "possible proxy or comparison target only when matching local samples are present"
     },
     {
       "signal_id": "SIG_4TOP_2UED_RPP",
@@ -180,7 +148,8 @@
       ],
       "branching_ratio_assumption": "B(A(1,1) -> ttbar) = 100%",
       "target_region_family": "VLQ_4top",
-      "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets, with additional associated SM objects possible"
+      "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets, with additional associated SM objects possible",
+      "open_data_status": "possible proxy or comparison target only when matching local samples are present"
     },
     {
       "signal_id": "SIG_4TOP_2HDM",
@@ -196,7 +165,8 @@
       ],
       "target_region_family": "VLQ_4top",
       "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets",
-      "kinematic_note": "The paper states that this benchmark is softer than the contact-interaction four-top signature, especially at low masses."
+      "kinematic_note": "The paper states that this benchmark is softer than the contact-interaction four-top signature, especially at low masses.",
+      "open_data_status": "possible proxy or comparison target only when matching local samples are present"
     },
     {
       "signal_id": "SIG_SSTT_DM",
@@ -213,7 +183,8 @@
       ],
       "target_region_family": "same_sign_tt",
       "target_final_state_signature": "exactly two positively charged leptons plus b-jets",
-      "selection_specific_note": "Only positively charged lepton pairs are used because tt production is much larger than tbar tbar production in pp collisions."
+      "selection_specific_note": "Only positively charged lepton pairs are used because tt production is much larger than tbar tbar production in pp collisions.",
+      "open_data_status": "reference-only unless matching local samples and model inputs are present"
     }
   ],
   "background_processes": [
@@ -221,31 +192,41 @@
       "process_name": "ttW",
       "category": "irreducible",
       "estimation_method": "simulation",
-      "role": "major background"
+      "role": "major background",
+      "open_data_estimation_method": "simulation-driven when matching local sample is present",
+      "central_likelihood_role": "diagnostic_background_component"
     },
     {
       "process_name": "ttZ",
       "category": "irreducible",
       "estimation_method": "simulation",
-      "role": "major background"
+      "role": "major background",
+      "open_data_estimation_method": "simulation-driven when matching local sample is present",
+      "central_likelihood_role": "diagnostic_background_component"
     },
     {
       "process_name": "ttH",
       "category": "irreducible",
       "estimation_method": "simulation",
-      "role": "major background"
+      "role": "major background",
+      "open_data_estimation_method": "simulation-driven when matching local sample is present",
+      "central_likelihood_role": "diagnostic_background_component"
     },
     {
       "process_name": "diboson",
       "category": "irreducible",
       "estimation_method": "simulation",
-      "role": "major background"
+      "role": "major background",
+      "open_data_estimation_method": "simulation-driven when matching local sample is present",
+      "central_likelihood_role": "diagnostic_background_component"
     },
     {
       "process_name": "SM four-top-quark production",
       "category": "irreducible",
       "estimation_method": "simulation",
-      "role": "background in BSM searches and signal in the SM four-top interpretation"
+      "role": "background in BSM searches and signal in the SM four-top interpretation",
+      "open_data_estimation_method": "simulation-driven when matching local sample is present",
+      "central_likelihood_role": "diagnostic_background_component"
     },
     {
       "process_name": "other rare SM backgrounds",
@@ -259,7 +240,9 @@
         "tZW",
         "tZ"
       ],
-      "role": "subleading"
+      "role": "subleading",
+      "open_data_estimation_method": "simulation-driven when matching local sample is present",
+      "central_likelihood_role": "diagnostic_background_component"
     },
     {
       "process_name": "fake or non-prompt leptons",
@@ -288,7 +271,9 @@
           "r_percent": "70-95",
           "f_percent": "8-30"
         }
-      }
+      },
+      "open_data_estimation_method": "control-proxy diagnostics only; calibrated matrix method not available",
+      "central_likelihood_role": "blocked_as_official_data_driven_background"
     },
     {
       "process_name": "electron charge misidentification",
@@ -304,7 +289,9 @@
         "electron |eta|",
         "electron pT"
       ],
-      "reported_probability_range": "2e-5 to 1e-2, reaching 10% at larger |eta|"
+      "reported_probability_range": "2e-5 to 1e-2, reaching 10% at larger |eta|",
+      "open_data_estimation_method": "opposite-charge proxy diagnostics only; charge-flip maps and fake subtraction not available",
+      "central_likelihood_role": "blocked_as_official_data_driven_background"
     }
   ],
   "signal_regions": [
@@ -693,7 +680,7 @@
     {
       "region_name": "SRttemu",
       "search_family": "same_sign_tt",
-      "paper_region_name": "SRtteμ",
+      "paper_region_name": "SRtte\u03bc",
       "lepton_category": "exactly 2l",
       "lepton_flavour_treatment": "e mu",
       "lepton_charge_requirement": "e+ mu+",
@@ -735,7 +722,7 @@
     {
       "region_name": "SRttmumu",
       "search_family": "same_sign_tt",
-      "paper_region_name": "SRttμμ",
+      "paper_region_name": "SRtt\u03bc\u03bc",
       "lepton_category": "exactly 2l",
       "lepton_flavour_treatment": "mu mu",
       "lepton_charge_requirement": "mu+ mu+",
@@ -866,7 +853,7 @@
     {
       "fit_id": "FIT_VLQ_4TOP",
       "search_family": "VLQ_4top",
-      "statistical_strategy": "multi-region counting experiment",
+      "statistical_strategy": "diagnostic counting proxy using open-data sample model",
       "regions_combined": [
         "SR1b2l",
         "SR2b2l",
@@ -879,12 +866,12 @@
       ],
       "fit_observable": "event counts in the signal regions",
       "shape_fit": false,
-      "simultaneous_across_regions": true,
+      "simultaneous_across_regions": false,
       "control_regions_in_likelihood": [],
-      "test_statistic": "Poisson likelihood ratio",
+      "test_statistic": "diagnostic Gaussian or Poisson-style counting proxy fixed before observed counts",
       "signal_strength_parameter": "mu",
-      "limit_metric": "RCLs with 95% CL exclusion",
-      "asymptotic_approximation": true,
+      "limit_metric": "diagnostic proxy sensitivity only; no official CLs exclusion",
+      "asymptotic_approximation": false,
       "nuisance_parameter_constraints": [
         "Gaussian",
         "log-normal"
@@ -927,12 +914,27 @@
           "details": "Statistical uncertainty"
         }
       ],
-      "special_treatment": "SM four-top production is removed from the background when the SM four-top signal is tested."
+      "special_treatment": "SM four-top production is removed from the background when the SM four-top signal is tested.",
+      "official_cls_claim_allowed": false,
+      "mass_limit_claim_allowed": false,
+      "requires_region_overlap_sanity": true,
+      "open_data_blockers": [
+        "no dedicated VLQ signal grid in the local open data",
+        "no full detector/fake/charge-flip/theory nuisance model",
+        "no calibrated fake-lepton matrix-method inputs",
+        "no electron charge-misID probability maps with required prompt/fake subtraction",
+        "region combination requires disjoint-region or covariance evidence before combined claims"
+      ],
+      "allowed_outputs": [
+        "per-region or family diagnostic expected sensitivity",
+        "observed fixed-selection count comparison after expected model is frozen",
+        "raw signed MC yields plus statistic-only nonnegative clipping where needed"
+      ]
     },
     {
       "fit_id": "FIT_SSTT",
       "search_family": "same_sign_tt",
-      "statistical_strategy": "multi-region counting experiment",
+      "statistical_strategy": "diagnostic counting proxy using open-data sample model",
       "regions_combined": [
         "SRttee",
         "SRttemu",
@@ -940,12 +942,12 @@
       ],
       "fit_observable": "event counts in the signal regions",
       "shape_fit": false,
-      "simultaneous_across_regions": true,
+      "simultaneous_across_regions": false,
       "control_regions_in_likelihood": [],
-      "test_statistic": "Poisson likelihood ratio",
+      "test_statistic": "diagnostic Gaussian or Poisson-style counting proxy fixed before observed counts",
       "signal_strength_parameter": "mu",
-      "limit_metric": "RCLs with 95% CL exclusion",
-      "asymptotic_approximation": true,
+      "limit_metric": "diagnostic proxy sensitivity only; no official CLs exclusion",
+      "asymptotic_approximation": false,
       "nuisance_parameter_constraints": [
         "Gaussian",
         "log-normal"
@@ -981,143 +983,53 @@
           "class": "overall dominant uncertainty",
           "details": "Statistical uncertainty"
         }
+      ],
+      "official_cls_claim_allowed": false,
+      "mass_limit_claim_allowed": false,
+      "requires_region_overlap_sanity": true,
+      "open_data_blockers": [
+        "no dedicated VLQ signal grid in the local open data",
+        "no full detector/fake/charge-flip/theory nuisance model",
+        "no calibrated fake-lepton matrix-method inputs",
+        "no electron charge-misID probability maps with required prompt/fake subtraction",
+        "region combination requires disjoint-region or covariance evidence before combined claims"
+      ],
+      "allowed_outputs": [
+        "per-region or family diagnostic expected sensitivity",
+        "observed fixed-selection count comparison after expected model is frozen",
+        "raw signed MC yields plus statistic-only nonnegative clipping where needed"
       ]
     }
   ],
   "results": [
     {
-      "result_id": "RES_GLOBAL",
-      "result_type": "global_outcome",
-      "observed_excess": false,
-      "statement": "No statistically significant excess over the expected background is found.",
-      "notable_counting_excesses": [
-        {
-          "region_name": "SR3b2l_L",
-          "reported_excess_sigma": 1.7
-        },
-        {
-          "region_name": "SR3b3l_L",
-          "reported_excess_sigma": 1.8
-        }
+      "result_id": "RES_OPEN_DATA_PROXY_SCOPE",
+      "result_type": "scope_statement",
+      "statement": "This open-data target does not request official VLQ, four-top, or same-sign-top exclusions. It requests reproducible diagnostic yields and counting-proxy sensitivities for the available samples.",
+      "central_claim_status": "diagnostic_only"
+    },
+    {
+      "result_id": "RES_BLOCKED_OFFICIAL_LIMITS",
+      "result_type": "blocked_reference_outputs",
+      "blocked_outputs": [
+        "VLQ B/T/T5/3 mass limits",
+        "branching-ratio scan contours",
+        "BSM four-top parameter limits",
+        "same-sign-top coupling limits",
+        "official CLs cross-section limits"
       ],
-      "combined_significance_highlights": {
-        "SM_four_top_observed_sigma": 3.0,
-        "SM_four_top_expected_sigma": 0.9,
-        "largest_BSM_model_significance_sigma": 2.3,
-        "largest_BSM_model": "2HDM"
-      }
+      "blocking_reason": "The required dedicated signal grids, full likelihood/nuisance model, fake-lepton matrix method, and charge-misID calibration inputs are not available in the open-data workspace."
     },
     {
-      "result_id": "RES_VLQ_B_SINGLET",
-      "result_type": "95CL_mass_limit",
-      "target": "vector-like B quark singlet",
-      "observed_lower_mass_limit_TeV": 1.0,
-      "expected_lower_mass_limit_TeV": 1.01
-    },
-    {
-      "result_id": "RES_VLQ_T_SINGLET",
-      "result_type": "95CL_mass_limit",
-      "target": "vector-like T quark singlet",
-      "observed_lower_mass_limit_TeV": 0.98,
-      "expected_lower_mass_limit_TeV": 0.99
-    },
-    {
-      "result_id": "RES_VLQ_BR_SCAN",
-      "result_type": "branching_ratio_dependent_mass_limits",
-      "target": "vector-like B and T quarks",
-      "reported_format": "95% CL lower-mass-limit contours in branching-ratio planes",
-      "exact_numeric_boundary": "not_specified"
-    },
-    {
-      "result_id": "RES_T53_PAIR",
-      "result_type": "95CL_mass_limit",
-      "target": "vector-like T5/3 quark pair production",
-      "observed_lower_mass_limit_TeV": 1.19,
-      "expected_lower_mass_limit_TeV": 1.21
-    },
-    {
-      "result_id": "RES_T53_PAIR_PLUS_SINGLE",
-      "result_type": "95CL_mass_limit",
-      "target": "vector-like T5/3 quark pair plus single production",
-      "assumption": "T5/3 t W coupling = 1.0",
-      "observed_lower_mass_limit_TeV": 1.6,
-      "expected_lower_mass_limit_TeV": 1.7
-    },
-    {
-      "result_id": "RES_4TOP_SM",
-      "result_type": "95CL_cross_section_upper_limit",
-      "target": "SM four-top-quark production",
-      "observed_upper_limit_fb": 69.2,
-      "expected_upper_limit_fb": 29.0
-    },
-    {
-      "result_id": "RES_4TOP_CI",
-      "result_type": "95CL_cross_section_and_parameter_limit",
-      "target": "four-top-quark production in the contact-interaction benchmark",
-      "observed_cross_section_upper_limit_fb": 38.6,
-      "expected_cross_section_upper_limit_fb": 20.8,
-      "observed_upper_limit_abs_C4t_over_Lambda2_TeV_minus2": 2.6,
-      "expected_upper_limit_abs_C4t_over_Lambda2_TeV_minus2": 1.9
-    },
-    {
-      "result_id": "RES_4TOP_2UED",
-      "result_type": "95CL_parameter_limit",
-      "target": "2UED/RPP four-top-quark benchmark",
-      "parameter": "mKK",
-      "observed_lower_limit_TeV": 1.45,
-      "expected_lower_limit_TeV": 1.48
-    },
-    {
-      "result_id": "RES_4TOP_2HDM",
-      "result_type": "95CL_parameter_contours",
-      "target": "type-II 2HDM four-top-quark benchmark",
-      "reported_planes": [
-        "(mH, tan(beta)) for heavy scalar only",
-        "(mH/A, tan(beta)) for degenerate heavy scalar and pseudo-scalar"
-      ],
-      "exact_numeric_boundary": "not_specified"
-    },
-    {
-      "result_id": "RES_SSTT_GENERIC",
-      "result_type": "95CL_cross_section_upper_limit",
-      "target": "generic uu -> tt production",
-      "assumption": "mediator mass mV = 1 TeV",
-      "observed_upper_limit_fb": 89.0,
-      "expected_upper_limit_fb": 59.0
-    },
-    {
-      "result_id": "RES_SSTT_MODEL_3TEV",
-      "result_type": "95CL_coupling_limit",
-      "target": "FCNC dark-matter mediator model",
-      "assumptions": {
-        "mV_TeV": 3.0,
-        "gDM": 1.0
-      },
-      "observed_upper_limit_gSM": 0.31,
-      "expected_upper_limit_gSM": 0.28
-    },
-    {
-      "result_id": "RES_SSTT_MODEL_1TEV",
-      "result_type": "95CL_coupling_limit",
-      "target": "FCNC dark-matter mediator model",
-      "assumptions": {
-        "mV_TeV": 1.0,
-        "gDM": 1.0
-      },
-      "observed_upper_limit_gSM": 0.14,
-      "expected_upper_limit_gSM": 0.13
-    },
-    {
-      "result_id": "RES_SSTT_SUBPROCESS_CURVES",
-      "result_type": "95CL_cross_section_limit_curves",
-      "target": "same-sign top-quark pair production subprocesses",
-      "subprocesses": [
-        "prompt tt production",
-        "on-shell mediator production",
-        "off-shell mediator production"
-      ],
-      "reported_as_function_of": "mV",
-      "exact_numeric_points": "not_specified"
+      "result_id": "RES_ALLOWED_DIAGNOSTICS",
+      "result_type": "allowed_outputs",
+      "allowed_outputs": [
+        "central sample registry and sample exclusion reasons",
+        "cutflows with IO prefilters separated from physics cuts",
+        "signal-region yields for data, central backgrounds, and named signal proxies",
+        "validation and control-proxy counts",
+        "diagnostic expected sensitivity and observed count comparisons using a fixed simplified model"
+      ]
     }
   ],
   "analysis_design_insights": [
@@ -1138,23 +1050,26 @@
       "statement": "The same-sign top search uses exactly two positive leptons, HT > 750 GeV, ETmiss > 40 GeV, at least one b-tagged jet, and |delta phi_ll| > 2.5."
     },
     {
-      "insight_id": "INSIGHT_BACKGROUND_MODEL",
-      "statement": "The background model combines simulated irreducible processes with data-driven estimates for fake/non-prompt leptons and electron charge misidentification."
-    },
-    {
       "insight_id": "INSIGHT_VALIDATION",
       "statement": "Validation regions kinematically close to the signal regions are defined to test the background model; the smallest reported validation-region p-value is 0.10."
+    },
+    {
+      "insight_id": "INSIGHT_OPEN_DATA_BACKGROUND_MODEL",
+      "statement": "For the open-data proxy workflow, reducible fake/non-prompt and charge-misID backgrounds are not reproduced as official data-driven estimates; their regions are retained as diagnostics while central yields use available simulated groups with explicit caveats."
+    },
+    {
+      "insight_id": "INSIGHT_OPEN_DATA_STATISTICS",
+      "statement": "Statistical outputs are diagnostic counting proxies. Official CLs, mass limits, and coupling limits are blocked unless a dedicated signal grid and full nuisance/correlation model are added."
     }
   ],
   "retrieval_features": {
     "analysis_family": [
-      "BSM search",
+      "open-data proxy reinterpretation",
       "same-sign dilepton",
       "trilepton",
       "b-jets",
-      "multitop",
-      "vector-like quarks",
-      "same-sign top"
+      "multitop diagnostics",
+      "vector-like-quark reference topology"
     ],
     "common_objects": [
       "electrons",
@@ -1323,15 +1238,14 @@
     ],
     "validation_region_rule": "Events that appear in any signal region are vetoed in the validation regions.",
     "background_estimation_tags": [
-      "MC-modeled irreducible backgrounds",
-      "matrix method for fake/non-prompt leptons",
-      "electron charge-misID estimate from Z->ee"
+      "MC-modeled irreducible backgrounds when matching samples exist",
+      "fake/non-prompt control-proxy diagnostics only",
+      "electron charge-misID application-proxy diagnostics only"
     ],
     "statistical_method_tags": [
-      "multi-region counting experiment",
-      "Poisson likelihood ratio",
-      "CLs-style exclusion",
-      "asymptotic approximation"
+      "diagnostic counting proxy",
+      "expected model fixed before observed count comparison",
+      "no official CLs exclusion without full likelihood inputs"
     ],
     "sensitivity_drivers": [
       "high HT",
@@ -1343,20 +1257,59 @@
       "large azimuthal separation between leptons in same-sign top search"
     ],
     "signal_target_tags": [
-      "vector-like B quark",
-      "vector-like T quark",
-      "vector-like T5/3 quark",
-      "SM four-top",
-      "four-top EFT contact interaction",
-      "2UED/RPP",
-      "2HDM",
-      "same-sign top via FCNC mediator"
+      "available top-rich proxy samples",
+      "SM four-top comparison sample",
+      "reference VLQ topology without mass-limit claim"
     ],
-    "fit_observable": "event counts per signal region",
+    "fit_observable": "event counts per signal region or approved family diagnostic",
     "shape_information_used_in_limit_setting": false,
     "lepton_flavour_strategy": {
       "VLQ_4top": "inclusive",
       "same_sign_tt": "split into ee, e mu, and mu mu"
-    }
+    },
+    "official_limit_claims_allowed": false,
+    "open_data_proxy_target": true
+  },
+  "open_data_execution_contract": {
+    "contract_version": "open_data_proxy_v1",
+    "central_result_type": "diagnostic_proxy_reinterpretation",
+    "sample_scope_policy": "target_relevant_open_data_only",
+    "central_signal_policy": {
+      "primary_signal_proxy": "available BSM four-top-like or heavy-top proxy MC, selected by the pipeline from local samples",
+      "dedicated_vlq_signal_grids_available": false,
+      "mass_limit_claims_allowed": false,
+      "branching_ratio_scan_allowed": false
+    },
+    "background_policy": {
+      "irreducible_backgrounds": "simulation-driven from available ttW, ttZ, ttH, diboson, four-top, and rare-top-like samples when present",
+      "fake_nonprompt_method": "not reproducible from open data; save control-proxy counts only",
+      "electron_charge_misid_method": "not reproducible from open data; save opposite-charge application-proxy diagnostics only",
+      "central_background_uncertainty": "flat conservative diagnostic uncertainty plus MC statistical uncertainty unless a richer nuisance model is provided"
+    },
+    "event_policy": {
+      "io_prefilter_allowed": true,
+      "io_prefilter_must_be_reported_separately_from_physics_cuts": true,
+      "nominal_lepton_requirement": "at least two selected leptons before same-sign/trilepton categorization"
+    },
+    "region_policy": {
+      "use_reference_like_signal_region_thresholds": true,
+      "require_region_overlap_sanity": true,
+      "combined_likelihood_allowed_only_if_regions_are_disjoint_or_covariance_model_is_provided": true
+    },
+    "statistics_policy": {
+      "central_statistic_shape": "diagnostic_counting_proxy",
+      "full_cls_likelihood_allowed": false,
+      "roo_fit_or_roostats_required_for_official_limit_claims": true,
+      "per_region_or_family_counting_outputs_allowed": true,
+      "official_exclusion_claims_allowed": false,
+      "observed_counts_allowed_after_expected_model_fixed": true
+    },
+    "baseline_multiagent_comparability_requirements": [
+      "same central sample IDs",
+      "same IO prefilter policy",
+      "same signal-region definitions",
+      "same statistic shape",
+      "same signal-proxy policy"
+    ]
   }
 }
