@@ -1,30 +1,182 @@
-# Stage Loop
+# Stage Worker/Reviewer Loop
 
-Use this reference when advancing a workflow stage.
+Use this reference when coordinating a staged multiagent analysis. There are only two delegated roles:
+
+- `stage_worker`
+- `stage_reviewer`
+
+The coordinator launches fresh worker/reviewer instances for each stage with a stage-specific brief.
+
+## Stage Registry
+
+Run these stages in order unless the analysis JSON explicitly makes a stage not applicable:
+
+1. `runtime`
+2. `sample_branch`
+3. `object_preselection`
+4. `categorization`
+5. `yield_plot`
+6. `statistics`
+7. `reporting`
+8. `final_review`
 
 ## Loop
 
-For every stage, run:
+For each stage:
 
 ```text
-PLAN -> EXECUTE -> AUDIT -> REPAIR -> PROCEED
+WRITE_STAGE_BRIEF -> SPAWN_WORKER -> WAIT_FOR_ARTIFACTS -> SPAWN_REVIEWER -> REPAIR_IF_NEEDED -> PROCEED_OR_BLOCK
 ```
 
-- Default max repair retries per stage: 3.
-- A stage is approved only when the required audit has no `PROBLEM`.
-- `WARNING` may proceed only as degraded when it does not change claim scope or final physics numbers.
-- If retry limit is hit, mark the stage `blocked`, `degraded`, or `needs_revisit`.
+Default max repair retries per stage: 2.
 
-## Required Gates
+Proceed only when the reviewer returns `pass` or an explicitly allowed `conditional_pass`.
 
-- `RUNTIME_REPAIR`: required when ROOT-backed statistical capability is needed or missing.
-- `DATA_PROVENANCE`: classify observed data before observed results.
-- `SPEC_FEASIBILITY`: map reference requirements to available, substituted, unavailable, or not applicable.
-- `CLAIM_REVIEW`: classify every result as reproduction, reinterpretation, diagnostic_proxy, or blocked.
-- `FINALIZE`: decide final status before final reviews.
-- `FINAL_ARTIFACT_REVIEW` and `FINAL_CLAIM_REVIEW`: required for final multiagent handoff.
+Block when the reviewer returns `blocked` or `fail` after repair attempts, or when a contract change is requested without `outputs/contracts/scope_change_decision.json`.
+
+## Stage Brief Schema
+
+Write `handoff/<stage>/stage_brief.json` before spawning the worker:
+
+```json
+{
+  "stage_id": "sample_branch",
+  "role_model": "generic_stage_worker_then_generic_stage_reviewer",
+  "analysis_contract": "analysis/analysis.summary.json",
+  "entry_criteria": [],
+  "required_inputs": [],
+  "required_artifacts": [],
+  "review_checks": [],
+  "blocking_conditions": [],
+  "claim_policy": "follow the analysis JSON; do not promote diagnostic outputs"
+}
+```
+
+## Default Stage Requirements
+
+### runtime
+
+Artifacts:
+
+- `outputs/contracts/runtime_contract.json`
+- `outputs/report/root_runtime_repair_attempts.json` when ROOT/RooFit is needed or fails
+
+Review checks:
+
+- PyROOT import is not enough; RooFit needs a fit smoke test with timeout
+- Hyy central fit blocks unless RooFit smoke passes
+- selected runtime path is used by downstream commands
+
+### sample_branch
+
+Artifacts:
+
+- `outputs/samples/all_discovered_samples.json`
+- `outputs/samples/central_samples.json`
+- `outputs/report/branch_audit.json`
+- `outputs/normalization/norm_table.json`
+
+Review checks:
+
+- required branches exist in central samples
+- excluded samples have reasons
+- sample scope follows the analysis JSON
+- missing official inputs are classified as blocked, diagnostic, or not applicable
+
+### object_preselection
+
+Artifacts:
+
+- `outputs/report/object_definitions.json`
+- `outputs/report/preselection_cutflow.json`
+- `outputs/report/event_prefilter_policy.json`
+
+Review checks:
+
+- object definitions use available branches
+- b-tag and trigger approximations are honestly named
+- I/O prefilters are separate from physics cuts
+
+### categorization
+
+Artifacts:
+
+- `outputs/report/category_definitions.json`
+- `outputs/report/region_masks.json`
+- `outputs/report/region_overlap_sanity.json`
+
+Review checks:
+
+- categories and regions match the analysis JSON
+- overlap is measured before any combined statistic is claimed
+
+### yield_plot
+
+Artifacts:
+
+- `outputs/report/yields_by_region.json`
+- `outputs/report/validation_yields.json` when applicable
+- `outputs/report/control_proxy_yields.json` when applicable
+- `outputs/report/plots/manifest.json`
+
+Review checks:
+
+- expected/background/signal-proxy separation is preserved
+- raw signed MC yields are preserved
+- plots referenced by the report exist
+
+### statistics
+
+Artifacts:
+
+- `outputs/stats/expected_results.json`
+- `outputs/stats/observed_results.json` when observed results are allowed
+- `outputs/report/statistics_policy.json`
+
+Review checks:
+
+- expected model is fixed before observed counts
+- Hyy central result uses RooFit if required
+- VLQ proxy results are not official CLs/mass limits
+- fallback outputs are labeled diagnostic
+
+### reporting
+
+Artifacts:
+
+- final report
+- `outputs/evaluation_scorecard.json`
+- reproducibility commands
+
+Review checks:
+
+- report language follows the weakest valid claim classification
+- substitutions and blocked claims are explicit
+
+### final_review
+
+Artifacts:
+
+- `reviews/final_artifact_review.json`
+- `reviews/final_claim_review.json`
+
+Review checks:
+
+- final package is complete and reproducible
+- no central claim exceeds analysis JSON, runtime contract, or claim policy
+
+## Worker Prompt Template
+
+```text
+You are the stage_worker for <stage_id>. Read handoff/<stage_id>/stage_brief.json and the analysis contract. Work only on this stage. Produce the required artifacts. Do not change sample scope, object definitions, backend, statistic shape, blinding, or claim policy unless you write outputs/contracts/scope_change_decision.json and stop. Return files changed, artifacts produced, commands run, blockers, and reviewer focus.
+```
+
+## Reviewer Prompt Template
+
+```text
+You are the stage_reviewer for <stage_id>. Read handoff/<stage_id>/stage_brief.json, the analysis contract, and the worker artifacts. Do not repair. Return pass, conditional_pass, blocked, non_comparable, or fail. Cite missing artifacts, contract violations, and required repair actions.
+```
 
 ## Repair Rule
 
-If a review finds a root cause in an upstream stage, mark that stage `needs_revisit`, rerun it, then rerun every downstream gate whose output may have changed.
-For final-review findings, rerun from `CLAIM_REVIEW` unless the finding names an earlier stage.
+If a review identifies an upstream root cause, mark the upstream stage `needs_revisit`, rerun it, then rerun every downstream stage whose artifacts may have changed.
