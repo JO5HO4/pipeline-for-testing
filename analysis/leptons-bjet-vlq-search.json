@@ -775,7 +775,10 @@
           "max": "not_specified"
         }
       },
-      "dominant_process": "W -> e nu"
+      "dominant_process": "W -> e nu",
+      "open_data_status": "diagnostic_proxy_only",
+      "central_background_estimate_allowed": false,
+      "unresolved_inputs": "official calibration maps or fake/charge-flip subtraction inputs are not present as branches in the open-data ntuples"
     },
     {
       "region_id": "CR_electron_fake_f",
@@ -793,7 +796,10 @@
           "max": 60
         }
       },
-      "dominant_process": "multijet production including heavy flavour"
+      "dominant_process": "multijet production including heavy flavour",
+      "open_data_status": "diagnostic_proxy_only",
+      "central_background_estimate_allowed": false,
+      "unresolved_inputs": "official calibration maps or fake/charge-flip subtraction inputs are not present as branches in the open-data ntuples"
     },
     {
       "region_id": "CR_muon_prompt_r",
@@ -807,7 +813,10 @@
           "max": "not_specified"
         }
       },
-      "dominant_process": "W -> mu nu"
+      "dominant_process": "W -> mu nu",
+      "open_data_status": "diagnostic_proxy_only",
+      "central_background_estimate_allowed": false,
+      "unresolved_inputs": "official calibration maps or fake/charge-flip subtraction inputs are not present as branches in the open-data ntuples"
     },
     {
       "region_id": "CR_muon_fake_f",
@@ -821,7 +830,10 @@
           "max": "not_specified"
         }
       },
-      "dominant_process": "heavy-flavour hadron decays"
+      "dominant_process": "heavy-flavour hadron decays",
+      "open_data_status": "diagnostic_proxy_only",
+      "central_background_estimate_allowed": false,
+      "unresolved_inputs": "official calibration maps or fake/charge-flip subtraction inputs are not present as branches in the open-data ntuples"
     },
     {
       "region_id": "CR_charge_misID_Zee",
@@ -832,7 +844,10 @@
         "event_type": "dielectron",
         "invariant_mass_requirement": "consistent with the Z boson"
       },
-      "notes": "The fake/non-prompt electron contribution is subtracted with the matrix method before the likelihood fit."
+      "notes": "The fake/non-prompt electron contribution is subtracted with the matrix method before the likelihood fit.",
+      "open_data_status": "diagnostic_proxy_only",
+      "central_background_estimate_allowed": false,
+      "unresolved_inputs": "official calibration maps or fake/charge-flip subtraction inputs are not present as branches in the open-data ntuples"
     },
     {
       "region_id": "AR_charge_misID_application",
@@ -846,7 +861,10 @@
         ],
         "charge_requirement": "opposite charge",
         "other_analysis_requirements": "all analysis criteria except the same-sign requirement"
-      }
+      },
+      "open_data_status": "diagnostic_proxy_only",
+      "central_background_estimate_allowed": false,
+      "unresolved_inputs": "official calibration maps or fake/charge-flip subtraction inputs are not present as branches in the open-data ntuples"
     }
   ],
   "fit_setup": [
@@ -1079,21 +1097,47 @@
       "missing transverse momentum"
     ],
     "object_baseline": {
+      "leptons": {
+        "pt_min_GeV": 28,
+        "definition": "entries in lep_* arrays with abs(lep_type) in {11,13}, nonzero charge, |eta| < 2.5, and sig_lep != 0 when available",
+        "quality_source": "open-data sig_lep branch; tight/isolation/impact-parameter details are not re-derived unless sig_lep is unavailable"
+      },
       "electrons": {
         "pt_min_GeV": 28,
-        "eta_requirement": "|eta| < 2.47 excluding 1.37 < |eta| < 1.52",
-        "extra_requirement_for_ee_and_emu": "electrons with |eta| > 1.37 are not considered"
+        "eta_requirement": "open-data proxy uses |lep_eta| < 2.5 plus sig_lep; exact official electron crack-veto status is not separately resolvable from a dedicated branch",
+        "type_code": "abs(lep_type) == 11"
       },
       "muons": {
         "pt_min_GeV": 28,
-        "eta_requirement": "|eta| < 2.5"
+        "eta_requirement": "|lep_eta| < 2.5 plus sig_lep",
+        "type_code": "abs(lep_type) == 13"
       },
       "jets": {
         "pt_min_GeV": 25,
-        "eta_requirement": "|eta| < 2.5"
+        "eta_requirement": "|jet_eta| < 2.5",
+        "overlap_removal": "DeltaR(jet, selected lepton) > 0.4 computed from jet_phi/eta and lep_phi/eta"
       },
       "b_tagging": {
-        "working_point": "77% efficiency"
+        "open_data_definition": "jet_btag_quantile >= 4",
+        "official_working_point_claim": "blocked unless an external calibration mapping is added"
+      },
+      "met": {
+        "primary_branch": "met",
+        "cross_check_branches": [
+          "met_phi",
+          "met_mpx",
+          "met_mpy"
+        ]
+      },
+      "trigger": {
+        "available_branches": [
+          "trigE",
+          "trigM",
+          "trigMET",
+          "trigML",
+          "TriggerMatch_DILEPTON"
+        ],
+        "policy": "open-data trigger approximation; exact official multilepton trigger strategy is not reproduced"
       }
     },
     "event_preselection": {
@@ -1310,6 +1354,127 @@
       "same signal-region definitions",
       "same statistic shape",
       "same signal-proxy policy"
-    ]
+    ],
+    "branch_contract_required": true,
+    "branch_contract_summary": "All 389 open-data files have the core reco branches needed for the proxy analysis; official auxiliary branches for fake, charge-flip, exact b-tag WP, truth prompt/fake labels, and full nuisance modeling are absent."
+  },
+  "open_data_branch_contract": {
+    "contract_version": "open_data_branch_contract_v1",
+    "files_checked": 389,
+    "tree_name": "analysis",
+    "branch_audit_artifact": "codex/may_07/vlq_open_data_branch_audit.json",
+    "resolved_reco_branches": {
+      "event_identity": [
+        "eventNumber",
+        "runNumber"
+      ],
+      "mc_normalization": [
+        "num_events",
+        "sum_of_weights",
+        "sum_of_weights_squared",
+        "xsec",
+        "filteff",
+        "kfac",
+        "channelNumber"
+      ],
+      "event_weights": [
+        "mcWeight",
+        "ScaleFactor_PILEUP",
+        "ScaleFactor_BTAG",
+        "ScaleFactor_ELE",
+        "ScaleFactor_MUON",
+        "ScaleFactor_LepTRIGGER"
+      ],
+      "leptons": [
+        "lep_n",
+        "lep_type",
+        "lep_pt",
+        "lep_eta",
+        "lep_phi",
+        "lep_e",
+        "lep_charge",
+        "sig_lep",
+        "n_sig_lep",
+        "lep_isTightID",
+        "lep_isMediumID",
+        "lep_isLooseID",
+        "lep_ptvarcone30",
+        "lep_topoetcone20",
+        "lep_d0",
+        "lep_d0sig",
+        "lep_z0",
+        "lep_isTightIso",
+        "lep_isLooseIso",
+        "lep_isTrigMatched"
+      ],
+      "jets": [
+        "jet_n",
+        "jet_pt",
+        "jet_eta",
+        "jet_phi",
+        "jet_e",
+        "jet_btag_quantile",
+        "jet_jvt"
+      ],
+      "met": [
+        "met",
+        "met_phi",
+        "met_mpx",
+        "met_mpy"
+      ],
+      "triggers": [
+        "trigE",
+        "trigM",
+        "trigMET",
+        "trigML",
+        "TriggerMatch_DILEPTON"
+      ]
+    },
+    "open_data_particle_definitions": {
+      "leptons": "Use the ntuple-provided signal-lepton mask `sig_lep` when present; require pT > 28 GeV, |eta| < 2.5, nonzero charge, and type 11 or 13. The open-data branch mask is treated as the authoritative tight/isolation/impact-parameter signal-lepton definition.",
+      "electrons": "Electron candidates are entries with abs(lep_type)==11 passing the signal-lepton mask. The official barrel/endcap crack veto is not separately resolvable beyond the provided `sig_lep` mask unless an explicit electron author/crack-veto branch is added.",
+      "muons": "Muon candidates are entries with abs(lep_type)==13 passing the signal-lepton mask.",
+      "jets": "Use jet_pt, jet_eta, jet_phi, jet_e with pT > 25 GeV and |eta| < 2.5. Apply lepton overlap removal with DeltaR(jet, selected lepton) > 0.4 in the executable workflow.",
+      "b_tagged_jets": "Use `jet_btag_quantile >= 4` as the open-data b-tag definition. Do not call this an exact official 77% or 70% working point unless a calibration note mapping the quantile to that working point is added.",
+      "missing_transverse_momentum": "Use `met` and `met_phi`; `met_mpx` and `met_mpy` are available for cross-checks.",
+      "trigger": "Available trigger branches are `trigE`, `trigM`, `trigMET`, `trigML`, and `TriggerMatch_DILEPTON`. In sampled files `trigML` is present but can be inactive; trigger use must be reported as an open-data approximation."
+    },
+    "unresolved_official_inputs": [
+      {
+        "name": "dedicated VLQ signal grid branches/files",
+        "impact": "VLQ mass and branching-ratio limit claims remain blocked"
+      },
+      {
+        "name": "jet_MV2c10 or explicit jet_isbtagged_77/70 branch",
+        "impact": "b-tag definition must be `jet_btag_quantile >= 4`, not an exact official WP claim"
+      },
+      {
+        "name": "lepton truth origin/type branches",
+        "impact": "prompt/fake truth categorization cannot be derived directly from these ntuples"
+      },
+      {
+        "name": "fakeFactor or promptLeptonEfficiency branches/maps",
+        "impact": "official fake/non-prompt matrix method remains blocked"
+      },
+      {
+        "name": "chargeMisID_SF or charge-flip probability maps",
+        "impact": "official electron charge-misID estimate remains blocked"
+      },
+      {
+        "name": "explicit object-overlap-removal pass flags",
+        "impact": "overlap removal must be implemented from available kinematics and documented"
+      },
+      {
+        "name": "full nuisance/correlation model branches",
+        "impact": "official combined CLs likelihood remains blocked"
+      }
+    ],
+    "audit_summary": {
+      "core_reco_branch_status": "all required open-data reco branches present in all checked files",
+      "unique_branch_sets": 2,
+      "data_files_with_category_branch": 16,
+      "mc_files_without_category_branch": 373,
+      "official_auxiliary_branch_status": "not present; use blocked/diagnostic policy"
+    }
   }
 }
