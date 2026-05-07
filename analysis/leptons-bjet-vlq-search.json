@@ -34,11 +34,11 @@
     {
       "objective_id": "OBJ_OPEN_DATA_PROXY",
       "objective_type": "diagnostic_reinterpretation",
-      "target": "same-charge dilepton and trilepton plus b-jets open-data proxy analysis",
+      "target": "same-charge dilepton and trilepton plus b-jets open-data three-top/four-top proxy analysis",
       "signal_models": [
-        "available BSM four-top-like proxy samples",
-        "available heavy-top or other top-rich proxy samples when present",
-        "SM four-top sample as a named comparison sample when present"
+        "SM three-top production proxy (open-data sample 304014)",
+        "SM four-top production proxy (open-data samples 412043 and 412044)",
+        "BSM four-top scalar shape proxy (open-data sample 510097)"
       ],
       "final_states_used": [
         "same-sign dilepton plus b-jets",
@@ -48,7 +48,7 @@
         "cutflows and central sample accounting",
         "signal-region and validation-region yields",
         "control-proxy diagnostics for fake/non-prompt and charge-misID studies",
-        "diagnostic expected and observed counting-proxy sensitivity",
+        "diagnostic expected and observed counting-proxy sensitivity for three-top/four-top proxy samples",
         "explicit list of blocked official VLQ/CLs/mass-limit claims"
       ],
       "blocked_reference_outputs": [
@@ -127,7 +127,7 @@
       "target_region_family": "VLQ_4top",
       "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets",
       "reported_branching_ratio_to_target_final_state": "12.1%, including leptonically decaying tau leptons",
-      "open_data_status": "possible proxy or comparison target only when matching local samples are present"
+      "open_data_status": "central four-top proxy target when matching local samples are present"
     },
     {
       "signal_id": "SIG_4TOP_CI",
@@ -136,7 +136,7 @@
       "operator_choice": "right-handed top-quark operator only",
       "target_region_family": "VLQ_4top",
       "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets",
-      "open_data_status": "possible proxy or comparison target only when matching local samples are present"
+      "open_data_status": "shape/topology reference only; use explicit local three-top/four-top proxy samples for central diagnostics"
     },
     {
       "signal_id": "SIG_4TOP_2UED_RPP",
@@ -149,7 +149,7 @@
       "branching_ratio_assumption": "B(A(1,1) -> ttbar) = 100%",
       "target_region_family": "VLQ_4top",
       "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets, with additional associated SM objects possible",
-      "open_data_status": "possible proxy or comparison target only when matching local samples are present"
+      "open_data_status": "shape/topology reference only; use explicit local three-top/four-top proxy samples for central diagnostics"
     },
     {
       "signal_id": "SIG_4TOP_2HDM",
@@ -166,7 +166,7 @@
       "target_region_family": "VLQ_4top",
       "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets",
       "kinematic_note": "The paper states that this benchmark is softer than the contact-interaction four-top signature, especially at low masses.",
-      "open_data_status": "possible proxy or comparison target only when matching local samples are present"
+      "open_data_status": "shape/topology reference only; use explicit local three-top/four-top proxy samples for central diagnostics"
     },
     {
       "signal_id": "SIG_SSTT_DM",
@@ -185,6 +185,17 @@
       "target_final_state_signature": "exactly two positively charged leptons plus b-jets",
       "selection_specific_note": "Only positively charged lepton pairs are used because tt production is much larger than tbar tbar production in pp collisions.",
       "open_data_status": "reference-only unless matching local samples and model inputs are present"
+    },
+    {
+      "signal_id": "SIG_3TOP_SM_PROXY",
+      "model": "Standard Model three-top production proxy",
+      "production_mode": "SM rare top production",
+      "target_region_family": "VLQ_4top",
+      "target_final_state_signature": "same-sign dilepton or trilepton plus b-jets from a top-rich final state",
+      "open_data_status": "central three-top proxy target when matching local sample 304014 is present",
+      "sample_ids": [
+        "304014"
+      ]
     }
   ],
   "background_processes": [
@@ -1023,7 +1034,7 @@
     {
       "result_id": "RES_OPEN_DATA_PROXY_SCOPE",
       "result_type": "scope_statement",
-      "statement": "This open-data target does not request official VLQ, four-top, or same-sign-top exclusions. It requests reproducible diagnostic yields and counting-proxy sensitivities for the available samples.",
+      "statement": "This open-data target does not request official VLQ, four-top, or same-sign-top exclusions. It requests reproducible diagnostic yields and counting-proxy sensitivities using available three-top and four-top proxy samples.",
       "central_claim_status": "diagnostic_only"
     },
     {
@@ -1044,7 +1055,7 @@
       "allowed_outputs": [
         "central sample registry and sample exclusion reasons",
         "cutflows with IO prefilters separated from physics cuts",
-        "signal-region yields for data, central backgrounds, and named signal proxies",
+        "signal-region yields for data, central backgrounds, and named three-top/four-top signal proxies",
         "validation and control-proxy counts",
         "diagnostic expected sensitivity and observed count comparisons using a fixed simplified model"
       ]
@@ -1082,7 +1093,7 @@
   ],
   "retrieval_features": {
     "analysis_family": [
-      "open-data proxy reinterpretation",
+      "open-data three-top/four-top proxy reinterpretation",
       "same-sign dilepton",
       "trilepton",
       "b-jets",
@@ -1301,8 +1312,9 @@
       "large azimuthal separation between leptons in same-sign top search"
     ],
     "signal_target_tags": [
-      "available top-rich proxy samples",
-      "SM four-top comparison sample",
+      "SM three-top proxy sample",
+      "SM four-top proxy samples",
+      "BSM four-top scalar shape proxy",
       "reference VLQ topology without mass-limit claim"
     ],
     "fit_observable": "event counts per signal region or approved family diagnostic",
@@ -1312,17 +1324,63 @@
       "same_sign_tt": "split into ee, e mu, and mu mu"
     },
     "official_limit_claims_allowed": false,
-    "open_data_proxy_target": true
+    "open_data_proxy_target": true,
+    "open_data_signal_proxy_samples": [
+      {
+        "dsid": "304014",
+        "descriptor": "MadGraphPythia8EvtGen_A14NNPDF23_3top_SM",
+        "proxy_role": "three_top_proxy"
+      },
+      {
+        "dsid": "412043",
+        "descriptor": "aMcAtNloPythia8EvtGen_A14NNPDF31_SM4topsNLO",
+        "proxy_role": "four_top_proxy"
+      },
+      {
+        "dsid": "412044",
+        "descriptor": "aMcAtNloHerwig7EvtGen_H7UE_SM4topsNLO",
+        "proxy_role": "four_top_proxy_generator_alt"
+      },
+      {
+        "dsid": "510097",
+        "descriptor": "MGPy8EG_A14N23LO_DM_4topscalar_p1000_c1_nonallhad",
+        "proxy_role": "bsm_four_top_shape_proxy"
+      }
+    ]
   },
   "open_data_execution_contract": {
     "contract_version": "open_data_proxy_v1",
-    "central_result_type": "diagnostic_proxy_reinterpretation",
+    "central_result_type": "three_four_top_diagnostic_proxy_reinterpretation",
     "sample_scope_policy": "target_relevant_open_data_only",
     "central_signal_policy": {
-      "primary_signal_proxy": "available BSM four-top-like or heavy-top proxy MC, selected by the pipeline from local samples",
+      "primary_signal_proxy": "available three-top and four-top open-data samples",
+      "proxy_process_key": "three_four_top_proxy",
+      "proxy_samples": [
+        {
+          "dsid": "304014",
+          "descriptor": "MadGraphPythia8EvtGen_A14NNPDF23_3top_SM",
+          "proxy_role": "three_top_proxy"
+        },
+        {
+          "dsid": "412043",
+          "descriptor": "aMcAtNloPythia8EvtGen_A14NNPDF31_SM4topsNLO",
+          "proxy_role": "four_top_proxy"
+        },
+        {
+          "dsid": "412044",
+          "descriptor": "aMcAtNloHerwig7EvtGen_H7UE_SM4topsNLO",
+          "proxy_role": "four_top_proxy_generator_alt"
+        },
+        {
+          "dsid": "510097",
+          "descriptor": "MGPy8EG_A14N23LO_DM_4topscalar_p1000_c1_nonallhad",
+          "proxy_role": "bsm_four_top_shape_proxy"
+        }
+      ],
       "dedicated_vlq_signal_grids_available": false,
       "mass_limit_claims_allowed": false,
-      "branching_ratio_scan_allowed": false
+      "branching_ratio_scan_allowed": false,
+      "interpretation_note": "Three-top and four-top samples preserve the high-lepton-multiplicity, high-b-jet, top-rich event topology used by the VLQ regions, but they are not VLQ signal models."
     },
     "background_policy": {
       "irreducible_backgrounds": "simulation-driven from available ttW, ttZ, ttH, diboson, four-top, and rare-top-like samples when present",
@@ -1353,7 +1411,7 @@
       "same IO prefilter policy",
       "same signal-region definitions",
       "same statistic shape",
-      "same signal-proxy policy"
+      "same three-top/four-top signal-proxy policy"
     ],
     "branch_contract_required": true,
     "branch_contract_summary": "All 389 open-data files have the core reco branches needed for the proxy analysis; official auxiliary branches for fake, charge-flip, exact b-tag WP, truth prompt/fake labels, and full nuisance modeling are absent."
@@ -1442,7 +1500,7 @@
     "unresolved_official_inputs": [
       {
         "name": "dedicated VLQ signal grid branches/files",
-        "impact": "VLQ mass and branching-ratio limit claims remain blocked"
+        "impact": "VLQ mass and branching-ratio limit claims remain blocked; central diagnostics use three-top/four-top proxy samples instead"
       },
       {
         "name": "jet_MV2c10 or explicit jet_isbtagged_77/70 branch",

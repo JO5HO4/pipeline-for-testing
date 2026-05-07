@@ -167,10 +167,8 @@ def _data_id(path: Path) -> str:
 
 def _classify_sample(descriptor: str, dsid: str) -> tuple[str, str, str]:
     text = descriptor.lower()
-    if dsid == "412043" or "sm4topsnlo" in text:
-        return "signal_proxy_primary", "four_top_signal_proxy", "SM four-top proxy signal"
-    if dsid == "412044":
-        return "signal_proxy_alternative", "four_top_signal_proxy_alt", "SM four-top alternate-shower proxy"
+    if dsid in {"304014", "412043", "412044", "510097"} or "3top_sm" in text or "sm4topsnlo" in text or "dm_4top" in text:
+        return "signal_proxy_primary", "three_four_top_proxy", "three-top/four-top proxy signal"
     bsm_tokens = [
         "tt_rpv",
         "tt_tn1",
