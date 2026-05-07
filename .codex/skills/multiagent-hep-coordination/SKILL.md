@@ -10,7 +10,7 @@ Use this as the only multiagent HEP coordination entrypoint. It handles role mec
 ## Core Rules
 
 - Act as COORDINATOR.
-- For each stage, launch one generic `stage_worker`, then one independent generic `stage_reviewer`.
+- First derive the stage plan from the analysis JSON and repository state. For each selected stage, launch one generic `stage_worker`, then one independent generic `stage_reviewer`.
 - Never let a worker review its own stage.
 - Use file references in handoff briefs, not pasted logs.
 - Maintain `analysis_state.json`, `codex_sessions.json`, `agent_timeline.jsonl`, `handoff/`, and `reviews/`.
@@ -19,10 +19,11 @@ Use this as the only multiagent HEP coordination entrypoint. It handles role mec
 
 ## Stage Loop
 
-Run the same worker/reviewer loop for each stage:
+Run the same worker/reviewer loop for each dynamically selected stage:
 
 ```text
-for stage in stage_registry:
+write handoff/stage_plan.json from the analysis contract
+for stage in stage_plan.stages:
   write handoff/<stage>/stage_brief.json
   spawn stage_worker with the brief
   wait for required artifacts
@@ -31,7 +32,7 @@ for stage in stage_registry:
   proceed only after pass or allowed conditional_pass
 ```
 
-Default stages:
+Default stage templates:
 
 ```text
 runtime
@@ -44,9 +45,11 @@ reporting
 final_review
 ```
 
+The coordinator may skip, merge, split, or add stages when the analysis JSON makes that appropriate. Every selected stage still needs a worker, an independent reviewer, and a recorded verdict.
+
 ## Load References As Needed
 
-- [stage-loop.md](references/stage-loop.md): generic stage worker/reviewer loop, stage registry, and prompt templates.
+- [stage-loop.md](references/stage-loop.md): dynamic stage planning, generic stage worker/reviewer loop, and prompt templates.
 - [delegation-state.md](references/delegation-state.md): state files, session registry, timeline, handoff briefs.
 - [review-contracts.md](references/review-contracts.md): shared review schema and mandatory veto classes.
 - [final-review-handoff.md](references/final-review-handoff.md): final artifact review, final claim review, and handoff requirements.

@@ -5,11 +5,31 @@ Use this reference when coordinating a staged multiagent analysis. There are onl
 - `stage_worker`
 - `stage_reviewer`
 
-The coordinator launches fresh worker/reviewer instances for each stage with a stage-specific brief.
+The coordinator first derives the stage plan from the analysis JSON, then launches fresh worker/reviewer instances for each selected stage with a stage-specific brief.
 
-## Stage Registry
+## Dynamic Stage Planning
 
-Run these stages in order unless the analysis JSON explicitly makes a stage not applicable:
+Before launching workers, write `handoff/stage_plan.json`.
+
+The plan must be derived from:
+
+- `analysis/analysis.summary.json` when present, otherwise the analysis JSON in `analysis/`
+- available input data
+- existing repository code
+- whether ROOT/RooFit or another backend is required
+- whether observed results, validation regions, control proxies, or diagnostic-only outputs are allowed
+
+The coordinator may skip, merge, split, or add stages. Examples:
+
+- Skip `runtime` only if no runtime-sensitive backend is required and a minimal Python smoke test passes.
+- Split `sample_branch` when branch audit and sample-role classification are independently complex.
+- Merge `yield_plot` into `reporting` only for a tiny smoke analysis.
+- Add `roofit_repair` when Hyy central fitting needs RooFit and no passing runtime exists.
+- Add `proxy_policy` when the analysis JSON defines open-data signal proxies.
+
+## Stage Templates
+
+Use these as default templates, not a fixed list:
 
 1. `runtime`
 2. `sample_branch`
@@ -20,9 +40,39 @@ Run these stages in order unless the analysis JSON explicitly makes a stage not 
 7. `reporting`
 8. `final_review`
 
+## Stage Plan Schema
+
+```json
+{
+  "analysis_contract": "analysis/analysis.summary.json",
+  "planning_basis": {
+    "analysis_json_features": [],
+    "repo_features": [],
+    "input_data_features": []
+  },
+  "stages": [
+    {
+      "stage_id": "sample_branch",
+      "reason": "analysis requires sample discovery and branch audit",
+      "required": true,
+      "may_skip": false,
+      "depends_on": [],
+      "required_artifacts": [],
+      "review_checks": []
+    }
+  ],
+  "skipped_templates": [
+    {
+      "stage_id": "runtime",
+      "reason": "no ROOT-backed or environment-sensitive backend requested"
+    }
+  ]
+}
+```
+
 ## Loop
 
-For each stage:
+For each stage in `handoff/stage_plan.json`:
 
 ```text
 WRITE_STAGE_BRIEF -> SPAWN_WORKER -> WAIT_FOR_ARTIFACTS -> SPAWN_REVIEWER -> REPAIR_IF_NEEDED -> PROCEED_OR_BLOCK
