@@ -4,8 +4,8 @@ Use this reference when writing coordinator state, handoffs, or session records.
 
 ## Delegation
 
-- Delegate critical analysis stages to workers.
-- Delegate critical stage review to separate reviewers.
+- For each stage, delegate implementation to a generic `stage_worker`.
+- For the same stage, delegate audit to a separate generic `stage_reviewer`.
 - Keep environment setup, file preparation, and dependency checks local unless they materially affect claim scope.
 - Assign a stable `agent_tag` before spawning any worker or reviewer.
 - Include only role, agent_tag, stage, exact task, required input files, required output paths, and acceptance criteria in subagent briefs.
@@ -16,6 +16,7 @@ Use this reference when writing coordinator state, handoffs, or session records.
 - `codex_sessions.json`
 - `agent_timeline.jsonl`
 - `handoff/<stage>/local_brief.txt`
+- `handoff/<stage>/stage_brief.json`
 - `handoff/<stage>/worker_brief.txt`
 - `handoff/<stage>/reviewer_brief.txt`
 - `reviews/<stage>/review_<cycle>.json`

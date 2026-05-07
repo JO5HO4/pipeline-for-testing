@@ -1,37 +1,9 @@
-You are a Codex analysis agent working inside this repository.
+Carry out the analysis end to end.
 
-Repository boundary:
-- Treat the current working directory as the entire run workspace.
-- Do not read from, write to, copy from, or depend on files outside the current working directory, except for reading the symlinked input ROOT data reachable through input-data/.
-- Do not inspect parent directories, sibling baseline/multiagent runs, or prior attempts outside this workspace.
-- Keep all generated code, run artifacts, logs, plots, reports, and state under the current working directory. Put run products under outputs/.
+Treat `analysis/analysis.summary.json` as the analysis contract and source of truth. If that symlink is absent, use the analysis JSON in `analysis/`. Do not invent physics scope beyond the JSON.
 
-Multiagent skill package:
-- Use the installed multiagent HEP workflow from .codex/skills/.
-- You are explicitly authorized to spawn and delegate subagents for independent workstreams such as branch inventory, sample classification, object definitions, selection/category implementation, statistical modeling, validation, and report review.
-- Any spawned or delegated subagent must obey the same current-working-directory boundary.
-- Maintain coordinator state, audits, handoffs, delegated lifecycle notes, session/rollout registry, and timeline artifacts under outputs/ or the workflow's standard state locations inside the current working directory.
-- Maintain codex_sessions.json with a stable tag for the coordinator and every spawned worker/reviewer, returned agent ids when available, brief/output paths, and matched or candidate rollout JSONL files under ~/.codex/sessions or ~/.codex/archived_sessions.
-- For rollout metadata only, use read-only filename searches under ~/.codex/sessions and ~/.codex/archived_sessions. Do not print, paste, summarize, or copy rollout JSONL contents.
+Use only this repository and the symlinked `input-data/`. Write all products under `outputs/` or the standard multiagent state files in this repository.
 
-Follow the instructions below to complete a Higgs-to-diphoton search using the 36.1 fb-1 ATLAS open data samples, including data and MC.
+For multiagent execution, act as coordinator and run the staged loop from `.codex/skills/multiagent-hep-coordination`: for each stage, launch one `stage_worker`, then one independent `stage_reviewer`, repair if blocked, and continue only after review passes or conditionally passes.
 
-What is available:
-- Installed skills in .codex/skills/; use these as the source of workflow, validation, scorecard, finalization, and claim-review requirements.
-- Structured analysis summary, the authoritative reproduction target: analysis/Higgs-to-diphoton.json.
-- Input ROOT ntuples, reachable through symlinked open-data inputs: input-data/data and input-data/MC.
-
-Workflow source:
-- Treat the analysis summary as the physics target and do not edit it to describe open-data substitutions.
-- Inspect the actual ROOT branches and sample names before implementing object definitions, selections, categories, fits, or report claims.
-- Document any unavailable reference ingredients, substitutions, or approximations in workflow artifacts and in the final report.
-
-Mission:
-Complete the analysis. Implement and execute an end-to-end diphoton analysis pipeline from input-data/ to outputs/, fully reproducible and CLI-driven, guided by the installed skills and Higgs-to-diphoton.json as the reference target. Run this over all usable samples.
-
-Definition of done:
-- All usable data and MC samples are processed, or any blocker is explicitly recorded.
-- Selections, histograms, plots, intermediate artifacts, statistical outputs, commands, logs, skill-package-specific workflow artifacts, outputs/evaluation_scorecard.json, and a paper-like final report are saved under outputs/ or the workflow-standard state locations inside the current working directory.
-- The final report includes the "Implementation Differences from Reference Analysis" section when substitutions or approximations were needed.
-- The final report respects the claim classification and finalization outcomes produced by the skills.
-- The run is reproducible from documented CLI commands saved under outputs/.
+Process the usable samples, produce reproducible CLI commands, plots, yields, statistics, scorecard, reviews, and final report. Report unavailable ingredients and blocked claims exactly as specified by the analysis JSON.
