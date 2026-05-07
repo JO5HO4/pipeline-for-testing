@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 LUMI_FB = 36.1
 TREE_NAME = "analysis"
+PRIMARY_SIGNAL_PROCESS = "three_four_top_proxy"
 BTAG_MV2C10_70_WP = 0.8244273
 BACKGROUND_REL_UNCERTAINTY = 0.30
 
@@ -168,7 +169,7 @@ def _data_id(path: Path) -> str:
 def _classify_sample(descriptor: str, dsid: str) -> tuple[str, str, str]:
     text = descriptor.lower()
     if dsid in {"304014", "412043", "412044", "510097"} or "3top_sm" in text or "sm4topsnlo" in text or "dm_4top" in text:
-        return "signal_proxy_primary", "three_four_top_proxy", "three-top/four-top proxy signal"
+        return "signal_proxy_primary", PRIMARY_SIGNAL_PROCESS, "three-top/four-top proxy signal"
     bsm_tokens = [
         "tt_rpv",
         "tt_tn1",
