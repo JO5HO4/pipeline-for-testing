@@ -17,6 +17,7 @@ Generated runtime skill packages:
 - `hep-analysis-env-setup`: runtime environment setup helper
 - `hep-root-runtime-repair`: ROOT/PyROOT/RooFit runtime discovery and repair gate before diagnostic fallback
 - `hep-analysis-evaluation-scorecard`: shared run-quality scorecard required for baseline and multiagent testing
+- `atlas-plot-style`: ATLAS PubCom-style plotting conventions for ROOT, PyROOT, matplotlib, mplhep, and HEP plot review
 - `hep-meta-first`: preserved legacy single-entry pack
 
 Refactored runtime skills are self-contained.
