@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 LUMI_FB = 36.1
 TREE_NAME = "analysis"
-PRIMARY_SIGNAL_PROCESS = "bsm_four_top_proxy"
+PRIMARY_SIGNAL_PROCESS = "three_four_top_proxy"
 Z_MASS_GEV = 91.1876
 USABLE_PROCESS_KEYS = {
     PRIMARY_SIGNAL_PROCESS,
@@ -295,6 +295,8 @@ def _clean_descriptor(path: Path) -> str:
 
 def classify_process(descriptor: str) -> tuple[str, str, str]:
     low = descriptor.lower()
+    if "3top_sm" in low or "sm4tops" in low or "dm_4topscalar" in low:
+        return "signal_proxy", PRIMARY_SIGNAL_PROCESS, "three-top/four-top proxy"
     if "dm_4topscalar" in low:
         return "signal_proxy", PRIMARY_SIGNAL_PROCESS, "BSM four-top scalar proxy"
     if "tt_tn1" in low or "gg_ttn1" in low or "lqd_" in low or "c1n2" in low or "n2c1" in low:
@@ -306,7 +308,7 @@ def classify_process(descriptor: str) -> tuple[str, str, str]:
     if "tth125" in low or "tth_" in low:
         return "background", "ttH", "ttH"
     if "sm4tops" in low:
-        return "background", "four_top_sm", "SM four top"
+        return "signal_proxy", PRIMARY_SIGNAL_PROCESS, "three-top/four-top proxy"
     if "ttbarww" in low or "ttww" in low or "ttgamma" in low or "tzw" in low or "twz" in low or "tz_" in low:
         return "background", "rare_top", "rare top"
     if any(token in low for token in ["wwz", "wzz", "zzz", "llll", "lllv", "llvv", "lvvv", "wlvz", "wqqz", "wz_", "_wz_", "_zz_", "zz4"]):
