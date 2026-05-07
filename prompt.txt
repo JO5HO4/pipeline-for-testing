@@ -1,34 +1,7 @@
-You are a Codex analysis agent working inside this repository.
+Carry out the analysis end to end.
 
-Repository boundary:
-- Treat the current working directory as the entire run workspace.
-- Do not read from, write to, copy from, or depend on files outside the current working directory, except for reading the symlinked input ROOT data reachable through input-data/.
-- Do not inspect parent directories, sibling baseline/multiagent runs, or prior attempts outside this workspace.
-- Keep all generated code, run artifacts, logs, plots, reports, and state under the current working directory. Put run products under outputs/.
+Treat `analysis/analysis.summary.json` as the analysis contract and source of truth. If that symlink is absent, use the analysis JSON in `analysis/`. Do not invent physics scope beyond the JSON.
 
-Baseline skill package:
-- Use the installed baseline/refactored hep-analysis-* skills from .codex/skills/; prefer hep-analysis-meta-pipeline when available.
-- Do not spawn or delegate subagents. Execute the workflow in this session.
-- Keep any baseline workflow state, logs, commands, and reproducibility artifacts under outputs/.
+Use only this repository and the symlinked `input-data/`. Write all products under `outputs/`.
 
-Follow the instructions below to complete a Higgs-to-diphoton search using the 36.1 fb-1 ATLAS open data samples, including data and MC.
-
-What is available:
-- Installed skills in .codex/skills/; use these as the source of workflow, validation, scorecard, finalization, and claim-review requirements.
-- Structured analysis summary, the authoritative reproduction target: analysis/Higgs-to-diphoton.json.
-- Input ROOT ntuples, reachable through symlinked open-data inputs: input-data/data and input-data/MC.
-
-Workflow source:
-- Treat the analysis summary as the physics target and do not edit it to describe open-data substitutions.
-- Inspect the actual ROOT branches and sample names before implementing object definitions, selections, categories, fits, or report claims.
-- Document any unavailable reference ingredients, substitutions, or approximations in workflow artifacts and in the final report.
-
-Mission:
-Complete the analysis. Implement and execute an end-to-end diphoton analysis pipeline from input-data/ to outputs/, fully reproducible and CLI-driven, guided by the installed skills and Higgs-to-diphoton.json as the reference target. Run this over all usable samples.
-
-Definition of done:
-- All usable data and MC samples are processed, or any blocker is explicitly recorded.
-- Selections, histograms, plots, intermediate artifacts, statistical outputs, commands, logs, skill-package-specific workflow artifacts, outputs/evaluation_scorecard.json, and a paper-like final report are saved under outputs/ or the workflow-standard state locations inside the current working directory.
-- The final report includes the "Implementation Differences from Reference Analysis" section when substitutions or approximations were needed.
-- The final report respects the claim classification and finalization outcomes produced by the skills.
-- The run is reproducible from documented CLI commands saved under outputs/.
+Process the usable samples, produce reproducible CLI commands, plots, yields, statistics, scorecard, and final report. Report unavailable ingredients and blocked claims exactly as specified by the analysis JSON.
