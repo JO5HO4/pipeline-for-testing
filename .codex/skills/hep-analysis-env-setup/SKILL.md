@@ -20,7 +20,7 @@ Use this skill before the first command in the current analysis project, after s
 - Export `MPLCONFIGDIR=<workspace>/.cache/matplotlib` and `XDG_CACHE_HOME=<workspace>/.cache` so plotting does not spend time failing on unwritable cache directories.
 - Treat `analysis/analysis.summary.json` as the canonical summary entrypoint. In this repo it points to `analysis/Higgs-to-diphoton.json`.
 - Verify `input-data/data` and `input-data/MC` before starting a run.
-- Expect the runtime to reconstruct a metadata CSV artifact when the official metadata file is absent. Some repository versions still use the legacy path `skills/metadata.csv`; if that directory has been removed, patch or override the runtime path before running.
+- Expect the bundled ATLAS Open Data metadata CSV to be present under `.codex/skills/*/references/patterns/metadata.csv`; runtime `skills/metadata.csv` artifacts must be generated from that table, not from skimmed ROOT file metadata.
 
 ## Standard Flow
 

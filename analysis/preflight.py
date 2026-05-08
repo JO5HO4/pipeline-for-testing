@@ -170,7 +170,7 @@ def run_preflight(summary_path: Path, inputs: Path, outputs: Path) -> dict:
         "Central and target luminosity both use 36.1 fb^-1 per the binding H->gammagamma guardrails.",
         "Plots remain blinded in the 120-130 GeV window unless explicitly overridden.",
         "Observed signal-region fits and observed significance remain disabled by default; blinded statistical setup uses full-range Asimov pseudo-data until explicit unblinding is recorded.",
-        "The missing official metadata.csv will be reconstructed from per-file ROOT metadata branches and written to skills/metadata.csv.",
+        "MC normalization uses the official ATLAS Open Data metadata CSV. Per-file ROOT metadata branches are diagnostic only for skimmed datasets and are not the normalization authority.",
     ]
     missing_or_ambiguous: list[str] = []
     if not summary.get("analysis_objectives"):
