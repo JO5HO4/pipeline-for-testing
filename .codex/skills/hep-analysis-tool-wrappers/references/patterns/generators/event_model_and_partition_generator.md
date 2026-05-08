@@ -35,15 +35,17 @@ Turn the reviewed analysis summary into executable object, category, channel, an
 
 1. Resolve which observables and derived quantities are available from the event model.
 2. Write object definitions before region logic.
-3. Generate category and channel partitions with stable identifiers.
-4. Encode SR, CR, SB, and VR roles explicitly.
-5. Surface any ambiguity about overlap or region purpose before the selection engine runs.
+3. For b-tagged analyses, record the exact b-tag branch, threshold, working point, and flavor-tagging scale-factor branch. For ATLAS Open Data `jet_btag_quantile`, do not treat the integer as a boolean; use the documented quantile threshold from the analysis contract.
+4. Generate category and channel partitions with stable identifiers.
+5. Encode SR, CR, SB, and VR roles explicitly.
+6. Surface any ambiguity about overlap or region purpose before the selection engine runs.
 
 ## Output contract
 
 - all identifiers are unique
 - region logic is executable
 - mutual exclusivity is the default for regions used together in a fit
+- object-definition records include b-tag branch semantics when b-tag categories or b-tag weights are used
 
 ## Constraints
 
@@ -58,6 +60,7 @@ Turn the reviewed analysis summary into executable object, category, channel, an
 1. The `object-definition record`, `partition specification`, `region definition contract`, and `overlap-policy manifest` all exist before selection or categorization proceeds.
 2. Every identifier in the `partition specification` and `region definition contract` is unique and executable, and SR, CR, SB, and VR roles are explicit rather than inferred from prose.
 3. The `overlap-policy manifest` records either the default mutual exclusivity for fit regions or every allowed overlap exception with its justification.
+4. For b-tagged analyses, the object-definition record states the b-tag working point, branch threshold, and flavor-tagging scale-factor branch used.
 
 ### REPAIR
 
@@ -75,10 +78,12 @@ assertions_checked:
   - assertion_1
   - assertion_2
   - assertion_3
+  - assertion_4
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
+  assertion_4: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED
