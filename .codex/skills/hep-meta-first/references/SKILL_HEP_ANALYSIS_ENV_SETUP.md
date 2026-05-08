@@ -119,7 +119,7 @@ This contract routes cold-start runtime normalization through the reusable sibli
 - Export repo-local `PYTHONPATH` so `import analysis` works consistently.
 - Export writable `MPLCONFIGDIR` and `XDG_CACHE_HOME` under the workspace to avoid plotting-cache permission failures.
 - Treat `analysis/analysis.summary.json` as the canonical summary entrypoint.
-- Expect `skills/metadata.csv` to be reconstructed in-task from ROOT metadata branches when the official metadata CSV is absent.
+- Use the bundled ATLAS Open Data metadata CSV as the normalization authority; if `skills/metadata.csv` is written, generate it from the official table, not from skimmed ROOT metadata branches.
 - On a different host, do not assume a copied `.rootenv` is portable; rebuild or document an equivalent runtime before continuing.
 
 ## Layer 2 — Example Commands
