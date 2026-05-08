@@ -58,7 +58,10 @@ outputs:
     description: "`fit_range` used for generation/evaluation"
   - name: q0_and_z_discovery
     type: artifact
-    description: "`q0` and `z_discovery`"
+    description: "raw diagnostic `q0` and `z_discovery`, plus accepted-claim fields when validation passes"
+  - name: asimov_claim_status_and_accepted_values
+    type: artifact
+    description: "`claim_status`, `asimov_closure_passed`, `accepted_q0`, and `accepted_z_discovery`; accepted values must be null when closure or fit-quality validation fails"
   - name: optional_sideband_background_fit_provenance_artifact_linking_par
     type: artifact
     description: "optional sideband/background-fit provenance artifact linking parameter values to the `mu = 0` fit used for shape determination"
@@ -130,7 +133,7 @@ validation_checks:
   - "if direct generation support is unavailable, the Asimov dataset is explicitly constructed by binning `105-160 GeV`, placing one weighted entry at each bin center, and assigning the bin-integral weight from the PDF"
   - "artifacts distinguish fixed generation inputs from floating significance-fit parameters"
   - "for H->gammagamma, Asimov expected-significance artifacts are sufficient to render a full-range visualization with Asimov pseudo-data, the fitted free-`mu` signal-plus-background total, and the corresponding background-only component"
-  - "for H->gammagamma, the free-`mu` Asimov fit records `mu_hat` for closure and flags a diagnostic if it is materially incompatible with `1` relative to the fitted uncertainty"
+  - "for H->gammagamma, the free-`mu` Asimov fit records `mu_hat` for closure and blocks the significance claim if it is materially incompatible with `mu_gen = 1` or if fit-quality checks fail"
   - "expected (Asimov) and observed significance outputs are reported separately"
 
 handoff_to:
@@ -197,7 +200,8 @@ Policy requirements:
 - evaluate discovery `q0` on the generated Asimov dataset using the standard conditional (`mu = 0`) versus unconditional (free `mu`) fits
 - record explicitly which quantities were fixed to generate the Asimov dataset and which quantities are later allowed to float in the significance fit
 - for `H -> gamma gamma`, produce a mandatory full-range Asimov fit visualization or plot-payload that shows the signal-plus-background Asimov pseudo-data, the fitted free-`mu` signal-plus-background total, and the corresponding background-only component so the excess near `125 GeV` is visible against the smooth continuum expectation
-- for `H -> gamma gamma`, record the fitted `mu_hat` from the free-`mu` Asimov closure fit and flag a warning diagnostic if it is not compatible with `1` within the fitted uncertainty
+- for `H -> gamma gamma`, record the fitted `mu_hat` from the free-`mu` Asimov closure fit and block the expected-significance claim if it is not compatible with `mu_gen = 1` within the configured tolerance
+- if the Asimov closure or required fit-quality checks fail, preserve raw `q0` and `z_discovery` only as diagnostic audit values, set `claim_status = "blocked"`, and set `accepted_q0 = null` and `accepted_z_discovery = null`
 - label outputs as expected/Asimov and record both hypotheses in metadata
 
 ## Layer 2 — Workflow Contract
@@ -208,7 +212,11 @@ Policy requirements:
   - `mu_gen = 1`
   - `background_parameter_source` describing the `mu = 0` data-fit snapshot used for background-PDF parameters
   - `fit_range` used for generation/evaluation
-  - `q0` and `z_discovery`
+  - raw diagnostic `q0` and `z_discovery`
+  - `claim_status`
+  - `asimov_closure_passed`
+  - `accepted_q0`
+  - `accepted_z_discovery`
 - optional sideband/background-fit provenance artifact linking parameter values to the `mu = 0` fit used for shape determination
 - Asimov-construction-method artifact containing:
   - `generation_range = [105.0, 160.0]`
@@ -241,7 +249,7 @@ Policy requirements:
 - if direct generation support is unavailable, the weighted bin-center construction method is used and recorded explicitly
 - artifacts distinguish fixed generation inputs from floating significance-fit parameters
 - mandatory `H -> gamma gamma` Asimov fit visualization or plot-payload exists and contains Asimov pseudo-data, fitted free-`mu` signal-plus-background total, and the corresponding background-only component over `105-160 GeV`
-- free-`mu` Asimov closure records `mu_hat` and produces a warning diagnostic if `mu_hat` is materially inconsistent with `1` relative to the fit uncertainty
+- free-`mu` Asimov closure records `mu_hat`; if `mu_hat` is materially inconsistent with `mu_gen = 1`, or if the free/conditional fit status or covariance quality fails, the accepted expected-significance claim is blocked and only raw diagnostic values are retained
 - expected (Asimov) and observed significance outputs are reported separately
 
 ## Layer 3 — Example Implementation
