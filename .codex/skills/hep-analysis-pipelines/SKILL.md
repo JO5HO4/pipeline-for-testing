@@ -17,7 +17,8 @@ Use this skill as the main entrypoint for the refactored pipeline architecture i
    - `references/patterns/shared/hep_domain_guardrails.md`
    - `references/patterns/shared/pipeline_logging_contract.md`
    - `references/patterns/shared/artifact_matrix.md`
-6. Load only the specific bundled local pattern files needed for the current blocker. Do not fall back to the legacy `.codex/skills/hep-meta-first/references/` contracts.
+6. For any existing pipeline or final-output audit, read `references/patterns/reviewers/pipeline_skill_compliance_auditor.md` before accepting central fit, significance, yield, or report claims.
+7. Load only the specific bundled local pattern files needed for the current blocker. Do not fall back to the legacy `.codex/skills/hep-meta-first/references/` contracts.
 
 ## What This Skill Covers
 

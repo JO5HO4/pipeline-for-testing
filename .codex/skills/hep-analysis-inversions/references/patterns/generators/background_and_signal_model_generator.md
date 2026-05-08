@@ -30,6 +30,7 @@ Create the strategy and model artifacts that define how backgrounds are constrai
 - background modeling strategy
 - CR and SR constraint map
 - background input-role summary
+- reducible-background role audit and data-driven availability record for fake/nonprompt or charge-misID-sensitive channels
 - blinding summary
 - signal PDF artifact
 - background scan and chosen model artifacts
@@ -40,9 +41,10 @@ Create the strategy and model artifacts that define how backgrounds are constrai
 1. Use `sample_strategy_inversion.md` to resolve process roles and constraint intent.
 2. Use `blinding_and_fit_policy_inversion.md` to resolve allowed data visibility and fit semantics.
 3. For each background input, declare whether it is MC-driven, data-driven, or hybrid and record its normalization mode.
-4. Build explicit background modeling and control-to-signal mappings.
-5. Generate or record the signal parameterization, background scan, chosen model, and spurious-signal evidence.
-6. Emit provenance for nominal template choice, sideband normalization, smoothing context, template-source role, and blinding behavior.
+4. For same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels, classify raw `ttbar`, inclusive `W+jets`, inclusive `Z+jets`, and multijet/photon MC as reducible proxies unless a reviewed data-driven, hybrid, or closure-backed method promotes them.
+5. Build explicit background modeling and control-to-signal mappings.
+6. Generate or record the signal parameterization, background scan, chosen model, and spurious-signal evidence.
+7. Emit provenance for nominal template choice, sideband normalization, smoothing context, template-source role, reducible-background status, and blinding behavior.
 
 ## Output contract
 
@@ -50,6 +52,7 @@ Create the strategy and model artifacts that define how backgrounds are constrai
 - blinding behavior is recorded as an artifact, not implied
 - nominal background template choice and sideband normalization are explicit for H to gammagamma
 - every background PDF or template declares its source class and normalization mode
+- reducible components declare whether they are `data_driven_reducible_background`, `hybrid_reducible_background`, or `reducible_mc_proxy_diagnostic`
 
 ## Constraints
 
@@ -57,6 +60,7 @@ Create the strategy and model artifacts that define how backgrounds are constrai
 - no implicit promotion of a data-driven template into the observed-data side of the likelihood
 - no silent exposure of observed data in a blinded window
 - no data-driven template without a reviewed template contract
+- no raw reducible MC proxy may be labeled central expected background in same-sign or multilepton channels without reviewed promotion evidence
 - if model choice remains ambiguous, block and escalate through the inversion or reviewer path
 
 ## Verification Gate
@@ -67,6 +71,7 @@ Create the strategy and model artifacts that define how backgrounds are constrai
 2. Every background input named in the `background modeling strategy` declares whether it is `MC-driven`, `data-driven`, or `hybrid`, and it declares a normalization mode rather than leaving normalization implicit.
 3. If the analysis is blinded, the `blinding summary` confirms that `120-130 GeV` is not exposed in blinded mode; if fit or significance products are prepared, the model artifacts record the full `105-160 GeV` fit range.
 4. If an H to gammagamma background template is central, the `background input-role summary` names an explicit nominal diphoton sample, and any data-driven input listed there points to a reviewed `data-driven template contract` rather than silently reusing observed data.
+5. For same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels, the background strategy separates prompt MC, data-driven reducible background if available, and reducible MC proxies; central expected-background claims block when this role split is absent.
 
 ### REPAIR
 
@@ -85,11 +90,13 @@ assertions_checked:
   - assertion_2
   - assertion_3
   - assertion_4
+  - assertion_5
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
   assertion_4: pass|fail
+  assertion_5: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED
