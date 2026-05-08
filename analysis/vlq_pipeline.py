@@ -735,6 +735,60 @@ def _stat_results(aggregate: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _zero_or_clipped_region_audit(aggregate: dict[str, Any], stats: dict[str, Any]) -> dict[str, Any]:
+    audited_regions = {}
+    flagged_regions = []
+    for region_name, payload in aggregate["regions"].items():
+        data = payload["data"]
+        background = payload["background_total"]
+        signal = payload["signal_proxy_primary"]
+        stat_payload = stats["regions"][region_name]
+        flags = []
+        likely_sources = []
+
+        if int(data["unweighted"]) == 0:
+            flags.append("observed_data_zero")
+            likely_sources.append("sparse open-data acceptance after fixed signal-region cuts")
+        if int(background["unweighted"]) == 0:
+            flags.append("central_background_unweighted_zero")
+            likely_sources.append("central background has no selected events in this region")
+        if float(background["weighted"]) == 0.0:
+            flags.append("central_background_weighted_zero")
+        if float(background["weighted"]) < 0.0:
+            flags.append("central_background_negative_signed_weight_clipped_for_stat")
+            likely_sources.append("signed-weight cancellation or negative sparse MC sum")
+        if int(signal["unweighted"]) == 0:
+            flags.append("central_signal_proxy_unweighted_zero")
+            likely_sources.append("central signal proxy has no selected events in this region")
+        if float(signal["weighted"]) == 0.0:
+            flags.append("central_signal_proxy_weighted_zero")
+        if float(signal["weighted"]) < 0.0:
+            flags.append("central_signal_proxy_negative_signed_weight_clipped_for_stat")
+            likely_sources.append("signed-weight cancellation or negative sparse signal-proxy sum")
+
+        if flags:
+            flagged_regions.append(region_name)
+        audited_regions[region_name] = {
+            "status": "flagged" if flags else "ok",
+            "flags": flags,
+            "likely_sources": sorted(set(likely_sources)),
+            "observed_data": dict(data),
+            "central_background_raw_signed": dict(background),
+            "central_background_used_for_stat": stat_payload["expected_background_for_stat"],
+            "central_signal_proxy_raw_signed": dict(signal),
+            "central_signal_proxy_used_for_stat": stat_payload["signal_proxy_yield_for_stat"],
+            "background_groups": payload["background_groups"],
+            "signal_groups": payload["signal_groups"],
+        }
+    return {
+        "status": "attention_required" if flagged_regions else "ok",
+        "policy": "Flag every signal region with zero observed data, zero central background, zero central signal proxy, or a negative signed MC yield clipped for the counting statistic.",
+        "flagged_region_count": len(flagged_regions),
+        "flagged_regions": flagged_regions,
+        "regions": audited_regions,
+    }
+
+
 def _jsonable_histograms(histograms: dict[str, Any]) -> dict[str, Any]:
     payload = {}
     for var, hist in histograms.items():
@@ -960,6 +1014,7 @@ def _write_report(
     samples: list[dict[str, Any]],
     aggregate: dict[str, Any],
     stats: dict[str, Any],
+    zero_yield_audit: dict[str, Any],
     plot_manifest: dict[str, Any],
     branch_summary: dict[str, Any],
 ) -> Path:
@@ -1021,6 +1076,10 @@ Same-sign dilepton regions require exactly two selected leptons with equal charg
 Expected results are computed first from fixed MC background and the signal proxy. Observed data counts are then evaluated with the same fixed selections and statistical formulae. Raw signed MC yields are preserved in JSON; when a sparse signed-weight sum is negative, the simplified counting statistic uses a nonnegative clipped yield and records the raw signed value in the table.
 
 {_region_table(aggregate, stats)}
+
+## Zero-Yield and Signed-Weight Audit
+
+The zero-yield audit flagged {zero_yield_audit['flagged_region_count']} signal regions for zero observed data, zero central background, zero central signal proxy, or a negative signed MC yield clipped for the simplified counting statistic. Details are written to `report/region_zero_yield_audit.json`.
 
 ## Plots
 
@@ -1095,6 +1154,7 @@ def run_vlq_pipeline(summary_path: Path, inputs: Path, outputs: Path, max_events
                     handle.write(f"{utcnow_iso()} {index}/{len(samples)} {sample['sample_id']} {result['status']}\n")
     aggregate = _aggregate_results(sample_results, regions)
     stats = _stat_results(aggregate)
+    zero_yield_audit = _zero_or_clipped_region_audit(aggregate, stats)
     branch_info = _branch_summary(sample_results)
     plot_manifest = {}
     plot_manifest.update(_plot_histograms(histograms, out_dir / "plots" / "distributions"))
@@ -1127,6 +1187,7 @@ def run_vlq_pipeline(summary_path: Path, inputs: Path, outputs: Path, max_events
     write_json(branch_info, out_dir / "branches" / "branch_summary.json")
     write_json(aggregate, out_dir / "yields" / "aggregate_yields.json")
     write_json({"status": "ok", "samples": aggregate["samples"]}, out_dir / "yields" / "per_sample_cutflows.json")
+    write_json(zero_yield_audit, out_dir / "report" / "region_zero_yield_audit.json")
     write_json(_jsonable_histograms(histograms), out_dir / "hists" / "histograms.json")
     write_json(
         {
@@ -1172,6 +1233,7 @@ def run_vlq_pipeline(summary_path: Path, inputs: Path, outputs: Path, max_events
         samples=samples,
         aggregate=aggregate,
         stats=stats,
+        zero_yield_audit=zero_yield_audit,
         plot_manifest=plot_manifest,
         branch_summary=branch_info,
     )

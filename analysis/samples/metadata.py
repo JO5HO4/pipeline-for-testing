@@ -28,7 +28,12 @@ def dsid_from_name(path: Path) -> str | None:
 
 
 def descriptor_from_name(path: Path) -> str:
-    name = path.name.removesuffix(".GamGam.root")
+    name = path.name
+    if name.endswith(".root"):
+        name = name[:-5]
+    for stream_suffix in (".GamGam", ".1LMET30"):
+        if name.endswith(stream_suffix):
+            name = name[: -len(stream_suffix)]
     return name.split("_mc_", 1)[1].split(".", 1)[1]
 
 
