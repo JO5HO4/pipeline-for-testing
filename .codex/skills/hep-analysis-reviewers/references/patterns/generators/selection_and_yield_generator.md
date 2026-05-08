@@ -29,6 +29,7 @@ Produce the cut-flow, region-yield, and provenance artifacts that connect execut
 - region-yield tables
 - process-aggregated views
 - sample-resolved views
+- prompt-MC versus reducible-MC-proxy yield split for same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels
 - cut-flow provenance
 
 ## Generation steps
@@ -36,8 +37,9 @@ Produce the cut-flow, region-yield, and provenance artifacts that connect execut
 1. Run the executable region logic over the nominal sample set.
 2. Record both unweighted counts and weighted yields.
 3. Compute process-level and combined totals without hiding sample-level detail by default.
-4. Record uncertainty proxies from event weights.
-5. Link final selected yields to the same region semantics that downstream histogramming will use.
+4. For same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels, compute separate totals for `prompt_mc_background`, `data_driven_reducible_background` if available, and `reducible_mc_proxy_diagnostic`.
+5. Record uncertainty proxies from event weights.
+6. Link final selected yields to the same region semantics that downstream histogramming will use.
 
 ## Output contract
 
@@ -45,11 +47,13 @@ Produce the cut-flow, region-yield, and provenance artifacts that connect execut
 - unweighted counts do not increase across stricter sequential cuts
 - MC uncertainties come from weighted bookkeeping
 - H to gammagamma cut-flow views separate signal production modes, prompt diphoton background, and data
+- same-sign and multilepton yield views never hide raw reducible MC inside a central expected-background total
 
 ## Constraints
 
 - merged process rows require an explicit merge map
 - alternative samples do not enter central totals unless the decision record says so
+- raw `ttbar`, inclusive `W+jets`, inclusive `Z+jets`, and multijet/photon MC in same-sign or multilepton channels are `reducible_mc_proxy_diagnostic` by default; they enter central expected background only when a reviewed data-driven, hybrid, or closure-backed method promotes them
 
 ## Verification Gate
 
@@ -58,6 +62,7 @@ Produce the cut-flow, region-yield, and provenance artifacts that connect execut
 1. The `cut-flow tables`, `region-yield tables`, `process-aggregated views`, `sample-resolved views`, and `cut-flow provenance` all exist before histogramming or reporting consumes the yields.
 2. The `cut-flow tables` preserve step ordering and show that unweighted event counts do not increase across stricter sequential cuts unless an explicit branch reset is documented in the provenance.
 3. The `process-aggregated views` can be traced back to the `sample-resolved views`, and alternative samples are excluded from central totals unless the decision record explicitly promotes them.
+4. For same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels, the yield artifacts include a prompt-MC versus reducible-MC-proxy split, and raw reducible MC proxies are not summed into the central expected-background total without reviewed promotion evidence.
 
 ### REPAIR
 
@@ -75,10 +80,12 @@ assertions_checked:
   - assertion_1
   - assertion_2
   - assertion_3
+  - assertion_4
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
+  assertion_4: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED

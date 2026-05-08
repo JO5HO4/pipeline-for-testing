@@ -1,9 +1,3 @@
-Carry out the analysis end to end.
+Execute the analysis end to end.
 
-Treat `analysis/analysis.summary.json` as the analysis contract and source of truth. If that symlink is absent, use the analysis JSON in `analysis/`. Do not invent physics scope beyond the JSON.
-
-Use only this repository and the symlinked `input-data/`. Write all products under `outputs/`.
-
-Process the usable samples, produce reproducible CLI commands, plots, yields, statistics, scorecard, and final report. Report unavailable ingredients and blocked claims exactly as specified by the analysis JSON.
-
-When creating, modifying, regenerating, or reviewing any plot, explicitly use the `$plotting` skill. Final analysis plots should follow ATLAS-style HEP plotting conventions, include correct open-data/diagnostic label text, be saved as true PDF plus PNG when practical, and be recorded in a plot manifest.
+Treat the installed skills and analysis JSON as the source of truth.

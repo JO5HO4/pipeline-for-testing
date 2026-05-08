@@ -12,7 +12,7 @@ Derived from:
 
 | Stage | Inputs | Producing skills | Gate | Exit criteria |
 |---|---|---|---|---|
-| Plot and report assembly | reviewed physics artifacts | `report_package_generator.md`, `report_packaging_wrapper.md` | `blinding_and_visualization_reviewer.md` | report draft, plot manifest, and captions exist |
+| Plot and report assembly | reviewed physics artifacts | `report_package_generator.md`, `report_packaging_wrapper.md` | `pipeline_skill_compliance_auditor.md`, `blinding_and_visualization_reviewer.md` | report draft, plot manifest, captions, and report-scope compliance audit exist |
 | Discrepancy audit | report draft, plots, yields | `data_mc_discrepancy_reviewer.md` | same reviewer | discrepancy audit exists even for zero-issue runs |
 | Handoff enforcement | report package, enforcement artifacts | `reproducibility_and_handoff_reviewer.md` | same reviewer | enforcement handoff gate is `ok` |
 | Failure extraction | reviewer findings and run logs | `failure_to_skill_inversion.md` | `reproducibility_and_handoff_reviewer.md` | handoff package includes remediation or candidate skill notes |
@@ -21,6 +21,7 @@ Derived from:
 
 - no final handoff without an explicit discrepancy artifact
 - no final handoff without an explicit enforcement gate result
+- no final handoff without a report-scope pipeline skill compliance audit that passes or conditionally passes
 
 ## Dependencies
 
@@ -44,6 +45,7 @@ Derived from:
 1. The `Plot and report assembly` stage produced the report draft, plot manifest, and caption evidence before the pipeline advanced to discrepancy review.
 2. The `Discrepancy audit` stage produced an explicit discrepancy artifact even for a zero-issue run, and the `Handoff enforcement` stage recorded an enforcement handoff gate result of `ok` before handoff.
 3. The `Failure extraction` stage added remediation notes or explicit candidate-skill notes to the handoff package before the pipeline marked handoff complete, and each completed stage was backed by a `pass` or `conditional_pass` reviewer outcome.
+4. The report-scope pipeline skill compliance audit exists and does not allow any central report claim from a forbidden, diagnostic-only, or noncompliant code path.
 
 ### REPAIR
 
@@ -61,10 +63,12 @@ assertions_checked:
   - assertion_1
   - assertion_2
   - assertion_3
+  - assertion_4
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
+  assertion_4: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED
@@ -76,4 +80,5 @@ The agent must not proceed if `gate_outcome` is `BLOCKED` or `ESCALATED`.
 ## Related skills
 
 - `hep_analysis_meta_pipeline.md`
+- `../reviewers/pipeline_skill_compliance_auditor.md`
 - `../reviewers/reproducibility_and_handoff_reviewer.md`

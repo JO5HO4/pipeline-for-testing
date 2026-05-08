@@ -21,9 +21,9 @@ Derived from the source meta-skill and its reference library.
 | 4. Event selection and cut flow | region contracts executable | `selection_and_yield_generator.md` | `nominal_sample_and_normalization_reviewer.md` | yields and cut flows match the reviewed central sample set |
 | 5. Categorization | selected events and reviewed partitions exist | `event_model_and_partition_generator.md`, `selection_and_partition_wrapper.md` | `analysis_summary_reviewer.md` | category definitions and overlap policy are explicit |
 | 6. Background modeling or estimation | templates can be built | `histogram_and_template_generator.md`, `data_driven_template_generator.md`, `background_and_signal_model_generator.md`, `histogram_and_template_wrapper.md`, `sample_strategy_inversion.md`, `blinding_and_fit_policy_inversion.md` | `likelihood_sample_role_reviewer.md`, `statistical_readiness_reviewer.md` | background strategy, blinding state, template provenance, and model choices are reviewable |
-| 7. Signal and background fitting or statistical setup | reviewed model artifacts exist | `systematics_and_workspace_generator.md`, `fit_and_significance_wrapper.md`, `blinding_and_fit_policy_inversion.md` | `statistical_readiness_reviewer.md` | workspace, fit, and significance outputs satisfy central-claim policy or are explicitly blocked |
+| 7. Signal and background fitting or statistical setup | reviewed model artifacts exist | `systematics_and_workspace_generator.md`, `fit_and_significance_wrapper.md`, `blinding_and_fit_policy_inversion.md` | `pipeline_skill_compliance_auditor.md`, `statistical_readiness_reviewer.md` | workspace, fit, and significance outputs satisfy central-claim policy or are explicitly blocked |
 | 8. Validation and cross-checks | statistical outputs exist or are explicitly blocked | `blinding_and_visualization_reviewer.md`, `data_mc_discrepancy_reviewer.md`, `reproducibility_and_handoff_reviewer.md` | same reviewers | visual, discrepancy, and reproducibility evidence are explicit |
-| 9. Result packaging | validated outputs exist | `report_package_generator.md`, `report_packaging_wrapper.md` | `blinding_and_visualization_reviewer.md` | report package and plot manifest are reviewer-ready |
+| 9. Result packaging | validated outputs exist | `report_package_generator.md`, `report_packaging_wrapper.md` | `pipeline_skill_compliance_auditor.md`, `blinding_and_visualization_reviewer.md` | report package and plot manifest are reviewer-ready |
 | 10. Report and log generation | report package exists | `reporting_and_handoff_pipeline.md`, `failure_to_skill_inversion.md` | `reproducibility_and_handoff_reviewer.md` | handoff package, enforcement status, and next-step notes are explicit |
 
 ## Stage-specific requirements
@@ -64,6 +64,7 @@ Derived from the source meta-skill and its reference library.
 
 - central H to gammagamma fits require RooFit
 - expected significance in blinded development requires full-range Asimov pseudo-data
+- before fit/significance handoff, run `pipeline_skill_compliance_auditor.md` against the executable code path and planned artifact metadata; do not proceed if a central claim uses a diagnostic-only or forbidden implementation mode
 
 ### 8. Validation and cross-checks
 
@@ -74,6 +75,7 @@ Derived from the source meta-skill and its reference library.
 
 - plots must be embedded inline with captions
 - the report must separate central claims from blocked or cross-check outputs
+- rerun `pipeline_skill_compliance_auditor.md` on the report draft before final approval to ensure blocked or diagnostic artifacts are not promoted in prose, tables, scorecards, or handoff records
 
 ### 10. Report and log generation
 
@@ -104,6 +106,7 @@ Use `../shared/pipeline_logging_contract.md` for every stage. The minimum log bu
 2. No stage is marked complete unless its mandatory reviewer returned `pass` or `conditional_pass`; a `block` or `fail` verdict is not bypassed anywhere in the stage log.
 3. Stage 2 and Stage 6 artifacts explicitly preserve reviewer-approved sample roles, template provenance, and blinding behavior, including the rule that `120-130 GeV` is not exposed in blinded mode.
 4. Stage 7 statistical artifacts explicitly preserve `pyroot_roofit` as the central H to gammagamma backend, and any expected significance path records `mu_gen = 1`, the signal-plus-background hypothesis, and the full `105-160 GeV` range.
+5. Stage 7 and Stage 9 include a pipeline skill compliance audit, and no central claim depends on a diagnostic-only or forbidden code path.
 
 ### REPAIR
 
@@ -122,11 +125,13 @@ assertions_checked:
   - assertion_2
   - assertion_3
   - assertion_4
+  - assertion_5
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
   assertion_4: pass|fail
+  assertion_5: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED
