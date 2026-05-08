@@ -1454,6 +1454,27 @@
       "noncentral_background_alternative_policy": {
         "status": "exclude_from_central_background_sum",
         "classification_rule": "Samples with pThard, Herwig, H7UE, ShowerSys, _shw, DS_dyn, or explicitly listed ttbar alternative DSIDs are processed for accounting and diagnostics but not added to central background yields.",
+        "alternative_tokens": [
+          "pThard",
+          "Herwig",
+          "H7UE",
+          "ShowerSys",
+          "_shw",
+          "DS_dyn"
+        ],
+        "explicit_noncentral_background_sample_ids": {
+          "411233": "Powheg+Herwig7 ttbar single-lepton alternative to the central ttbar modeling",
+          "411234": "Powheg+Herwig7 ttbar dilepton alternative to the central ttbar modeling",
+          "411316": "Powheg+Herwig7 ttbar all-hadronic alternative to the central ttbar modeling",
+          "601491": "Powheg+Pythia8 pThard ttbar dilepton radiation alternative",
+          "601495": "Powheg+Pythia8 pThard ttbar all-hadronic radiation alternative",
+          "601497": "Powheg+Pythia8 pThard ttbar single-lepton radiation alternative"
+        },
+        "central_yield_rule": "Central background cut-flow, nominal stacked plots, and statistical inputs must sum only samples with central_sample true. Noncentral alternatives must be kept in audit artifacts with selected-event counts and exclusion reasons.",
+        "required_artifacts": [
+          "outputs/samples/central_sample_scope.json",
+          "outputs/report/data_mc_discrepancy_audit.json top-contributor and central-only cross-check when MC is materially above data"
+        ],
         "motivation": "Alternative samples model the same physics process under a different generator, shower, radiation, or overlap-removal scheme. Adding them to the nominal process double counts the background and inflates expected yields."
       },
       "fake_nonprompt_method": "not reproducible from open data; save control-proxy counts only",

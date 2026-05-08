@@ -16,6 +16,8 @@ Check whether substantial disagreement between observed data and MC expectations
 - discrepancy check log
 - cut-flow and yield context
 - normalization and sample-mapping artifacts
+- top per-sample MC contributors for any region or cut-flow step with material normalization disagreement
+- central-only versus all-MC cross-check when alternative-sample double counting is plausible
 
 ## Criteria
 
@@ -28,6 +30,7 @@ Check whether substantial disagreement between observed data and MC expectations
 
 - discrepancy artifacts missing on a supposedly clean run
 - changes to binning, selection, or sample composition made only to improve visual agreement
+- expected MC much larger than data because noncentral generator/shower/radiation alternatives were stacked with central samples
 - bug and modeling-mismatch cases not distinguished
 
 ## Required remediation guidance
@@ -41,8 +44,9 @@ Check whether substantial disagreement between observed data and MC expectations
 ### ASSERTIONS
 
 1. A reviewer verdict artifact or conversation note for `Data-MC Discrepancy Reviewer` exists and records exactly one verdict from `pass`, `conditional_pass`, `block`, or `fail`.
-2. The required evidence is present on disk or in the conversation: data-versus-MC plots and tables, the discrepancy audit, the discrepancy check log, cut-flow and yield context, and normalization and sample-mapping artifacts.
+2. The required evidence is present on disk or in the conversation: data-versus-MC plots and tables, the discrepancy audit, the discrepancy check log, cut-flow and yield context, normalization and sample-mapping artifacts, and top-contributor diagnostics for material normalization disagreements.
 3. The evidence explicitly confirms either that every substantial discrepancy was classified and reported honestly or that the explicit zero-issue path was documented; no discrepancy is treated as resolved solely by cosmetic changes.
+4. If MC is materially above data, the evidence includes a central-only versus all-MC comparison or explains why alternative-sample double counting is impossible.
 
 ### REPAIR
 
@@ -60,10 +64,12 @@ assertions_checked:
   - assertion_1
   - assertion_2
   - assertion_3
+  - assertion_4
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
+  assertion_4: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED

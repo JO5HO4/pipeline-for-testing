@@ -16,9 +16,10 @@ Make plotting code produce clear high-energy-physics figures while preserving th
 3. Make the smallest reliable change that applies the ATLAS conventions below. Do not change physics selections, histogram definitions, binning, weights, uncertainties, or data inputs unless the user explicitly asks.
 4. If a requested change affects approval status, luminosity, center-of-mass energy, units, bin width, or whether data are real ATLAS data or simulation, use the information already in the repo or prompt. If it is not available, leave a clear TODO or ask instead of guessing.
 5. Export publication-like figures as true PDF whenever possible. PNG is acceptable only for event displays, special graphics, quick diagnostics, or when the user asks for raster output.
-6. Write or update a plot manifest that records output paths, backend, style package used, label/status text, and whether each plot is diagnostic-only, blinded, simulation-only, or uses observed data.
-7. Run the narrowest available smoke test or plot-generation command. If execution is not possible, state the command that should be run and why it was not run.
-8. In the final response, summarize changed files, style decisions applied, and the command used to regenerate plots.
+6. For stacked simulation plots, use the central sample scope from the registry/spec. Do not include generator, shower, radiation, systematic, or signal-hypothesis alternatives in a nominal central stack unless the analysis contract explicitly says so.
+7. Write or update a plot manifest that records output paths, backend, style package used, label/status text, central-vs-noncentral sample policy, and whether each plot is diagnostic-only, blinded, simulation-only, or uses observed data.
+8. Run the narrowest available smoke test or plot-generation command. If execution is not possible, state the command that should be run and why it was not run.
+9. In the final response, summarize changed files, style decisions applied, and the command used to regenerate plots.
 
 ## Core ATLAS Plot Defaults
 
@@ -46,6 +47,7 @@ Make plotting code produce clear high-energy-physics figures while preserving th
 - Suppress horizontal error bars unless variable bin widths or missing references make them necessary.
 - Do not draw caps or ticks at the ends of error bars.
 - Reserve filled histograms primarily for simulation.
+- In nominal data-vs-simulation stacks, draw only central simulation samples in the stack. Show noncentral alternatives in separate diagnostic plots or tables with explicit labels such as `alternative` or `systematic`, not as additive components of the nominal prediction.
 - Do not draw error bars on full simulation histograms. Use a shaded uncertainty band when simulation uncertainties must be shown.
 - Use function lines for fits and parameterizations.
 - Do not use black for function lines; black is reserved for data and common histogram boundaries.
@@ -227,3 +229,4 @@ Before finishing a task, check the plot or plotting code for:
 - luminosity and center-of-mass energy shown when real ATLAS data are shown;
 - public time axes labeled UTC;
 - final output saved as true PDF where appropriate.
+- plot manifest records whether the nominal stack used only central samples and lists any noncentral samples shown separately.

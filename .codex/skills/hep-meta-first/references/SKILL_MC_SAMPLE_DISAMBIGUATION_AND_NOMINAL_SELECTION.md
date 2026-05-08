@@ -136,6 +136,8 @@ failure_modes:
 validation_checks:
   - "each central physics process has exactly one nominal/reference sample set"
   - "central-yield and fit inputs exclude alternative or non-matching-decay samples unless an explicit policy says otherwise"
+  - "central background inputs exclude generator, shower, radiation, pThard, Herwig/H7UE, ShowerSys, `_shw`, and diagram-subtraction alternatives unless explicitly promoted by the analysis contract"
+  - "noncentral alternatives are still recorded with selected-event counts, normalization inputs, and an exclusion reason"
   - "for H->gammagamma spurious-signal/background-function studies, the nominal background-template source is the default diphoton MC sample rather than a combination of many low-statistics auxiliary background samples"
   - "for H->gammagamma spurious-signal/background-function studies, the selected diphoton nominal sample window is the minimum available mass window that fully contains `105-160 GeV`"
   - "resonance-background slice selection documents fit-range coverage and blocks if relevance/coverage cannot be verified"
@@ -168,8 +170,9 @@ It preserves the original physics and workflow intent while exposing explicit in
 7. Reject candidates whose final state does not match the central analysis target unless they are explicitly designated as alternative or cross-check samples.
 8. For resonance-search mass-fit workflows, exclude out-of-range background slices from central templates unless an explicit policy justifies inclusion.
 9. For each physics process, identify one nominal/reference sample set for central yields and fits.
-10. If two or more candidates remain equally plausible and the repository context does not resolve them, block and request human clarification.
-11. Record the chosen nominal sample set and the rejected/alternative candidates with justification.
+10. Before computing central yields, separate generator/shower/radiation/pThard/diagram-subtraction/systematic alternatives into noncentral roles unless the analysis contract explicitly promotes them.
+11. If two or more candidates remain equally plausible and the repository context does not resolve them, block and request human clarification.
+12. Record the chosen nominal sample set and the rejected/alternative candidates with justification.
 
 # Notes
 
@@ -206,6 +209,8 @@ Policy requirements:
 - when background datasets are provided in mass slices, central templates must include only slices that overlap the fit range (optionally with a documented safety buffer); for `H -> gamma gamma`, the nominal-template rule above is stricter and overrides generic slice aggregation
 - if mass-range relevance or slice coverage is unclear, or if selected slices do not provide adequate support for the fit interval, execution must block until a human-approved policy is recorded
 - when multiple plausible candidates remain for one process, select one nominal/reference dataset and mark the rest as alternatives, cross-checks, or systematic-only inputs
+- alternative generator/shower/radiation samples are not additive with the nominal process. In ATLAS Open Data inventories, names or process descriptions containing `pThard`, `Herwig`, `H7UE`, `ShowerSys`, `_shw`, `DS_dyn`, `for systematics`, or `parton showering systematics` must be treated as noncentral by default.
+- explicit known ttbar alternative DSIDs such as `411233`, `411234`, `411316`, `601491`, `601495`, and `601497` must not be summed with the central ttbar representation unless a revised analysis contract says so.
 - if the meaning of candidate samples or the nominal choice is ambiguous, stop and ask the human before execution continues
 - record the human clarification and selection rationale in machine-readable artifacts and in the final report appendix
 
@@ -230,6 +235,8 @@ Policy requirements:
   - `analysis_role`
   - `selected_nominal_samples`
   - `alternative_samples`
+  - `central_sample`
+  - `noncentral_reason`
   - `excluded_samples`
   - `fit_mass_range` (or `not_applicable`)
   - `selected_mass_relevant_samples`
@@ -244,6 +251,7 @@ Policy requirements:
   - `ambiguity_status`
   - `requires_human_clarification`
 - final report appendix section documenting why each nominal sample set was chosen from the available candidates
+- central-sample scope artifact, for example `outputs/samples/central_sample_scope.json`, listing central backgrounds, noncentral background alternatives, central signal samples, and noncentral signal alternatives
 
 ### Decision Procedure
 1. Enumerate all candidate MC files relevant to the target process family.
@@ -257,12 +265,15 @@ Policy requirements:
 6. For `H -> gamma gamma`, explicitly reject the construction of the nominal background template from many relevant but individually low-statistics auxiliary samples; record those samples as rejected or alternative and explain that this avoids inflated statistical fluctuations in the spurious-signal test.
 7. For other resonance-search mass-fit workflows, exclude out-of-range background slices from central templates unless an explicit policy justifies inclusion.
 8. For each physics process, identify one nominal/reference sample set for central yields and fits.
-9. If two or more candidates remain equally plausible and the repository context does not resolve them, block and request human clarification.
-10. Record the chosen nominal sample set and the rejected/alternative candidates with justification.
+9. Move generator/shower/radiation/pThard/diagram-subtraction/systematic alternatives into noncentral roles before any central yield, stack, or likelihood input is computed.
+10. If two or more candidates remain equally plausible and the repository context does not resolve them, block and request human clarification.
+11. Record the chosen nominal sample set and the rejected/alternative candidates with justification.
 
 ### Acceptance Checks
 - each central physics process has exactly one nominal/reference sample set
 - central-yield and fit inputs exclude alternative or non-matching-decay samples unless an explicit policy says otherwise
+- central-yield and fit inputs do not include noncentral alternatives in background totals, stacked plots, or likelihood inputs
+- noncentral alternatives are visible in diagnostics and reports rather than silently dropped
 - for `H -> gamma gamma` spurious-signal/background-function studies, the nominal background-template source is the default diphoton MC sample rather than a combination of many low-statistics auxiliary background samples
 - for `H -> gamma gamma`, the selected diphoton nominal sample window is the minimum available mass window that fully contains `105-160 GeV`
 - resonance-background slice selection documents fit-range coverage and blocks if relevance/coverage cannot be verified

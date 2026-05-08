@@ -145,6 +145,8 @@ validation_checks:
   - "luminosity scaling and units"
   - "cross-section, k-factor, filter-efficiency, branching-ratio treatment"
   - "per-sample normalization and duplicate/missing sample handling"
+  - "central-versus-noncentral sample-role handling, including generator/shower/radiation alternatives"
+  - "top per-sample MC contributors are inspected when total MC is much larger than observed data"
   - "data-MC sample mapping and process grouping"
   - "region/category definitions and overlap logic"
   - "object selections, overlap removal, trigger requirements, trigger scale factors"
@@ -198,6 +200,8 @@ Policy requirements:
 - treat large discrepancies as mandatory triggers for implementation/procedure checks
 - never change plotting, normalization, selection, weighting, binning, or sample composition solely to improve visual agreement
 - do not treat disagreement alone as proof of implementation failure
+- when expected MC is materially larger than data, inspect per-sample contributors and central/noncentral sample roles before touching scale factors or selections
+- if generator, shower, radiation, pThard, diagram-subtraction, or systematic alternatives dominate the discrepancy, classify that as a sample-scope bug and repair the central sample policy rather than tuning weights
 - do not suppress, obscure, or de-emphasize discrepant regions/categories in plots or report text
 - preserve the distinction between:
   - confirmed implementation bugs (fix + document)
@@ -229,6 +233,9 @@ Policy requirements:
 - luminosity scaling and units
 - cross-section, k-factor, filter-efficiency, branching-ratio treatment
 - per-sample normalization and duplicate/missing sample handling
+- central-vs-noncentral sample handling, especially whether generator/shower/radiation alternatives were accidentally added to central MC
+- top-contributor table by process and DSID/sample ID for each affected region or cut-flow step
+- central-only recomputation or estimate when duplicate/alternative sample stacking is suspected
 - data-MC sample mapping and process grouping
 - region/category definitions and overlap logic
 - object selections, overlap removal, trigger requirements, trigger scale factors
@@ -254,6 +261,7 @@ Policy requirements:
 - discrepancy-triggered sanity checks are recorded
 - if a bug is found, the fix and impact are documented with updated artifacts
 - if no bug is found, discrepancy remains visible in plots and report text
+- sample-scope discrepancies document both the all-MC total and the central-only total before and after repair
 - no change log entry indicates cosmetic-only tuning to improve agreement
 
 ## Layer 3 — Example Implementation
@@ -268,6 +276,8 @@ Policy requirements:
 - `status` (`no_substantial_discrepancy`, `discrepancy_investigated_bug_found`, `discrepancy_investigated_no_bug_found`)
 - `items` (list)
 - `checks_performed` (list)
+- `top_mc_contributors` (list)
+- `central_only_crosscheck` (object)
 - `bugs_found` (list)
 - `unresolved_items` (list)
 - `notes`

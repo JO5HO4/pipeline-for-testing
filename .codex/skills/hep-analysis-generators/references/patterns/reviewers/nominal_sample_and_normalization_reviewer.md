@@ -32,6 +32,8 @@ Verify that sample identity, nominal-versus-alternative status, and normalizatio
 ## Common failure modes
 
 - multiple candidate nominal samples for the same process
+- generator/shower/radiation/pThard/Herwig/H7UE/ShowerSys/diagram-subtraction alternatives added to the central prediction
+- noncentral alternatives missing `central_sample: false` or a concrete exclusion reason
 - raw event counts used instead of signed generator-weight sums
 - central results using `36.0 fb^-1` because of stale policy text instead of the repository default `36.1 fb^-1`
 - background normalization mode is missing for a process that is intended to be theory-constrained, CR-constrained, or floating
@@ -53,6 +55,7 @@ Verify that sample identity, nominal-versus-alternative status, and normalizatio
 2. The required evidence is present on disk or in the conversation: the signal-signature and likelihood-intake decision record, the sample registry, the sample contract set, the nominal sample selection record, the normalization table, the metadata resolution log, and the sample-strategy decision record when ambiguity existed.
 3. The evidence explicitly confirms that `36.1 fb^-1` is the central luminosity and that `36.0 fb^-1` does not appear as the central luminosity for the reviewed run.
 4. The normalization evidence explicitly confirms `cross section x k-factor x filter efficiency x signed generator-weight sum`, and raw event counts are not treated as the central normalization basis.
+5. The sample-role evidence explicitly confirms that central yields, nominal stacks, and likelihood inputs exclude noncentral alternatives unless explicitly promoted by the analysis contract.
 
 ### REPAIR
 
@@ -71,11 +74,13 @@ assertions_checked:
   - assertion_2
   - assertion_3
   - assertion_4
+  - assertion_5
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
   assertion_4: pass|fail
+  assertion_5: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED
