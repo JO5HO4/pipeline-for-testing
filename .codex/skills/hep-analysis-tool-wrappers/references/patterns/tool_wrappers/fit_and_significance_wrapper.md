@@ -28,8 +28,9 @@ Use this wrapper when the agent needs to execute the repository fit, systematics
 
 ## Preconditions
 
+- pre-fit compliance guard has run for the planned executable path and wrote a `scope: pre_fit` artifact
 - statistical readiness reviewer has not blocked the stage
-- pipeline skill compliance auditor has passed or conditionally passed the planned executable code path for the intended central claims
+- pipeline skill compliance auditor has passed the planned executable code path for the intended central claims; `CONDITIONAL_PASS` is allowed only when the affected fit/significance path is explicitly diagnostic-only or absent
 - any central-result backend decision has already been made
 
 ## Postconditions
@@ -37,12 +38,25 @@ Use this wrapper when the agent needs to execute the repository fit, systematics
 - fit and significance provenance are explicit
 - cross-check results are labeled as cross-checks rather than silently promoted
 
+## Required Guard Step
+
+Before any command that can execute fit, significance, or an integrated run that reaches them, run:
+
+```bash
+python .codex/skills/hep-pipeline-skill-compliance-audit/scripts/pre_fit_compliance_guard.py \
+  --summary analysis/analysis.summary.json \
+  --repo .
+```
+
+No guard pass means no `analysis.cli run`, no `analysis.stats.fit`, and no significance call. Do not continue if the guard artifact is missing, stale for the planned code path, `BLOCKED`, or `ESCALATED`.
+
 ## Call procedure
 
-1. Use `.rootenv/bin/python -m analysis.stats.fit` for direct fit execution when the workspace is already prepared.
-2. Use `.rootenv/bin/python -m analysis.stats.systematics` when nuisance artifacts need a focused refresh.
-3. Use `.rootenv/bin/python -m analysis.cli run` when fit and significance should remain coupled to the integrated pipeline.
-4. Use direct Python entrypoints for significance only when the stage contract explicitly documents the function-level invocation and provenance.
+1. Run the required guard step and inspect `outputs/report/pipeline_skill_compliance_audit.json`.
+2. Use `.rootenv/bin/python -m analysis.stats.fit` for direct fit execution when the workspace is already prepared.
+3. Use `.rootenv/bin/python -m analysis.stats.systematics` when nuisance artifacts need a focused refresh.
+4. Use `.rootenv/bin/python -m analysis.cli run` when fit and significance should remain coupled to the integrated pipeline.
+5. Use direct Python entrypoints for significance only when the stage contract explicitly documents the function-level invocation and provenance.
 
 ## Failure modes
 
@@ -60,7 +74,7 @@ Use this wrapper when the agent needs to execute the repository fit, systematics
 - central expected-significance artifacts expose `claim_status`, `accepted_q0`, `accepted_z_discovery`, free/conditional fit status, covariance quality, POI-bound diagnostics, and closure status
 - blocked or diagnostic-only Asimov artifacts keep raw `q0`/`Z` out of central report fields
 - reviewer evidence distinguishes expected and observed significance
-- pipeline skill compliance audit records the governing skills, executable code path, artifact paths, and compliance status for every central fit or significance claim
+- pre-fit pipeline skill compliance audit records `scope: pre_fit`, the governed executable code path, artifact paths, and compliance status for every central fit or significance claim
 
 ## Verification Gate
 
@@ -70,7 +84,7 @@ Use this wrapper when the agent needs to execute the repository fit, systematics
 2. The fit provenance in `outputs/fit/<FIT_ID>/` names the backend explicitly, and any cross-check result is labeled as a cross-check rather than silently promoted.
 3. The significance provenance names the dataset type and generation hypothesis; for a central H to gammagamma result the backend is `pyroot_roofit`, and if expected significance is present the provenance records `mu_gen = 1`, the full `105-160 GeV` range, `claim_status = "accepted"`, finite `accepted_q0`/`accepted_z_discovery`, successful closure, acceptable fit status/covariance quality, and no POI-at-bound condition.
 4. A weighted bin-center RooDataSet in an extended unbinned likelihood is not used as the central H to gammagamma expected-significance method. Its raw `q0`/`Z` values are diagnostic-only and the gate is blocked for central reporting even if closure appears acceptable.
-5. A pipeline skill compliance audit exists for this fit/significance stage and does not mark any central output as `diagnostic_only` or `noncompliant_blocking`.
+5. A pre-fit pipeline skill compliance audit exists before execution with `scope: pre_fit` and `gate_outcome: PASS` for central statistical claims. A post-run audit is useful diagnostic evidence but does not satisfy this assertion.
 
 ### REPAIR
 

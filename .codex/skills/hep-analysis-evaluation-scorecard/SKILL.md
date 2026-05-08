@@ -18,6 +18,8 @@ Use this skill in every baseline or multiagent HEP testing run. It creates compa
 
 ## Binding Gates
 
+- Before any fit/significance command or integrated run that can reach a central statistical stage, run the pre-fit compliance guard and record it in `pre_fit_compliance_audit`.
+- If `pre_fit_compliance_audit.present` is false, `scope` is not `pre_fit`, or `gate_outcome` is not `PASS` for central statistical claims, final status must be `blocked` with reason `missing_pre_fit_compliance_audit` or the guard's blocking reason.
 - Before observed results are computed or reported, classify every `input-data/data` ROOT file as `real_observed_collision_data`, `pseudo_observed_mc_like_data`, or `unusable`; record filename, tree/schema, branch, weight/metadata evidence when available, and the decision rule.
 - Observed paper-level claims are allowed only when data provenance validates real observed collision data and the observed signal region was intentionally unblinded after the expected workflow was fixed.
 - Pseudo-observed values may appear only as clearly labeled `diagnostic_proxy` outputs.
@@ -90,12 +92,19 @@ Use this shape and keep all artifact paths repo-root-relative:
   },
   "gates": {
     "data_provenance": "pass|warning|fail|missing|not_applicable",
+    "pre_fit_compliance": "pass|warning|fail|missing|not_applicable",
     "spec_feasibility": "pass|warning|fail|missing|not_applicable",
     "mask_sanity": "pass|warning|fail|missing|not_applicable",
     "claim_review": "pass|warning|fail|missing|not_applicable",
     "finalization": "pass|warning|fail|missing|not_applicable",
     "final_artifact_review": "pass|warning|fail|missing|not_applicable",
     "final_claim_review": "pass|warning|fail|missing|not_applicable"
+  },
+  "pre_fit_compliance_audit": {
+    "present": true,
+    "scope": "pre_fit",
+    "gate_outcome": "PASS",
+    "artifact": "outputs/report/pipeline_skill_compliance_audit.json"
   },
   "claim_scope": {
     "real_observed_data_validated": false,
@@ -109,6 +118,7 @@ Use this shape and keep all artifact paths repo-root-relative:
   },
   "artifacts": {
     "data_provenance": "<path or missing>",
+    "pre_fit_compliance_audit": "<path or missing>",
     "feasibility_matrix": "<path or missing>",
     "claim_classification": "<path or missing>",
     "report_number_trace": "<path or missing>",
@@ -167,6 +177,7 @@ The scorecard is not a substitute for the underlying artifacts. It is an index a
 
 - `outputs/evaluation_scorecard.json` and `outputs/test_outcome_summary.json` agree on `final_status`, `handoff_allowed`, `paper_level_claims_allowed`, and diagnostic scope.
 - The scorecard points to required source artifacts with repo-root-relative paths that resolve.
+- Any statistical stage capable of central claims has a pre-fit compliance artifact with `scope: pre_fit` and an allowed `gate_outcome`; otherwise final status is `blocked` with `missing_pre_fit_compliance_audit`.
 - Sample accounting agrees with the registry, progress artifacts, and run manifest.
 - Gate statuses support the claim scope printed in the report.
 - Branch-role review requirements are satisfied.
