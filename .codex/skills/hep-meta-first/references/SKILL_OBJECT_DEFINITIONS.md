@@ -86,6 +86,8 @@ validation_checks:
   - "object masks and multiplicities are consistent with underlying collections"
   - "leading/subleading quantities are defined only where multiplicity requirements are satisfied"
   - "configured thresholds/working points are traceable in metadata"
+  - "b-tag working points use the documented branch semantics rather than treating integer discriminator variables as booleans"
+  - "flavor-tagging scale factors use the current branch name when available, with any legacy fallback recorded"
   - "missing required configuration is flagged with warning or explicit failure"
 
 handoff_to:
@@ -127,17 +129,21 @@ Policy requirements:
 - leading/subleading object definitions must be deterministic
 - event-level features should be derived from validated object collections
 - analysis thresholds and working points should come from configuration, not hardcoded logic
+- for ATLAS Open Data Run-2 b-tagging with `jet_btag_quantile`, use the documented continuous-working-point quantile convention: `>=1` for 100 percent, `>=2` for 85 percent, `>=3` for 77 percent, `>=4` for 70 percent, and `>=5` for 60 percent. Do not treat `jet_btag_quantile` as a boolean b-tag flag.
+- for b-tagged analyses, prefer `ScaleFactor_FTAG` for flavor-tagging scale factors when present; fall back to legacy `ScaleFactor_BTAG` only with an explicit provenance note.
 
 ## Layer 2 — Workflow Contract
 ### Required Artifacts
 - object-augmented event artifact containing selection masks, multiplicities, and leading/subleading kinematics
 - object-definition metadata artifact documenting thresholds and working points used
+- b-tag metadata artifact documenting the source branch, threshold, working point, and scale-factor branch used when b-tagging enters the analysis
 - object-QA summary artifact with basic rates (for example average object multiplicity)
 
 ### Acceptance Checks
 - object masks and multiplicities are consistent with underlying collections
 - leading/subleading quantities are defined only where multiplicity requirements are satisfied
 - configured thresholds/working points are traceable in metadata
+- b-tag categories have nonzero sanity-check counts unless the zero-yield audit identifies a physics or sample-scope reason
 - missing required configuration is flagged with warning or explicit failure
 
 ## Layer 3 — Example Implementation
