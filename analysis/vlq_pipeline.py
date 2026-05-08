@@ -20,6 +20,8 @@ from analysis.common import ensure_dir, list_root_files, read_json, stable_hash,
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
+from analysis.samples.metadata import canonical_metadata_row, generator_from_descriptor, official_metadata_lookup
+
 
 LUMI_FB = 36.1
 TREE_NAME = "analysis"
@@ -235,7 +237,7 @@ def _read_metadata(path: Path) -> dict[str, Any]:
 def _norm_factor(sample: dict[str, Any]) -> float:
     if sample["kind"] == "data":
         return 1.0
-    denom = float(sample.get("sum_of_weights") or sample.get("num_events") or sample.get("entries") or 0.0)
+    denom = float(sample.get("sum_of_weights") or 0.0)
     xsec = float(sample.get("xsec") or 0.0)
     kfac = float(sample.get("kfac") or 1.0)
     filteff = float(sample.get("filteff") or 1.0)
@@ -247,6 +249,9 @@ def _norm_factor(sample: dict[str, Any]) -> float:
 def discover_samples(inputs: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     samples: list[dict[str, Any]] = []
     unreadable: list[dict[str, str]] = []
+    official_metadata, metadata_source_path = official_metadata_lookup()
+    metadata_matched: list[str] = []
+    metadata_fallback: list[str] = []
     for path in list_root_files(inputs / "data"):
         try:
             meta = _read_metadata(path)
@@ -274,6 +279,37 @@ def discover_samples(inputs: Path) -> tuple[list[dict[str, Any]], dict[str, Any]
             continue
         dsid, descriptor = _descriptor_from_mc_name(path)
         role, group, process_name = _classify_sample(descriptor, dsid)
+        generator, simulation = generator_from_descriptor(descriptor)
+        if dsid in official_metadata:
+            norm_meta = canonical_metadata_row(
+                official_metadata[dsid],
+                dsid=dsid,
+                descriptor=descriptor,
+                generator=generator,
+                simulation=simulation,
+                path=path,
+                root_meta=meta,
+                source_path=metadata_source_path,
+            )
+            metadata_matched.append(dsid)
+        else:
+            norm_meta = {
+                "num_events": meta.get("num_events"),
+                "sumw": meta.get("sum_of_weights"),
+                "sumw2": meta.get("sum_of_weights_squared"),
+                "xsec_pb": meta.get("xsec"),
+                "filter_eff": meta.get("filteff"),
+                "k_factor": meta.get("kfac"),
+                "metadata_source": "root_metadata_fallback_unapproved",
+                "metadata_source_path": None,
+                "root_num_events": meta.get("num_events"),
+                "root_sumw": meta.get("sum_of_weights"),
+                "root_sumw2": meta.get("sum_of_weights_squared"),
+                "root_xsec_pb": meta.get("xsec"),
+                "root_filter_eff": meta.get("filteff"),
+                "root_k_factor": meta.get("kfac"),
+            }
+            metadata_fallback.append(dsid)
         sample = {
             "sample_id": dsid,
             "kind": "mc",
@@ -283,18 +319,37 @@ def discover_samples(inputs: Path) -> tuple[list[dict[str, Any]], dict[str, Any]
             "descriptor": descriptor,
             "file": str(path),
             "entries": meta["entries"],
-            "num_events": meta.get("num_events"),
-            "sum_of_weights": meta.get("sum_of_weights"),
-            "sum_of_weights_squared": meta.get("sum_of_weights_squared"),
-            "xsec": meta.get("xsec"),
-            "filteff": meta.get("filteff"),
-            "kfac": meta.get("kfac"),
+            "num_events": norm_meta.get("num_events"),
+            "sum_of_weights": norm_meta.get("sumw"),
+            "sum_of_weights_squared": norm_meta.get("sumw2"),
+            "xsec": norm_meta.get("xsec_pb"),
+            "filteff": norm_meta.get("filter_eff"),
+            "kfac": norm_meta.get("k_factor"),
             "channelNumber": meta.get("channelNumber"),
+            "metadata_source": norm_meta.get("metadata_source"),
+            "metadata_source_path": norm_meta.get("metadata_source_path"),
+            "root_metadata": {
+                "entries": meta.get("entries"),
+                "num_events": norm_meta.get("root_num_events"),
+                "sum_of_weights": norm_meta.get("root_sumw"),
+                "sum_of_weights_squared": norm_meta.get("root_sumw2"),
+                "xsec": norm_meta.get("root_xsec_pb"),
+                "filteff": norm_meta.get("root_filter_eff"),
+                "kfac": norm_meta.get("root_k_factor"),
+            },
         }
         sample["norm_factor"] = _norm_factor(sample)
         samples.append(sample)
     primary_signal = [sample["sample_id"] for sample in samples if sample["role"] == "signal_proxy_primary"]
-    return samples, {"unreadable_files": unreadable, "primary_signal_samples": primary_signal}
+    return samples, {
+        "unreadable_files": unreadable,
+        "primary_signal_samples": primary_signal,
+        "metadata_source_path": str(metadata_source_path) if metadata_source_path else None,
+        "metadata_policy": "Official ATLAS Open Data metadata CSV is the normalization authority for skimmed samples; ROOT metadata is diagnostic only when a DSID match exists.",
+        "metadata_matched_sample_count": len(metadata_matched),
+        "metadata_fallback_sample_count": len(metadata_fallback),
+        "metadata_fallback_samples": sorted(metadata_fallback),
+    }
 
 
 def _empty_count() -> dict[str, float | int]:
@@ -643,6 +698,10 @@ def _aggregate_results(sample_results: list[dict[str, Any]], regions: list[Regio
                 "entries": sample.get("entries"),
                 "processed_entries": result["diagnostics"].get("processed_entries", 0),
                 "norm_factor": sample.get("norm_factor"),
+                "metadata_source": sample.get("metadata_source"),
+                "metadata_source_path": sample.get("metadata_source_path"),
+                "num_events_for_normalization": sample.get("num_events"),
+                "sum_of_weights_for_normalization": sample.get("sum_of_weights"),
                 "cutflow": result["cutflow"],
                 "regions": result["regions"],
             }
@@ -1057,7 +1116,7 @@ The statistical outputs are simplified per-region counting approximations becaus
 
 ## Dataset and Sample Grouping
 
-Processed sample counts: {registry_counts['data']} data files, {registry_counts['background']} background MC files, and {registry_counts['signal_proxy']} signal-proxy or alternative signal MC files. MC samples use the ROOT metadata branches for cross section, filter efficiency, k-factor, and signed generator-weight sum when available.
+Processed sample counts: {registry_counts['data']} data files, {registry_counts['background']} background MC files, and {registry_counts['signal_proxy']} signal-proxy or alternative signal MC files. MC samples use the official ATLAS Open Data metadata CSV for cross section, filter efficiency, k-factor, event count, and signed generator-weight sum. ROOT metadata branches are recorded only as diagnostics for these skimmed inputs.
 
 The central signal proxy is the available SM four-top sample. Other top-rich BSM samples are processed and retained as alternatives, but they are not merged into the central background.
 
@@ -1184,6 +1243,19 @@ def run_vlq_pipeline(summary_path: Path, inputs: Path, outputs: Path, max_events
     write_json([region.__dict__ for region in regions], out_dir / "regions.json")
     write_json(samples, out_dir / "samples" / "sample_registry.json")
     write_json(discovery_notes, out_dir / "samples" / "discovery_notes.json")
+    write_json(
+        {
+            "status": "ok" if discovery_notes.get("metadata_fallback_sample_count", 0) == 0 else "attention_required",
+            "source": discovery_notes.get("metadata_source_path"),
+            "policy": discovery_notes.get("metadata_policy"),
+            "matched_sample_count": discovery_notes.get("metadata_matched_sample_count"),
+            "fallback_sample_count": discovery_notes.get("metadata_fallback_sample_count"),
+            "fallback_samples": discovery_notes.get("metadata_fallback_samples", []),
+            "normalization_formula": "xsec_pb * k_factor * genFiltEff * lumi_fb * 1000 / sumOfWeights",
+            "root_metadata_policy": "ROOT tree entries and file-local metadata are diagnostics only for skimmed datasets.",
+        },
+        out_dir / "normalization" / "metadata_resolution.json",
+    )
     write_json(branch_info, out_dir / "branches" / "branch_summary.json")
     write_json(aggregate, out_dir / "yields" / "aggregate_yields.json")
     write_json({"status": "ok", "samples": aggregate["samples"]}, out_dir / "yields" / "per_sample_cutflows.json")
