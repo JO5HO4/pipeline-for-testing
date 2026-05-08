@@ -20,6 +20,7 @@ Audit the executable pipeline against the binding skill contracts before central
 - produced artifacts for the audited stage
 - report draft when final-report claims are audited
 - grep or static-inspection notes for forbidden, diagnostic-only, or fallback implementation paths
+- deterministic guard artifacts where available, including `outputs/report/vlq_scope_guard.json` for VLQ-style aggregate-yield handoff
 
 ## Required output
 
@@ -86,6 +87,12 @@ For central H to gammagamma expected-significance claims:
 
 For VLQ-style or counting-proxy analyses:
 
+- Before any plot, report, fit, significance, or central-yield claim consumes aggregate yields, run:
+
+```bash
+python .codex/skills/hep-pipeline-skill-compliance-audit/scripts/vlq_scope_guard.py --repo .
+```
+
 - Central region yields must trace to the reviewed central sample set.
 - Noncentral generator, shower, radiation, systematic, or signal-hypothesis alternatives must not enter central backgrounds unless the analysis contract explicitly promotes them.
 - In same-sign dilepton, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive regions, raw reducible MC such as `ttbar`, inclusive `W+jets`, inclusive `Z+jets`, and multijet/photon samples must not support a central `expected background` claim unless a reviewed data-driven, hybrid, or closure-backed reducible-background method promotes them.
@@ -93,6 +100,7 @@ For VLQ-style or counting-proxy analyses:
 - Plots or reports that include raw reducible MC proxies must label the stack as diagnostic or explicitly show the prompt/reducible split; calling such a stack simply `expected background`, `total background`, or `MC prediction` is `noncompliant_blocking`.
 - If a signal proxy yield is zero, below 1 weighted event, or has `S/B < 0.05`, the affected claim must be marked weak-proxy diagnostic or blocked unless a reviewed signal-proxy viability audit says otherwise.
 - If `B/Data > 1.5`, `Data/B > 1.5`, or an equivalent discrepancy threshold is exceeded in a claim-visible region, a data-MC discrepancy audit must exist before report approval.
+- If the guard artifact is missing, stale relative to the aggregate yields, or has `gate_outcome: BLOCKED`, central yield, background, data-MC agreement, and signal-sensitivity claims are `noncompliant_blocking`.
 
 ## Verification Gate
 
@@ -103,6 +111,7 @@ For VLQ-style or counting-proxy analyses:
 3. No forbidden or diagnostic-only implementation path supports a central claim; H to gammagamma expected significance never uses weighted bin-center `RooDataSet` or extended unbinned weighted RooFit as central.
 4. Blocked, diagnostic-only, or cross-check outputs are not promoted in report text, summaries, scorecards, or handoff records.
 5. If the audit finds any `noncompliant_blocking` item, the audited stage does not proceed until repair and a fresh compliance audit pass or conditional pass is recorded.
+6. For VLQ-style aggregate yields, `outputs/report/vlq_scope_guard.json` exists with `gate_outcome: PASS|CONDITIONAL_PASS`, and any required discrepancy or signal-proxy viability audit is present before report-visible claims are accepted.
 
 ### REPAIR
 
@@ -122,12 +131,14 @@ assertions_checked:
   - assertion_3
   - assertion_4
   - assertion_5
+  - assertion_6
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
   assertion_4: pass|fail
   assertion_5: pass|fail
+  assertion_6: pass|fail
 violations_found: <integer>
 repair_applied: true|false
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED

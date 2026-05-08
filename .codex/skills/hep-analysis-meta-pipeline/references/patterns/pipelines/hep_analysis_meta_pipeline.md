@@ -48,6 +48,7 @@ Derived from the source meta-skill and its reference library.
 
 - weighted and unweighted interpretations must both be preserved
 - sample-resolved cut flows are the default
+- for VLQ-style same-sign or trilepton aggregate yields, run `vlq_scope_guard.py` before plots, reports, fits, significance, or central-yield claims consume those yields
 
 ### 5. Categorization
 
@@ -70,12 +71,14 @@ Derived from the source meta-skill and its reference library.
 
 - discrepancies must be documented, not hidden
 - cross-check backends remain labeled as cross-checks
+- material VLQ data-MC discrepancies require `outputs/report/data_mc_discrepancy_audit.json` with top contributors and central-only versus all-MC comparison before report approval
 
 ### 9. Result packaging
 
 - plots must be embedded inline with captions
 - the report must separate central claims from blocked or cross-check outputs
 - rerun `pipeline_skill_compliance_auditor.md` on the report draft before final approval to ensure blocked or diagnostic artifacts are not promoted in prose, tables, scorecards, or handoff records
+- for VLQ reports, the deterministic sample-scope guard must pass or conditionally pass before report assembly; weak signal-proxy regions require `signal_proxy_viability_audit.json` before sensitivity language
 
 ### 10. Report and log generation
 
@@ -107,6 +110,7 @@ Use `../shared/pipeline_logging_contract.md` for every stage. The minimum log bu
 3. Stage 2 and Stage 6 artifacts explicitly preserve reviewer-approved sample roles, template provenance, and blinding behavior, including the rule that `120-130 GeV` is not exposed in blinded mode.
 4. Stage 7 statistical artifacts explicitly preserve `pyroot_roofit` as the central H to gammagamma backend, and any expected significance path records `mu_gen = 1`, the signal-plus-background hypothesis, and the full `105-160 GeV` range.
 5. Stage 7 and Stage 9 include a pipeline skill compliance audit, and no central claim depends on a diagnostic-only or forbidden code path.
+6. For VLQ-style aggregate-yield runs, the stage log includes `outputs/report/vlq_scope_guard.json` with `gate_outcome: PASS|CONDITIONAL_PASS` before plot, report, fit, significance, or central-yield handoff.
 
 ### REPAIR
 
@@ -126,12 +130,14 @@ assertions_checked:
   - assertion_3
   - assertion_4
   - assertion_5
+  - assertion_6
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
   assertion_4: pass|fail
   assertion_5: pass|fail
+  assertion_6: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED

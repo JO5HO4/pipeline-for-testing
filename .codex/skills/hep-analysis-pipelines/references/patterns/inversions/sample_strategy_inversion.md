@@ -18,6 +18,7 @@ Use this inversion when the workflow must work backward from the recorded signal
 3. For each relevant process, decide whether there is exactly one nominal sample set and which remaining samples are alternatives or validation-only.
 4. Decide whether each relevant background is theory-constrained, control-region-constrained, jointly constrained across SR and CR, floating, or shape-only.
 5. Decide whether any data sample is allowed to act as a template or transfer-factor source rather than as observed data.
+6. When proxy signals are used, decide which proxy is central and which samples are signal alternatives or visualization-only cross-checks.
 
 ## Branch criteria
 
@@ -26,6 +27,7 @@ Use this inversion when the workflow must work backward from the recorded signal
 - If a process directly reproduces the reconstructed signature, treat it as signal or irreducible background unless the summary says otherwise.
 - If a process reaches the signature only through fake, nonprompt, or misreconstructed objects, treat it as reducible background only when the analysis has a plausible mechanism and supporting rate argument.
 - In same-sign dilepton, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels, classify raw `ttbar`, inclusive `W+jets`, inclusive `Z+jets`, and multijet/photon MC as `reducible_mc_proxy_diagnostic` by default; do not allow them into central expected-background totals without a reviewed data-driven, hybrid, or closure-backed method.
+- Treat alternate signal hypotheses, BSM/top-rich substitutes, and visualization overlays as `signal_proxy_alternative` or `visualization_only` unless the analysis contract explicitly promotes one as the central `signal_proxy_primary`.
 - If the process is only technically capable of producing the signature through a vanishingly small higher-order or fake path, classify it as `negligible` and log the reason rather than promoting it.
 - If the H to gammagamma background template is under discussion, require an explicit nominal diphoton sample choice and reject silent merges of low-statistics auxiliary samples.
 - If multiple plausible nominal MC samples remain after metadata resolution, stop and require approved analysis input or human triage.
@@ -46,6 +48,7 @@ Record:
 - analysis target and reconstructed signal signature
 - relevant processes by class
 - reducible-background proxy classification and central-expected eligibility
+- central signal-proxy choice and signal-alternative eligibility
 - selected nominal samples by process
 - alternative samples by process
 - normalization mode and constraint intent for each background
@@ -60,6 +63,7 @@ Record:
 2. The evidence supporting process relevance includes the signal-signature and likelihood-intake decision record, the sample registry draft, metadata resolution output, open-data dataset facts, and the reviewed summary or partition artifacts.
 3. If an H to gammagamma background template is central, the decision record names an explicit nominal diphoton sample, and if multiple plausible nominal MC samples remain, the record marks the branch as blocked pending approved analysis input or human triage.
 4. For same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels, the decision record separates prompt MC backgrounds from raw reducible MC proxies and blocks central expected-background use of the proxies unless promotion evidence is present.
+5. For proxy-signal workflows, the decision record identifies the central `signal_proxy_primary`, marks alternatives or visualization-only samples as noncentral, and blocks sensitivity claims from weak proxy regions until a viability audit is present.
 
 ### REPAIR
 
@@ -78,11 +82,13 @@ assertions_checked:
   - assertion_2
   - assertion_3
   - assertion_4
+  - assertion_5
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
   assertion_4: pass|fail
+  assertion_5: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED

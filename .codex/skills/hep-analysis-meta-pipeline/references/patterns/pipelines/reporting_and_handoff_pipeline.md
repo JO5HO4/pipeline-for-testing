@@ -22,6 +22,7 @@ Derived from:
 - no final handoff without an explicit discrepancy artifact
 - no final handoff without an explicit enforcement gate result
 - no final handoff without a report-scope pipeline skill compliance audit that passes or conditionally passes
+- for VLQ-style aggregate-yield reports, no plot/report/statistical handoff without `outputs/report/vlq_scope_guard.json` from `vlq_scope_guard.py` with `gate_outcome: PASS|CONDITIONAL_PASS`
 
 ## Dependencies
 
@@ -46,6 +47,7 @@ Derived from:
 2. The `Discrepancy audit` stage produced an explicit discrepancy artifact even for a zero-issue run, and the `Handoff enforcement` stage recorded an enforcement handoff gate result of `ok` before handoff.
 3. The `Failure extraction` stage added remediation notes or explicit candidate-skill notes to the handoff package before the pipeline marked handoff complete, and each completed stage was backed by a `pass` or `conditional_pass` reviewer outcome.
 4. The report-scope pipeline skill compliance audit exists and does not allow any central report claim from a forbidden, diagnostic-only, or noncompliant code path.
+5. For VLQ-style aggregate-yield reports, the deterministic sample-scope guard passed or conditionally passed before report assembly consumed the yields.
 
 ### REPAIR
 
@@ -64,11 +66,13 @@ assertions_checked:
   - assertion_2
   - assertion_3
   - assertion_4
+  - assertion_5
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
   assertion_4: pass|fail
+  assertion_5: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED

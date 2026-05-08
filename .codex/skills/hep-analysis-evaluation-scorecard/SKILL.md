@@ -25,6 +25,9 @@ Use this skill in every baseline or multiagent HEP testing run. It creates compa
 - Negative or signed MC yields that are clipped, floored, or otherwise stabilized force the affected statistic to `diagnostic_proxy` or `blocked` unless a reviewed statistical model explicitly justifies the treatment.
 - Mutually exclusive regions, categories, or flavor channels need mask-overlap sanity evidence. Identical yields across supposedly distinct regions require repair or an explicit blocking explanation.
 - Every final result needs one claim classification: `reproduction`, `reinterpretation`, `diagnostic_proxy`, or `blocked`.
+- For VLQ-style same-sign or trilepton analyses, the scorecard must include a deterministic `sample_scope_guard` result from `outputs/report/vlq_scope_guard.json`. If the guard is absent or `gate_outcome` is not `PASS|CONDITIONAL_PASS`, final status must be `blocked` with reason `missing_or_blocked_sample_scope_guard`.
+- If material data-MC disagreement is present in a claim-visible VLQ region (`B/Data > 1.5` or `Data/B > 1.5`), require `data_mc_discrepancy_audit.present: true`; otherwise final status must be `blocked` or `diagnostic_complete`, never `complete`.
+- If any claim-visible signal proxy has weighted `S < 1` or `S/B < 0.05`, require `signal_proxy_viability_audit.present: true`; otherwise sensitivity language is blocked and the affected region is diagnostic-only.
 
 ## Sample Accounting Rules
 
@@ -97,6 +100,32 @@ Use this shape and keep all artifact paths repo-root-relative:
     "final_artifact_review": "pass|warning|fail|missing|not_applicable",
     "final_claim_review": "pass|warning|fail|missing|not_applicable"
   },
+  "claim_integrity": {
+    "sample_scope_guard": {
+      "present": false,
+      "scope": "pre_plot_stat_report",
+      "gate_outcome": "PASS|CONDITIONAL_PASS|BLOCKED|missing",
+      "artifact": "outputs/report/vlq_scope_guard.json|missing"
+    },
+    "data_mc_discrepancy_audit": {
+      "present": false,
+      "scope": "claim_visible_regions",
+      "gate_outcome": "PASS|CONDITIONAL_PASS|BLOCKED|missing",
+      "artifact": "outputs/report/data_mc_discrepancy_audit.json|missing"
+    },
+    "reducible_background_role_audit": {
+      "present": false,
+      "scope": "same_sign_trilepton_regions",
+      "gate_outcome": "PASS|CONDITIONAL_PASS|BLOCKED|missing",
+      "artifact": "<path or missing>"
+    },
+    "signal_proxy_viability_audit": {
+      "present": false,
+      "scope": "claim_visible_regions",
+      "gate_outcome": "PASS|CONDITIONAL_PASS|BLOCKED|missing",
+      "artifact": "outputs/report/signal_proxy_viability_audit.json|missing"
+    }
+  },
   "claim_scope": {
     "real_observed_data_validated": false,
     "observed_signal_region_unblinded": false,
@@ -115,6 +144,10 @@ Use this shape and keep all artifact paths repo-root-relative:
     "finalization_gate": "<path or missing>",
     "final_artifact_review": "<path or not_applicable or missing>",
     "final_claim_review": "<path or not_applicable or missing>",
+    "sample_scope_guard": "outputs/report/vlq_scope_guard.json|missing",
+    "data_mc_discrepancy_audit": "outputs/report/data_mc_discrepancy_audit.json|missing",
+    "reducible_background_role_audit": "<path or missing>",
+    "signal_proxy_viability_audit": "outputs/report/signal_proxy_viability_audit.json|missing",
     "final_report": "<path or missing>",
     "reproducibility_commands": "<path or missing>",
     "test_outcome_summary": "outputs/test_outcome_summary.json"
@@ -170,5 +203,6 @@ The scorecard is not a substitute for the underlying artifacts. It is an index a
 - Sample accounting agrees with the registry, progress artifacts, and run manifest.
 - Gate statuses support the claim scope printed in the report.
 - Branch-role review requirements are satisfied.
+- For VLQ-style same-sign or trilepton analyses, `claim_integrity.sample_scope_guard.gate_outcome` is `PASS` or `CONDITIONAL_PASS`; required discrepancy, reducible-role, and signal-proxy audits are present when the guard or yield artifacts say they are needed.
 
 Use `complete` only for a full production run whose supported claims are allowed by the evidence. Use `diagnostic_complete` for a completed diagnostic or reinterpretation run that intentionally blocks paper-level claims. Use `blocked` when required ingredients, dependencies, data, provenance, or feasibility prevent a valid run. Use `failed` when the workflow attempted the run but produced inconsistent, crashed, or unusable outputs.
