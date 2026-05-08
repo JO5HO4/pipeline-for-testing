@@ -1160,7 +1160,7 @@
       },
       "b_tagging": {
         "open_data_definition": "jet_btag_quantile >= 4",
-        "official_working_point_claim": "blocked unless an external calibration mapping is added"
+        "official_working_point_claim": "ATLAS Open Data continuous DL1dv0 quantile convention: >=4 is the 70 percent working point; >=3 is 77 percent and >=5 is 60 percent"
       },
       "met": {
         "primary_branch": "met",
@@ -1483,7 +1483,7 @@
       "same three-top/four-top signal-proxy policy"
     ],
     "branch_contract_required": true,
-    "branch_contract_summary": "All 389 open-data files have the core reco branches needed for the proxy analysis; official auxiliary branches for fake, charge-flip, exact b-tag WP, truth prompt/fake labels, and full nuisance modeling are absent."
+    "branch_contract_summary": "All 389 open-data files have the core reco branches needed for the proxy analysis, including the DL1dv0 continuous b-tag quantile and flavour-tagging scale-factor branches. Official auxiliary branches for fake, charge-flip, truth prompt/fake labels, and full nuisance modeling are absent."
   },
   "open_data_branch_contract": {
     "contract_version": "open_data_branch_contract_v1",
@@ -1507,7 +1507,7 @@
       "event_weights": [
         "mcWeight",
         "ScaleFactor_PILEUP",
-        "ScaleFactor_BTAG",
+        "ScaleFactor_FTAG",
         "ScaleFactor_ELE",
         "ScaleFactor_MUON",
         "ScaleFactor_LepTRIGGER"
@@ -1562,7 +1562,7 @@
       "electrons": "Electron candidates are entries with abs(lep_type)==11 passing the signal-lepton mask. The official barrel/endcap crack veto is not separately resolvable beyond the provided `sig_lep` mask unless an explicit electron author/crack-veto branch is added.",
       "muons": "Muon candidates are entries with abs(lep_type)==13 passing the signal-lepton mask.",
       "jets": "Use jet_pt, jet_eta, jet_phi, jet_e with pT > 25 GeV and |eta| < 2.5. Apply lepton overlap removal with DeltaR(jet, selected lepton) > 0.4 in the executable workflow.",
-      "b_tagged_jets": "Use `jet_btag_quantile >= 4` as the open-data b-tag definition. Do not call this an exact official 77% or 70% working point unless a calibration note mapping the quantile to that working point is added.",
+      "b_tagged_jets": "Use `jet_btag_quantile >= 4` as the open-data 70 percent b-tag working point. The continuous quantile convention is >=1 for 100 percent, >=2 for 85 percent, >=3 for 77 percent, >=4 for 70 percent, and >=5 for 60 percent.",
       "missing_transverse_momentum": "Use `met` and `met_phi`; `met_mpx` and `met_mpy` are available for cross-checks.",
       "trigger": "Available trigger branches are `trigE`, `trigM`, `trigMET`, `trigML`, and `TriggerMatch_DILEPTON`. In sampled files `trigML` is present but can be inactive; trigger use must be reported as an open-data approximation."
     },
@@ -1572,8 +1572,8 @@
         "impact": "VLQ mass and branching-ratio limit claims remain blocked; central diagnostics use three-top/four-top proxy samples instead"
       },
       {
-        "name": "jet_MV2c10 or explicit jet_isbtagged_77/70 branch",
-        "impact": "b-tag definition must be `jet_btag_quantile >= 4`, not an exact official WP claim"
+        "name": "full b-tag calibration and systematic nuisance model",
+        "impact": "b-tag object definition is available through `jet_btag_quantile >= 4`, but official b-tag nuisance parameter modeling remains unavailable"
       },
       {
         "name": "lepton truth origin/type branches",

@@ -27,6 +27,14 @@ LUMI_FB = 36.1
 TREE_NAME = "analysis"
 PRIMARY_SIGNAL_PROCESS = "three_four_top_proxy"
 BTAG_MV2C10_70_WP = 0.8244273
+BTAG_QUANTILE_WORKING_POINTS = {
+    "100": 1,
+    "85": 2,
+    "77": 3,
+    "70": 4,
+    "60": 5,
+}
+BTAG_QUANTILE_70_WP_MIN = BTAG_QUANTILE_WORKING_POINTS["70"]
 BACKGROUND_REL_UNCERTAINTY = 0.30
 
 BRANCH_CANDIDATES: dict[str, list[str]] = {
@@ -62,12 +70,13 @@ META_BRANCHES = [
     "channelNumber",
 ]
 
-SCALE_FACTOR_CANDIDATES = [
-    "ScaleFactor_PILEUP",
-    "ScaleFactor_ELE",
-    "ScaleFactor_MUON",
-    "ScaleFactor_BTAG",
-    "ScaleFactor_JVT",
+SCALE_FACTOR_GROUPS = [
+    ["ScaleFactor_PILEUP"],
+    ["ScaleFactor_ELE"],
+    ["ScaleFactor_MUON"],
+    ["ScaleFactor_FTAG", "ScaleFactor_BTAG"],
+    ["ScaleFactor_JVT"],
+    ["ScaleFactor_LepTRIGGER"],
 ]
 
 CUTFLOW_STEPS = [
@@ -218,6 +227,15 @@ def _resolve_branches(fields: set[str]) -> dict[str, str | None]:
 def _required_missing(branches: dict[str, str | None]) -> list[str]:
     required = ["lep_pt", "lep_eta", "lep_phi", "lep_charge", "jet_pt", "jet_eta", "jet_phi", "jet_btag", "met"]
     return [key for key in required if branches.get(key) is None]
+
+
+def _scale_factor_branches(fields: set[str]) -> list[str]:
+    branches = []
+    for aliases in SCALE_FACTOR_GROUPS:
+        branch = next((candidate for candidate in aliases if candidate in fields), None)
+        if branch is not None:
+            branches.append(branch)
+    return branches
 
 
 def _read_metadata(path: Path) -> dict[str, Any]:
@@ -487,9 +505,8 @@ def _process_batch(batch: ak.Array, sample: dict[str, Any], branch_map: dict[str
         if branch_map.get("mc_weight") in batch.fields:
             weights *= _event_factor(batch[branch_map["mc_weight"]], n_events)
         weights *= float(sample.get("norm_factor", 1.0))
-        for branch in SCALE_FACTOR_CANDIDATES:
-            if branch in fields:
-                weights *= _event_factor(batch[branch], n_events)
+        for branch in _scale_factor_branches(fields):
+            weights *= _event_factor(batch[branch], n_events)
 
     scale = _infer_scale(batch[branch_map["lep_pt"]])
     lep_pt = batch[branch_map["lep_pt"]] * scale
@@ -547,7 +564,7 @@ def _process_batch(batch: ak.Array, sample: dict[str, Any], branch_map: dict[str
         btag_values = batch[branch_map["jet_btag"]]
         btag_branch = str(branch_map["jet_btag"])
         if "quantile" in btag_branch.lower():
-            btag_mask = btag_values >= 4
+            btag_mask = btag_values >= BTAG_QUANTILE_70_WP_MIN
         elif str(ak.type(btag_values)).startswith("var * bool"):
             btag_mask = btag_values == 1
         else:
@@ -622,6 +639,7 @@ def _process_sample(sample: dict[str, Any], regions: list[RegionSpec], histogram
         branch_map = _resolve_branches(fields)
         missing = _required_missing(branch_map)
         diagnostics["branch_map"] = branch_map
+        diagnostics["scale_factor_branches"] = _scale_factor_branches(fields)
         diagnostics["missing_required"] = missing
         diagnostics["tree_entries"] = int(tree.num_entries)
         if missing:
@@ -633,7 +651,7 @@ def _process_sample(sample: dict[str, Any], regions: list[RegionSpec], histogram
                 "regions": region_counts,
                 "diagnostics": diagnostics,
             }
-        branches = sorted({branch for branch in branch_map.values() if branch} | {branch for branch in SCALE_FACTOR_CANDIDATES if branch in fields})
+        branches = sorted({branch for branch in branch_map.values() if branch} | set(_scale_factor_branches(fields)))
         event_prefilter = "n_sig_lep >= 2" if "n_sig_lep" in fields else None
         diagnostics["event_prefilter"] = event_prefilter
         iterate_kwargs: dict[str, Any] = {
@@ -1122,7 +1140,7 @@ The central signal proxy is the available SM four-top sample. Other top-rich BSM
 
 ## Object and Event Selection
 
-Leptons require pT above 28 GeV, |eta| below 2.5, nonzero charge, available tight-ID flags, and available isolation cone requirements. Jets require pT above 25 GeV, |eta| below 2.5, lepton overlap removal with DeltaR > 0.4 where possible, and b-tagging from the available MV2c10-like branch at the 70 percent working-point threshold.
+Leptons require pT above 28 GeV, |eta| below 2.5, nonzero charge, available tight-ID flags, and available isolation cone requirements. Jets require pT above 25 GeV, |eta| below 2.5, lepton overlap removal with DeltaR > 0.4 where possible, and b-tagging from `jet_btag_quantile >= 4`, the ATLAS Open Data DL1dv0 continuous 70 percent working-point bin. MC event weights use the current `ScaleFactor_FTAG` branch when present, falling back to `ScaleFactor_BTAG` only if needed.
 
 Same-sign dilepton regions require exactly two selected leptons with equal charge sign. Same-sign top subregions additionally apply the available leading-pair flavour and positive-charge requirements from the target JSON. Trilepton regions require at least three selected leptons. H_T is computed from selected leptons and jets, and missing transverse momentum uses the available MET branch.
 
