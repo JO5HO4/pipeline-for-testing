@@ -157,7 +157,7 @@ validation_checks:
   - "report clearly separates data-sample description from Monte Carlo-sample description and does not rely on file-name dumps"
   - "report main body describes only central nominal/reference MC samples used in the actual yields and fits"
   - "for H->gammagamma, the final report explicitly documents which nominal background sample was selected, why it was selected, the sideband-normalization method, effective MC luminosity, and the smoothing decision"
-  - "for H->gammagamma, the final report explicitly documents blinded vs unblinded status, the Asimov construction method, the fixed-vs-floating parameter policy in significance fits, and the expected-vs-observed significance distinction"
+  - "for H->gammagamma, the final report explicitly documents blinded vs unblinded status, the Asimov construction method, accepted expected-significance status, the fixed-vs-floating parameter policy in significance fits, and the expected-vs-observed significance distinction"
   - "event-selection narrative is restricted to regions used in the log-likelihood fit and states each fit-region observable"
   - "cut-flow presentation distinguishes per-process contributions from combined signal/background totals when multi-process signal/background is used"
   - "for H->gammagamma, cut flow is reported separately for signal production modes, diphoton background MC, and data, with MC statistical uncertainties derived from event weights"
@@ -248,7 +248,8 @@ Policy requirements:
 - Asimov pseudo-data figures/tables may include the full mass range (including signal window) in blinded workflows, but must be clearly labeled as expected/Asimov
 - for blinded sensitivity claims, expected significance must come from Asimov fits over the full observable range (including signal region), not from observed signal-window data
 - when discovery sensitivity is reported from Asimov pseudo-data, document that generation used the signal-plus-background hypothesis (`mu_gen = 1`) while background-shape parameters were taken from a data fit with `mu = 0`
-- for `H -> gamma gamma`, explicitly document the Asimov construction method; if explicit weighted bin-center construction was used, say so
+- for `H -> gamma gamma`, report expected discovery sensitivity only from accepted Asimov fields (`claim_status = "accepted"`, finite `accepted_z_discovery`); if the Asimov artifact is blocked, state that the expected-significance claim is blocked and do not use raw diagnostic `z_discovery` as the physics result
+- for `H -> gamma gamma`, explicitly document the Asimov construction method; if explicit weighted bin-center construction was used, label it diagnostic/fallback and state whether closure, fit-quality, POI-bound, and binned-Asimov sanity checks made it central-claim eligible
 - for `H -> gamma gamma`, explicitly distinguish fixed quantities used to generate the Asimov dataset from floating quantities in the later significance fit
 - for `H -> gamma gamma`, explicitly state that signal shape parameters from the signal-MC DSCB fit were fixed in significance fits while signal normalization floated through `mu` and background normalization/shape parameters floated
 - for `H -> gamma gamma`, explicitly distinguish expected significance from observed significance and state that observed significance requires explicit unblinding
@@ -364,6 +365,7 @@ Normalization relation to state in report:
 - statistical interpretation section documents Asimov/pre-unblinding treatment when blinding is active
 - when Asimov significance is reported, the report explicitly distinguishes expected (Asimov) from observed significance and records generation provenance
 - when Asimov discovery sensitivity is reported, the report explicitly documents `mu_gen = 1` signal-plus-background generation, the background-parameter source from the `mu = 0` fit, and full-range evaluation including the signal region
+- for `H -> gamma gamma`, expected-significance numbers in the summary/statistical section come from `accepted_z_discovery`; raw diagnostic `q0`/`z_discovery` from a blocked claim appear only in diagnostics with the block reason
 - for `H -> gamma gamma`, the report explicitly documents the nominal background sample choice, sideband normalization, effective MC luminosity calculation, and smoothing decision
 - for `H -> gamma gamma`, the report explicitly documents the degree/complexity cap of `3` used in the spurious-signal scan and, when no candidate passes by that cap, clearly labels the selected background function as a capped noncompliant choice rather than a compliant pass
 - for `H -> gamma gamma`, the report explicitly documents the Asimov construction method and the fixed-vs-floating parameter policy used in significance fits

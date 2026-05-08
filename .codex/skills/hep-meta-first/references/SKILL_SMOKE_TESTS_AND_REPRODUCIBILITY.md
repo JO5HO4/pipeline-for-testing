@@ -94,6 +94,7 @@ side_effects:
 
 failure_modes:
   - "for H->gammagamma, smoke checks fail if primary fit/significance backend is anything other than RooFit analytic-function path"
+  - "for H->gammagamma, smoke checks fail if an Asimov expected-significance artifact exposes only blocked or diagnostic raw `q0`/`Z` values but the run/report treats them as central"
   - "if a mini-run is used after constructing/repairing missing runtime tooling, completion still requires a full-statistics production run in the same task"
 
 validation_checks:
@@ -105,6 +106,8 @@ validation_checks:
   - "reruns with same inputs/configuration produce consistent metadata fingerprints"
   - "ROOT event-ingestion smoke check validates `uproot` availability/import"
   - "for H->gammagamma resonance fitting, include a PyROOT/RooFit backend-specific smoke check and export the same standard fit/significance schemas"
+  - "for H->gammagamma expected significance, smoke checks require `claim_status = \"accepted\"` with finite `accepted_q0` and `accepted_z_discovery` before any central expected-significance claim is marked pass"
+  - "for H->gammagamma expected significance, smoke checks fail central reporting if free-`mu` closure fails, fit status/covariance quality fails, `mu_hat` is at a configured bound, or the reported value is incompatible with binned-Asimov or `S/sqrt(B)` sanity estimates"
   - "skill-refresh artifacts exist and indicate pass status before handoff"
   - "for H->gammagamma, smoke checks fail if primary fit/significance backend is anything other than RooFit analytic-function path"
   - "if a mini-run is used after constructing/repairing missing runtime tooling, completion still requires a full-statistics production run in the same task"
@@ -149,6 +152,7 @@ Policy requirements:
 - configuration and code provenance must be recorded
 - completion claims require both physics outputs and validation artifacts
 - mandatory-method constraints must be enforced as fail-closed gates
+- for H->gammagamma expected significance, completion requires accepted Asimov fields; raw diagnostic `q0`/`Z` from blocked fits are validation failures for central reporting, not partial successes
 
 ## Layer 2 — Workflow Contract
 ### Required Artifacts
@@ -168,6 +172,7 @@ Policy requirements:
 - reruns with same inputs/configuration produce consistent metadata fingerprints
 - ROOT event-ingestion smoke check validates `uproot` availability/import
 - for H->gammagamma resonance fitting, include a PyROOT/RooFit backend-specific smoke check and export the same standard fit/significance schemas
+- for H->gammagamma expected significance, require `claim_status = "accepted"`, finite `accepted_q0`, finite `accepted_z_discovery`, successful closure, acceptable fit status/covariance quality, no POI-at-bound condition, and a binned-Asimov or `S/sqrt(B)` sanity check before marking the central statistical claim complete
 - skill-refresh artifacts exist and indicate pass status before handoff
 - for H->gammagamma, smoke checks fail if primary fit/significance backend is anything other than RooFit analytic-function path
 - if a mini-run is used after constructing/repairing missing runtime tooling, completion still requires a full-statistics production run in the same task

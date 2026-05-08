@@ -138,7 +138,7 @@ validation_checks:
   - "required artifacts exist and satisfy schema/consistency expectations"
   - "stage status is recorded as pass, blocked, or failed with diagnostics"
   - "for H->gammagamma, the review verifies that the default diphoton nominal sample was used for the background template and that low-statistics auxiliary samples were not silently combined into the nominal template"
-  - "for H->gammagamma, the review verifies correct sideband normalization, effective-MC-luminosity calculation, smoothing-threshold logic, blinding behavior, full-range Asimov generation, fixed signal-shape policy, and required statistical-input plots"
+  - "for H->gammagamma, the review verifies correct sideband normalization, effective-MC-luminosity calculation, smoothing-threshold logic, blinding behavior, full-range Asimov generation, accepted expected-significance status, fixed signal-shape policy, and required statistical-input plots"
   - "for H->gammagamma, the review verifies the mandatory fit-plot families: blinded sideband-fit provenance plots, expected-significance Asimov fit plots, and explicitly unblinded observed-data full-range fit plots when unblinding was requested"
   - "for H->gammagamma, the review verifies that the spurious-signal background-function scan respects the degree/complexity cap of `3`, and that any failure persisting at the cap is reported explicitly as a capped noncompliant outcome"
   - "`outputs/report/enforcement_handoff_gate.json` exists and has status `ok` before handoff is marked ready"
@@ -209,6 +209,7 @@ Policy requirements:
   - any failure persisting at the cap was labeled explicitly as a capped noncompliant outcome rather than a compliant pass
   - blinded analyses did not inspect observed data in `120-130 GeV`
   - blinded expected significance still used full-range Asimov generation over `105-160 GeV`
+  - expected significance is reported only when the Asimov artifact has `claim_status = "accepted"` and finite `accepted_z_discovery`; blocked raw diagnostic `q0`/`Z` values are not treated as physics results
   - signal shape parameters were fixed in significance fits
   - required statistical-input plots were produced
 
@@ -251,13 +252,15 @@ Policy requirements:
 3. Numerical sanity checks:
    - detect suspicious patterns:
      - zero yields where events are expected
-   - unusually large yields
-   - placeholders (`0`, `NaN`, dummy constants)
-   - fit parameters at boundaries
-   - zero/unrealistic uncertainties
-   - significance values inconsistent with yields/model
-  - for `H -> gamma gamma`, verify that reported effective MC luminosity and smoothing decision are numerically consistent with the documented threshold rule
-  - for `H -> gamma gamma`, verify that the spurious-signal scan did not escalate beyond degree/complexity `3` once the target criterion remained unsatisfied and that the capped outcome is documented consistently
+     - unusually large yields
+     - placeholders (`0`, `NaN`, dummy constants)
+     - fit parameters at boundaries
+     - zero/unrealistic uncertainties
+     - significance values inconsistent with yields/model
+     - raw diagnostic `q0`/`Z` values appearing as headline expected significance when the underlying Asimov claim is blocked
+     - H->gammagamma Asimov fits with failed status, bad covariance quality, POI at a bound, or `mu_hat` inconsistent with `mu_gen = 1`
+   - for `H -> gamma gamma`, verify that reported effective MC luminosity and smoothing decision are numerically consistent with the documented threshold rule
+   - for `H -> gamma gamma`, verify that the spurious-signal scan did not escalate beyond degree/complexity `3` once the target criterion remained unsatisfied and that the capped outcome is documented consistently
 4. Plot validation:
    - detect issues:
      - empty histograms
@@ -299,6 +302,7 @@ Policy requirements:
      - sideband ranges `105-120 GeV` and `130-160 GeV`
      - blind window `120-130 GeV`
      - expected-vs-observed significance labeling
+     - `claim_status`, `accepted_z_discovery`, closure status, fit status, covariance quality, and POI-bound diagnostics for expected significance
      - fixed-vs-floating fit parameter policy
      - degree/complexity cap of `3` for the spurious-signal scan
      - whether the selected background function passed or remained noncompliant at the cap
@@ -355,6 +359,7 @@ Produce a structured review summary containing:
   - effective MC luminosity and smoothing
   - blinding/window handling
   - full-range Asimov generation
+  - accepted expected-significance status (`claim_status`, `accepted_z_discovery`, closure, fit status, covariance quality, POI-bound checks)
   - fixed signal-shape policy
   - required statistical-input plots
 
