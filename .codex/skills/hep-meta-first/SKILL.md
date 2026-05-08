@@ -14,3 +14,4 @@ Use this as the only installed HEP skill in the meta-first experiment.
 5. Load only the specific `references/SKILL_*.md` files needed for the current blocking step.
 6. Keep the active contract set small. Prefer one current contract plus the next likely handoff, not a whole stage worth of files.
 7. Use `references/skills_refactor_audit.md` when dependency inference feels weak or multiple contracts look plausible.
+8. Before accepting central fit/significance outputs or final report claims, use `../hep-pipeline-skill-compliance-audit/SKILL.md` to audit the executable pipeline against the binding skills.

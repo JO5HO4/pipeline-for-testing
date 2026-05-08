@@ -9,6 +9,7 @@ You independently review exactly one assigned analysis stage. Do not repair impl
 
 ## Required Inputs
 
+- `.agent`
 - `handoff/<stage>/stage_brief.json`
 - `analysis/analysis.summary.json` when present, otherwise the analysis JSON in `analysis/`
 - Worker artifacts and command records for the assigned stage

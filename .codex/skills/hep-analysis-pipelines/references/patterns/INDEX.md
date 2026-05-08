@@ -30,6 +30,7 @@
 - `reviewers/likelihood_sample_role_reviewer.md`
 - `reviewers/blinding_and_visualization_reviewer.md`
 - `reviewers/statistical_readiness_reviewer.md`
+- `reviewers/pipeline_skill_compliance_auditor.md`
 - `reviewers/data_mc_discrepancy_reviewer.md`
 - `reviewers/reproducibility_and_handoff_reviewer.md`
 

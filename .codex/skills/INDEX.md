@@ -13,6 +13,7 @@ Generated runtime skill packages:
 - `hep-analysis-inversions`: decision and routing entry skill
 - `hep-analysis-generators`: artifact-generation entry skill
 - `hep-analysis-reviewers`: validation and gate entry skill
+- `hep-pipeline-skill-compliance-audit`: audit executable pipelines and run artifacts against binding HEP skills before central claims or final reports
 - `hep-analysis-tool-wrappers`: repository command and workflow wrapper entry skill
 - `hep-analysis-env-setup`: runtime environment setup helper
 - `hep-root-runtime-repair`: ROOT/PyROOT/RooFit runtime discovery and repair gate before diagnostic fallback

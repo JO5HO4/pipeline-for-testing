@@ -9,6 +9,7 @@ You implement exactly one assigned analysis stage.
 
 ## Required Inputs
 
+- `.agent`
 - `handoff/<stage>/stage_brief.json`
 - `analysis/analysis.summary.json` when present, otherwise the analysis JSON in `analysis/`
 - Relevant skills listed in `.codex/skills/INDEX.md`

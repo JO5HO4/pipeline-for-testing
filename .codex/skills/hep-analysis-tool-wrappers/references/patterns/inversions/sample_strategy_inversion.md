@@ -25,6 +25,7 @@ Use this inversion when the workflow must work backward from the recorded signal
 - If only filenames are available, treat the choice as provisional and block central claims until the reviewer accepts it.
 - If a process directly reproduces the reconstructed signature, treat it as signal or irreducible background unless the summary says otherwise.
 - If a process reaches the signature only through fake, nonprompt, or misreconstructed objects, treat it as reducible background only when the analysis has a plausible mechanism and supporting rate argument.
+- In same-sign dilepton, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels, classify raw `ttbar`, inclusive `W+jets`, inclusive `Z+jets`, and multijet/photon MC as `reducible_mc_proxy_diagnostic` by default; do not allow them into central expected-background totals without a reviewed data-driven, hybrid, or closure-backed method.
 - If the process is only technically capable of producing the signature through a vanishingly small higher-order or fake path, classify it as `negligible` and log the reason rather than promoting it.
 - If the H to gammagamma background template is under discussion, require an explicit nominal diphoton sample choice and reject silent merges of low-statistics auxiliary samples.
 - If multiple plausible nominal MC samples remain after metadata resolution, stop and require approved analysis input or human triage.
@@ -44,6 +45,7 @@ Record:
 
 - analysis target and reconstructed signal signature
 - relevant processes by class
+- reducible-background proxy classification and central-expected eligibility
 - selected nominal samples by process
 - alternative samples by process
 - normalization mode and constraint intent for each background
@@ -57,6 +59,7 @@ Record:
 1. A decision record exists before the inversion hands off, and it records the analysis target, reconstructed signal signature, relevant processes by class, selected nominal samples by process, alternative samples by process, normalization modes, data-template sources, and blocking ambiguities.
 2. The evidence supporting process relevance includes the signal-signature and likelihood-intake decision record, the sample registry draft, metadata resolution output, open-data dataset facts, and the reviewed summary or partition artifacts.
 3. If an H to gammagamma background template is central, the decision record names an explicit nominal diphoton sample, and if multiple plausible nominal MC samples remain, the record marks the branch as blocked pending approved analysis input or human triage.
+4. For same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels, the decision record separates prompt MC backgrounds from raw reducible MC proxies and blocks central expected-background use of the proxies unless promotion evidence is present.
 
 ### REPAIR
 
@@ -74,10 +77,12 @@ assertions_checked:
   - assertion_1
   - assertion_2
   - assertion_3
+  - assertion_4
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
+  assertion_4: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED
