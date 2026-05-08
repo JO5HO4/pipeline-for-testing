@@ -395,6 +395,9 @@ def run_significance(fit_context: dict, summary: dict, outputs: Path) -> dict[st
     mu0_fit_counts = _capture_model_counts(fit_context)
     shared_mu.setConstant(False)
 
+    mu_gen = 1.0
+    closure_tolerance = 0.05
+    asimov_closure_passed = abs(mu_hat - mu_gen) <= closure_tolerance
     diagnostics = []
     if free_result.status() != 0:
         diagnostics.append("Free-mu Asimov significance fit returned a non-zero RooFit status.")
@@ -404,13 +407,18 @@ def run_significance(fit_context: dict, summary: dict, outputs: Path) -> dict[st
         diagnostics.append("Free-mu Asimov significance fit covariance quality is below the acceptable threshold of 2.")
     if mu0_result.covQual() < 2:
         diagnostics.append("Mu=0 Asimov significance fit covariance quality is below the acceptable threshold of 2.")
+    if not asimov_closure_passed:
+        diagnostics.append(
+            f"Asimov closure failed: generated mu={mu_gen:.1f}, but the free fit returned mu_hat={mu_hat:.6g}."
+        )
     status = "ok" if not diagnostics else "warning"
+    claim_status = "accepted" if status == "ok" else "blocked"
     asimov_artifact = {
         "fit_id": FIT_ID,
         "status": status,
         "dataset_type": "asimov",
         "generation_hypothesis": "signal_plus_background",
-        "mu_gen": 1.0,
+        "mu_gen": mu_gen,
         "backend": "pyroot_roofit",
         "poi_name": "signal_strength_mu",
         "mu_hat": mu_hat,
@@ -419,6 +427,11 @@ def run_significance(fit_context: dict, summary: dict, outputs: Path) -> dict[st
         "twice_nll_free": twice_nll_free,
         "q0": q0,
         "z_discovery": z_discovery,
+        "claim_status": claim_status,
+        "accepted_q0": q0 if claim_status == "accepted" else None,
+        "accepted_z_discovery": z_discovery if claim_status == "accepted" else None,
+        "asimov_closure_passed": asimov_closure_passed,
+        "asimov_closure_tolerance": closure_tolerance,
         "fit_range": fit_range,
         "background_parameter_source": background_parameter_source,
         "asimov_source": "weighted_bin_center_dataset",
