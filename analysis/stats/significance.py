@@ -196,6 +196,7 @@ def _asimov_dataset(fit_context: dict):
     shared_mu.setVal(1.0)
     shared_mu.setConstant(False)
 
+    weight_var = ROOT.RooRealVar("asimov_weight", "asimov_weight", 1.0, -1e12, 1e12)
     import_map = {}
     category_payload = {}
     for category, model_ctx in fit_context["final_models"].items():
@@ -204,12 +205,18 @@ def _asimov_dataset(fit_context: dict):
         signal_counts = pdf_to_counts(model_ctx["signal_pdf"], common_mass, signal_yield)
         background_counts = pdf_to_counts(model_ctx["background_pdf"], common_mass, background_yield)
         total_counts = signal_counts + background_counts
-        dataset = make_weighted_bin_center_dataset(f"asimov_{category}", common_mass, total_counts)
+        dataset = make_weighted_bin_center_dataset(
+            f"asimov_{category}",
+            common_mass,
+            total_counts,
+            weight_var_name=weight_var.GetName(),
+        )
         import_map[category] = dataset
         category_payload[category] = {
             "signal_counts": signal_counts.tolist(),
             "background_counts": background_counts.tolist(),
             "total_counts": total_counts.tolist(),
+            "sum_entries": float(sum(total_counts)),
         }
     combined = ROOT.RooDataSet(
         "asimovData",
@@ -217,6 +224,7 @@ def _asimov_dataset(fit_context: dict):
         ROOT.RooArgSet(common_mass, channel),
         Index=channel,
         Import=import_map,
+        WeightVar=weight_var,
     )
     return combined, category_payload
 
@@ -455,6 +463,9 @@ def run_significance(fit_context: dict, summary: dict, outputs: Path) -> dict[st
         "construction_mode": "weighted_bin_center_dataset",
         "binning": {"observable": "m_gg", "n_bins": 55, "range": fit_range},
         "weighted_dataset_object_type": "RooDataSet",
+        "weighted_sum_entries": float(asimov_data.sumEntries()),
+        "unweighted_entries": int(asimov_data.numEntries()),
+        "weight_variable": "asimov_weight",
         "fixed_generation_inputs": [
             "signal yield normalized to MC prediction",
             "signal DSCB shape parameters from the signal-MC fit",
