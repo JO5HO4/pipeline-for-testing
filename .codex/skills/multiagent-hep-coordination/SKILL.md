@@ -16,6 +16,7 @@ Use this as the only multiagent HEP coordination entrypoint. It handles role mec
 - Maintain `analysis_state.json`, `codex_sessions.json`, `agent_timeline.jsonl`, `handoff/`, and `reviews/`.
 - Treat `analysis/analysis.summary.json` as the contract when present; otherwise use the explicit analysis JSON named in the prompt.
 - Do not change sample scope, object definitions, signal proxy policy, backend, statistic shape, blinding, or claim policy unless a stage writes `outputs/contracts/scope_change_decision.json` and the coordinator approves it.
+- Any stage that creates, regenerates, modifies, or reviews plots must explicitly load `$plotting`; the yield/plot and reporting reviewers must check the plot manifest, style/label policy, and PDF/PNG outputs.
 
 ## Stage Loop
 

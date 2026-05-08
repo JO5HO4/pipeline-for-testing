@@ -10,6 +10,25 @@
     "notes": "Analysis design inspired by the ATLAS Higgs discovery diphoton analysis. Implemented on the ATLAS 13 TeV open data release (36.1 fb-1 central-luminosity policy). Converted/unconverted photon categorization removed due to missing variables in the open dataset."
   },
 
+  "plotting_policy": {
+    "required_skill": "$plotting",
+    "scope": "Use for every produced, regenerated, modified, or reviewed figure and plot manifest.",
+    "style_requirement": "Apply ATLAS-style HEP plotting conventions while preserving selections, weights, binning, model curves, and blinding.",
+    "label_policy": "Use open-data/diagnostic label text such as 'ATLAS Open Data' or 'ATLAS Open Data, diagnostic proxy'. Do not use 'ATLAS' or 'ATLAS Preliminary' as an approval label for unapproved local outputs.",
+    "required_outputs": [
+      "true PDF for final analysis plots whenever practical",
+      "PNG companion for report embedding",
+      "plot manifest recording file paths, backend, style package, label text, blinding status, and diagnostic-only status"
+    ],
+    "review_checks": [
+      "axes and units are explicit",
+      "data markers are black with uncertainty bars",
+      "simulation or model components use HEP/ATLAS-style colors and legends",
+      "blinded windows are visibly documented and not silently unblinded",
+      "report captions explain what is shown without making official ATLAS claims"
+    ]
+  },
+
   "analysis_objectives": [
     {
       "objective_id": "OBJ1",
