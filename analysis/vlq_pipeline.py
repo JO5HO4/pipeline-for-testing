@@ -4,6 +4,7 @@ import argparse
 import math
 import os
 import re
+import shlex
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from collections import defaultdict
 from dataclasses import dataclass
@@ -36,6 +37,22 @@ BTAG_QUANTILE_WORKING_POINTS = {
 }
 BTAG_QUANTILE_70_WP_MIN = BTAG_QUANTILE_WORKING_POINTS["70"]
 BACKGROUND_REL_UNCERTAINTY = 0.30
+BACKGROUND_ALTERNATIVE_TOKENS = [
+    "pthard",
+    "herwig",
+    "h7ue",
+    "showersys",
+    "_shw",
+    "ds_dyn",
+]
+BACKGROUND_ALTERNATIVE_SAMPLE_IDS = {
+    "411233",
+    "411234",
+    "411316",
+    "601491",
+    "601495",
+    "601497",
+}
 
 BRANCH_CANDIDATES: dict[str, list[str]] = {
     "event": ["eventNumber", "event_number"],
@@ -97,15 +114,27 @@ HIST_SPECS = {
     "n_leptons": {"bins": np.arange(-0.5, 6.5, 1.0), "xlabel": "selected lepton multiplicity"},
 }
 
+PLOT_BACKEND = "matplotlib"
+PLOT_STYLE_PACKAGE = "custom ATLAS-like matplotlib"
+PLOT_LABEL_TEXT = "ATLAS Open Data, diagnostic proxy"
+ATLAS_CVD_7 = [
+    "#D55E00",
+    "#56B4E9",
+    "#E69F00",
+    "#F0E442",
+    "#009E73",
+    "#CC79A7",
+    "#0072B2",
+]
 PLOT_COLORS = {
-    "ttbar": "#4C78A8",
-    "rare_top": "#F58518",
-    "wjets": "#54A24B",
-    "zjets": "#B279A2",
-    "diboson_triboson": "#E45756",
-    "higgs": "#72B7B2",
-    "multijet_photon": "#EECA3B",
-    "other_sm": "#9D755D",
+    "ttbar": ATLAS_CVD_7[6],
+    "rare_top": ATLAS_CVD_7[0],
+    "wjets": ATLAS_CVD_7[4],
+    "zjets": ATLAS_CVD_7[5],
+    "diboson_triboson": ATLAS_CVD_7[1],
+    "higgs": ATLAS_CVD_7[2],
+    "multijet_photon": ATLAS_CVD_7[3],
+    "other_sm": "#94A4A2",
 }
 
 
@@ -163,6 +192,50 @@ def parse_regions(summary: dict[str, Any]) -> list[RegionSpec]:
     return regions
 
 
+def is_vlq_summary(summary: dict[str, Any], summary_path: Path | None = None) -> bool:
+    metadata = summary.get("analysis_metadata", {})
+    return (
+        metadata.get("analysis_short_name") == "same_charge_leptons_bjets"
+        and bool(summary.get("signal_regions"))
+        and (summary_path is None or Path(summary_path).name in {"analysis.summary.json", "leptons-bjet-vlq-search.json"})
+    )
+
+
+def normalize_vlq_summary(summary: dict[str, Any], summary_path: Path) -> dict[str, Any]:
+    regions = parse_regions(summary)
+    return {
+        "source_summary": str(summary_path),
+        "analysis_short_name": summary["analysis_metadata"]["analysis_short_name"],
+        "inventory": {
+            "n_signal_regions": len(regions),
+            "n_control_regions": len(summary.get("control_regions", [])),
+            "fit_ids": [fit.get("fit_id") for fit in summary.get("fit_setup", [])],
+            "region_names": [region.name for region in regions],
+        },
+        "runtime_defaults": {
+            "object_selection": {"btag_quantile_min": BTAG_QUANTILE_70_WP_MIN},
+            "statistics": {"method": "Gaussian counting approximation with diagnostic-only claim scope"},
+        },
+        "implementation_differences": [
+            "Open-data proxy samples replace unavailable dedicated VLQ signal grids.",
+            "Per-region counting diagnostics replace the unavailable full nuisance-parameter likelihood.",
+        ],
+    }
+
+
+def classify_process(descriptor: str) -> tuple[str, str, str]:
+    text = descriptor.lower()
+    if "dm_4top" in text or "3top_sm" in text or "sm4topsnlo" in text:
+        return "signal_proxy", PRIMARY_SIGNAL_PROCESS, "three-top/four-top proxy signal"
+    if "ttw" in text:
+        return "background", "ttW", "ttW background"
+    if "ttz" in text:
+        return "background", "ttZ", "ttZ background"
+    if "ttbar" in text:
+        return "background", "ttbar_reducible", "reducible ttbar background"
+    return _classify_sample(descriptor, "")
+
+
 def _descriptor_from_mc_name(path: Path) -> tuple[str, str]:
     match = re.search(r"_mc_(\d+)\.(.+?)\.1LMET30\.root$", path.name)
     if match:
@@ -203,6 +276,8 @@ def _classify_sample(descriptor: str, dsid: str) -> tuple[str, str, str]:
     ]
     if any(token in text for token in bsm_tokens):
         return "signal_proxy_alternative", "bsm_signal_alternative", "BSM signal alternative"
+    if any(token in text for token in ["ggh125", "vbfh125", "wh125", "wph125", "wmh125", "zh125", "tth125", "hyy", "gamgam", "hgam", "hzz", "htautau"]):
+        return "background", "higgs", "Higgs background"
     if "ttw" in text or "ttz" in text or "ttgamma" in text or "ttbarww" in text or "3top" in text or "twz" in text or "tz_" in text:
         return "background", "rare_top", "ttV/rare-top background"
     if "ttbar" in text or re.search(r"(^|_)tt(_|$)", text) or "singlelep" in text or "dil" in text or "tchan" in text or "schan" in text or "tw_dyn" in text:
@@ -213,11 +288,19 @@ def _classify_sample(descriptor: str, dsid: str) -> tuple[str, str, str]:
         return "background", "zjets", "Z+jets background"
     if any(token in text for token in ["llll", "lllv", "llvv", "wlvz", "wqqz", "zzz", "vv", "www", "wwz", "wzz", "yyy"]):
         return "background", "diboson_triboson", "diboson/triboson background"
-    if any(token in text for token in ["ggh125", "vbfh125", "wh125", "zh125", "tth125", "hyy", "gamgam", "hgam", "hzz", "htautau"]):
-        return "background", "higgs", "Higgs background"
     if any(token in text for token in ["jetjet", "gammajet", "singlephoton", "diphoton", "gamma", "eegamma", "mugamma"]):
         return "background", "multijet_photon", "multijet/photon-associated background"
     return "background", "other_sm", "other SM background"
+
+
+def _background_alternative_reason(descriptor: str, dsid: str) -> str | None:
+    text = descriptor.lower()
+    if dsid in BACKGROUND_ALTERNATIVE_SAMPLE_IDS:
+        return "explicit ttbar generator/radiation alternative; not additive with central ttbar"
+    for token in BACKGROUND_ALTERNATIVE_TOKENS:
+        if token in text:
+            return f"generator/shower/radiation alternative token `{token}`; excluded from central background sum"
+    return None
 
 
 def _resolve_branches(fields: set[str]) -> dict[str, str | None]:
@@ -297,6 +380,11 @@ def discover_samples(inputs: Path) -> tuple[list[dict[str, Any]], dict[str, Any]
             continue
         dsid, descriptor = _descriptor_from_mc_name(path)
         role, group, process_name = _classify_sample(descriptor, dsid)
+        noncentral_reason = None
+        if role == "background":
+            noncentral_reason = _background_alternative_reason(descriptor, dsid)
+            if noncentral_reason is not None:
+                role = "background_alternative"
         generator, simulation = generator_from_descriptor(descriptor)
         if dsid in official_metadata:
             norm_meta = canonical_metadata_row(
@@ -336,6 +424,8 @@ def discover_samples(inputs: Path) -> tuple[list[dict[str, Any]], dict[str, Any]
             "process_name": process_name,
             "descriptor": descriptor,
             "file": str(path),
+            "central_sample": role in {"background", "signal_proxy_primary"},
+            "noncentral_reason": noncentral_reason,
             "entries": meta["entries"],
             "num_events": norm_meta.get("num_events"),
             "sum_of_weights": norm_meta.get("sumw"),
@@ -359,9 +449,17 @@ def discover_samples(inputs: Path) -> tuple[list[dict[str, Any]], dict[str, Any]
         sample["norm_factor"] = _norm_factor(sample)
         samples.append(sample)
     primary_signal = [sample["sample_id"] for sample in samples if sample["role"] == "signal_proxy_primary"]
+    background_alternatives = [
+        {"sample_id": sample["sample_id"], "process_group": sample["process_group"], "descriptor": sample["descriptor"], "reason": sample["noncentral_reason"]}
+        for sample in samples
+        if sample.get("role") == "background_alternative"
+    ]
     return samples, {
         "unreadable_files": unreadable,
         "primary_signal_samples": primary_signal,
+        "background_alternative_samples": background_alternatives,
+        "background_alternative_sample_count": len(background_alternatives),
+        "central_background_sample_count": sum(1 for sample in samples if sample.get("role") == "background"),
         "metadata_source_path": str(metadata_source_path) if metadata_source_path else None,
         "metadata_policy": "Official ATLAS Open Data metadata CSV is the normalization authority for skimmed samples; ROOT metadata is diagnostic only when a DSID match exists.",
         "metadata_matched_sample_count": len(metadata_matched),
@@ -450,9 +548,11 @@ def _fill_histograms(histograms: dict[str, Any], sample: dict[str, Any], feature
     elif sample["role"].startswith("signal_proxy"):
         target_kind = "signal"
         group = sample["process_group"]
-    else:
+    elif sample["role"] == "background":
         target_kind = "background"
         group = sample["process_group"]
+    else:
+        return
     for var, hist in histograms.items():
         counts, _ = np.histogram(features[var][mask], bins=hist["bins"], weights=weights[mask])
         if target_kind == "data":
@@ -695,11 +795,20 @@ def _aggregate_results(sample_results: list[dict[str, Any]], regions: list[Regio
                 "background_total": _empty_count(),
                 "signal_proxy_primary": _empty_count(),
                 "background_groups": defaultdict(_empty_count),
+                "background_alternative_groups": defaultdict(_empty_count),
                 "signal_groups": defaultdict(_empty_count),
             }
             for region in regions
         },
-        "cutflow": {step: {"data": _empty_count(), "background": _empty_count(), "signal_proxy_primary": _empty_count()} for step in CUTFLOW_STEPS},
+        "cutflow": {
+            step: {
+                "data": _empty_count(),
+                "background": _empty_count(),
+                "background_alternative": _empty_count(),
+                "signal_proxy_primary": _empty_count(),
+            }
+            for step in CUTFLOW_STEPS
+        },
         "samples": [],
     }
     for result in sample_results:
@@ -711,6 +820,8 @@ def _aggregate_results(sample_results: list[dict[str, Any]], regions: list[Regio
                 "kind": sample["kind"],
                 "role": sample["role"],
                 "process_group": sample["process_group"],
+                "central_sample": sample.get("central_sample"),
+                "noncentral_reason": sample.get("noncentral_reason"),
                 "status": result["status"],
                 "skip_reason": result.get("skip_reason"),
                 "entries": sample.get("entries"),
@@ -731,6 +842,8 @@ def _aggregate_results(sample_results: list[dict[str, Any]], regions: list[Regio
                 target = aggregate["cutflow"][step]["signal_proxy_primary"]
             elif sample["role"] == "background":
                 target = aggregate["cutflow"][step]["background"]
+            elif sample["role"] == "background_alternative":
+                target = aggregate["cutflow"][step]["background_alternative"]
             else:
                 continue
             for key in target:
@@ -749,6 +862,11 @@ def _aggregate_results(sample_results: list[dict[str, Any]], regions: list[Regio
                 background_group = region_payload["background_groups"][sample["process_group"]]
                 for key in background_group:
                     background_group[key] += count[key]
+            elif sample["role"] == "background_alternative":
+                background_group = region_payload["background_alternative_groups"][sample["process_group"]]
+                for key in background_group:
+                    background_group[key] += count[key]
+                continue
             else:
                 signal_group = region_payload["signal_groups"][sample["process_group"]]
                 for key in signal_group:
@@ -758,6 +876,7 @@ def _aggregate_results(sample_results: list[dict[str, Any]], regions: list[Regio
                 target[key] += count[key]
     for region_payload in aggregate["regions"].values():
         region_payload["background_groups"] = dict(region_payload["background_groups"])
+        region_payload["background_alternative_groups"] = dict(region_payload["background_alternative_groups"])
         region_payload["signal_groups"] = dict(region_payload["signal_groups"])
     return aggregate
 
@@ -905,9 +1024,51 @@ def _process_sample_worker(args: tuple[dict[str, Any], list[RegionSpec], int | N
     return _process_sample(sample, regions, local_histograms, max_events=max_events), _freeze_histograms(local_histograms)
 
 
-def _plot_histograms(histograms: dict[str, Any], out_dir: Path) -> dict[str, list[str]]:
+def _apply_atlas_plot_style(ax: Any) -> None:
+    ax.tick_params(top=True, right=True, direction="in")
+    ax.grid(True, axis="y", alpha=0.25)
+    ax.text(
+        0.03,
+        0.95,
+        f"{PLOT_LABEL_TEXT}\n$\\sqrt{{s}} = 13$ TeV, {LUMI_FB:.1f} fb$^{{-1}}$",
+        transform=ax.transAxes,
+        va="top",
+        ha="left",
+        fontsize=10,
+    )
+
+
+def _histogram_y_label(var: str, bins: np.ndarray) -> str:
+    widths = np.diff(bins)
+    xlabel = HIST_SPECS[var]["xlabel"]
+    if widths.size and np.allclose(widths, widths[0]) and "[GeV]" in xlabel:
+        return f"Events / {widths[0]:g} GeV"
+    return "Events / bin"
+
+
+def _save_plot_formats(fig: Any, base_path: Path) -> list[str]:
+    pdf_path = base_path.with_suffix(".pdf")
+    png_path = base_path.with_suffix(".png")
+    fig.savefig(pdf_path, bbox_inches="tight")
+    fig.savefig(png_path, dpi=170, bbox_inches="tight")
+    return [str(pdf_path), str(png_path)]
+
+
+def _plot_manifest_entry(files: list[str], *, uses_observed_data: bool) -> dict[str, Any]:
+    return {
+        "files": files,
+        "backend": PLOT_BACKEND,
+        "style_package": PLOT_STYLE_PACKAGE,
+        "label_text": PLOT_LABEL_TEXT,
+        "uses_observed_data": uses_observed_data,
+        "diagnostic_only": True,
+        "formats": [Path(path).suffix.lstrip(".") for path in files],
+    }
+
+
+def _plot_histograms(histograms: dict[str, Any], out_dir: Path) -> dict[str, dict[str, Any]]:
     ensure_dir(out_dir)
-    manifest: dict[str, list[str]] = {}
+    manifest: dict[str, dict[str, Any]] = {}
     for var, hist in histograms.items():
         bins = hist["bins"]
         centers = 0.5 * (bins[:-1] + bins[1:])
@@ -930,21 +1091,37 @@ def _plot_histograms(histograms: dict[str, Any], out_dir: Path) -> dict[str, lis
         for group, counts in sorted(hist["signal"].items()):
             ax.step(centers, counts, where="mid", linewidth=1.8, label=f"{group} signal proxy")
         data = hist["data"]
-        ax.errorbar(centers, data, yerr=np.sqrt(np.maximum(data, 0.0)), fmt="o", color="black", label="data")
+        ax.errorbar(
+            centers,
+            data,
+            yerr=np.sqrt(np.maximum(data, 0.0)),
+            fmt="o",
+            color="black",
+            ecolor="black",
+            capsize=0,
+            label="Data",
+        )
         ax.set_xlabel(HIST_SPECS[var]["xlabel"])
-        ax.set_ylabel("events")
-        ax.set_yscale("log" if max(np.max(bottom) if bottom.size else 0.0, np.max(data) if data.size else 0.0) > 20 else "linear")
-        ax.legend(fontsize=8, ncol=2)
-        ax.grid(True, axis="y", alpha=0.25)
+        ax.set_ylabel(_histogram_y_label(var, bins))
+        min_content = min(
+            np.min(bottom) if bottom.size else 0.0,
+            min((np.min(counts) for counts in hist["signal"].values()), default=0.0),
+        )
+        max_content = max(np.max(bottom) if bottom.size else 0.0, np.max(data) if data.size else 0.0)
+        if min_content >= 0.0 and max_content > 20:
+            ax.set_yscale("log")
+        else:
+            ax.axhline(0.0, color="black", linewidth=0.8)
+        ax.legend(fontsize=8, ncol=2, frameon=False)
+        _apply_atlas_plot_style(ax)
         fig.tight_layout()
-        path = out_dir / f"{var}.png"
-        fig.savefig(path, dpi=160)
+        files = _save_plot_formats(fig, out_dir / var)
         plt.close(fig)
-        manifest[var] = [str(path)]
+        manifest[var] = _plot_manifest_entry(files, uses_observed_data=True)
     return manifest
 
 
-def _plot_region_yields(aggregate: dict[str, Any], stats: dict[str, Any], out_dir: Path) -> dict[str, list[str]]:
+def _plot_region_yields(aggregate: dict[str, Any], stats: dict[str, Any], out_dir: Path) -> dict[str, dict[str, Any]]:
     ensure_dir(out_dir)
     region_names = list(aggregate["regions"])
     x = np.arange(len(region_names))
@@ -954,38 +1131,37 @@ def _plot_region_yields(aggregate: dict[str, Any], stats: dict[str, Any], out_di
     bkg_err = np.array([_background_uncertainty(aggregate["regions"][name]["background_total"]) for name in region_names])
 
     fig, ax = plt.subplots(figsize=(max(9, 0.7 * len(region_names)), 5))
-    ax.bar(x - 0.2, bkg, width=0.38, color="#4C78A8", label="expected background")
-    ax.errorbar(x - 0.2, bkg, yerr=bkg_err, fmt="none", ecolor="black", linewidth=1)
-    ax.bar(x + 0.2, data, width=0.38, color="#F58518", label="observed data")
-    ax.step(x, sig, where="mid", color="#54A24B", linewidth=2, label="signal proxy")
+    ax.bar(x - 0.15, bkg, width=0.3, color=ATLAS_CVD_7[6], label="Expected background")
+    ax.fill_between(x - 0.15, bkg - bkg_err, bkg + bkg_err, step="mid", color="black", alpha=0.18, linewidth=0, label="Background uncertainty")
+    ax.errorbar(x + 0.15, data, yerr=np.sqrt(np.maximum(data, 0.0)), fmt="o", color="black", ecolor="black", capsize=0, label="Data")
+    ax.step(x, sig, where="mid", color="#BD1F01", linewidth=2, label="Signal proxy")
     ax.set_xticks(x)
     ax.set_xticklabels(region_names, rotation=45, ha="right")
-    ax.set_ylabel("events")
-    ax.set_title("Signal-region yields")
-    ax.legend()
-    ax.grid(True, axis="y", alpha=0.25)
+    ax.set_ylabel("Events")
+    ax.legend(frameon=False)
+    _apply_atlas_plot_style(ax)
     fig.tight_layout()
-    yields_path = out_dir / "region_yields.png"
-    fig.savefig(yields_path, dpi=170)
+    yields_files = _save_plot_formats(fig, out_dir / "region_yields")
     plt.close(fig)
 
     exp_z = [stats["regions"][name]["expected_z_approx"] or 0.0 for name in region_names]
     obs_z = [stats["regions"][name]["observed_z_approx"] or 0.0 for name in region_names]
     fig, ax = plt.subplots(figsize=(max(9, 0.7 * len(region_names)), 5))
-    ax.bar(x - 0.2, exp_z, width=0.38, color="#72B7B2", label="expected proxy Z")
-    ax.bar(x + 0.2, obs_z, width=0.38, color="#E45756", label="observed excess Z")
+    ax.bar(x - 0.2, exp_z, width=0.38, color=ATLAS_CVD_7[1], label="Expected proxy Z")
+    ax.bar(x + 0.2, obs_z, width=0.38, color=ATLAS_CVD_7[0], label="Observed excess Z")
     ax.axhline(0.0, color="black", linewidth=0.8)
     ax.set_xticks(x)
     ax.set_xticklabels(region_names, rotation=45, ha="right")
-    ax.set_ylabel("approximate Gaussian Z")
-    ax.set_title("Approximate expected and observed sensitivity")
-    ax.legend()
-    ax.grid(True, axis="y", alpha=0.25)
+    ax.set_ylabel("Approximate Gaussian Z")
+    ax.legend(frameon=False)
+    _apply_atlas_plot_style(ax)
     fig.tight_layout()
-    stats_path = out_dir / "region_sensitivity.png"
-    fig.savefig(stats_path, dpi=170)
+    stats_files = _save_plot_formats(fig, out_dir / "region_sensitivity")
     plt.close(fig)
-    return {"region_yields": [str(yields_path)], "region_sensitivity": [str(stats_path)]}
+    return {
+        "region_yields": _plot_manifest_entry(yields_files, uses_observed_data=True),
+        "region_sensitivity": _plot_manifest_entry(stats_files, uses_observed_data=True),
+    }
 
 
 def _region_table(aggregate: dict[str, Any], stats: dict[str, Any]) -> str:
@@ -1099,6 +1275,7 @@ def _write_report(
     registry_counts = {
         "data": sum(1 for sample in samples if sample["kind"] == "data"),
         "background": sum(1 for sample in samples if sample["role"] == "background"),
+        "background_alternative": sum(1 for sample in samples if sample["role"] == "background_alternative"),
         "signal_proxy": sum(1 for sample in samples if sample["role"].startswith("signal_proxy")),
     }
     best = stats.get("best_expected_region")
@@ -1118,8 +1295,11 @@ def _write_report(
             f"  Expected impact: {item['expected_impact']}"
         )
     image_blocks = []
-    for group, paths in plot_manifest.items():
+    for group, entry in plot_manifest.items():
+        paths = entry.get("files", []) if isinstance(entry, dict) else entry
         for path in paths:
+            if not str(path).endswith(".png"):
+                continue
             rel = os.path.relpath(path, report_dir)
             image_blocks.append(f"![{group}]({rel})\n\n*Caption:* {group.replace('_', ' ')} diagnostic for the VLQ-style search.")
     text = f"""# Same-Charge Leptons plus b-jets VLQ-Style Open-Data Analysis
@@ -1134,9 +1314,9 @@ The statistical outputs are simplified per-region counting approximations becaus
 
 ## Dataset and Sample Grouping
 
-Processed sample counts: {registry_counts['data']} data files, {registry_counts['background']} background MC files, and {registry_counts['signal_proxy']} signal-proxy or alternative signal MC files. MC samples use the official ATLAS Open Data metadata CSV for cross section, filter efficiency, k-factor, event count, and signed generator-weight sum. ROOT metadata branches are recorded only as diagnostics for these skimmed inputs.
+Processed sample counts: {registry_counts['data']} data files, {registry_counts['background']} central background MC files, {registry_counts['background_alternative']} noncentral background alternative MC files, and {registry_counts['signal_proxy']} signal-proxy or alternative signal MC files. MC samples use the official ATLAS Open Data metadata CSV for cross section, filter efficiency, k-factor, event count, and signed generator-weight sum. ROOT metadata branches are recorded only as diagnostics for these skimmed inputs.
 
-The central signal proxy is the available SM four-top sample. Other top-rich BSM samples are processed and retained as alternatives, but they are not merged into the central background.
+The central signal proxy is the available SM four-top sample. Other top-rich BSM samples and generator/shower/radiation background alternatives are processed and retained for accounting, but they are not merged into the central background or central signal proxy.
 
 ## Object and Event Selection
 
@@ -1172,7 +1352,7 @@ The implementation fixes object definitions, sample grouping, signal-region thre
 
 ## Reproducibility
 
-The exact CLI command is saved in `outputs/vlq/repro/commands.sh`. Core machine-readable artifacts include the sample registry, branch summary, per-sample cut flows, region yields, histogram payloads, statistics JSON, plot manifest, and this report.
+The exact CLI command is saved in `repro/commands.sh`. Core machine-readable artifacts include the sample registry, branch summary, per-sample cut flows, region yields, histogram payloads, statistics JSON, plot manifest, and this report.
 """
     path = report_dir / "final_report.md"
     write_text(text, path)
@@ -1236,7 +1416,17 @@ def run_vlq_pipeline(summary_path: Path, inputs: Path, outputs: Path, max_events
     plot_manifest = {}
     plot_manifest.update(_plot_histograms(histograms, out_dir / "plots" / "distributions"))
     plot_manifest.update(_plot_region_yields(aggregate, stats, out_dir / "plots" / "regions"))
-    plot_manifest_path = write_json({"status": "ok", "plots": plot_manifest}, out_dir / "plots" / "manifest.json")
+    plot_manifest_path = write_json(
+        {
+            "status": "ok",
+            "backend": PLOT_BACKEND,
+            "style_package": PLOT_STYLE_PACKAGE,
+            "label_text": PLOT_LABEL_TEXT,
+            "diagnostic_only": True,
+            "plots": plot_manifest,
+        },
+        out_dir / "plots" / "manifest.json",
+    )
 
     write_json(
         {
@@ -1261,6 +1451,29 @@ def run_vlq_pipeline(summary_path: Path, inputs: Path, outputs: Path, max_events
     write_json([region.__dict__ for region in regions], out_dir / "regions.json")
     write_json(samples, out_dir / "samples" / "sample_registry.json")
     write_json(discovery_notes, out_dir / "samples" / "discovery_notes.json")
+    write_json(
+        {
+            "status": "ok",
+            "policy": "Central diagnostic yields include only central background samples and explicit central signal proxies. Generator, shower, radiation, and scheme alternatives are processed but excluded from central sums.",
+            "central_background_samples": [
+                {"sample_id": sample["sample_id"], "process_group": sample["process_group"], "descriptor": sample["descriptor"]}
+                for sample in samples
+                if sample.get("role") == "background"
+            ],
+            "background_alternative_samples": discovery_notes.get("background_alternative_samples", []),
+            "central_signal_proxy_samples": [
+                {"sample_id": sample["sample_id"], "process_group": sample["process_group"], "descriptor": sample["descriptor"]}
+                for sample in samples
+                if sample.get("role") == "signal_proxy_primary"
+            ],
+            "noncentral_signal_alternative_samples": [
+                {"sample_id": sample["sample_id"], "process_group": sample["process_group"], "descriptor": sample["descriptor"]}
+                for sample in samples
+                if sample.get("role") == "signal_proxy_alternative"
+            ],
+        },
+        out_dir / "samples" / "central_sample_scope.json",
+    )
     write_json(
         {
             "status": "ok" if discovery_notes.get("metadata_fallback_sample_count", 0) == 0 else "attention_required",
@@ -1327,17 +1540,30 @@ def run_vlq_pipeline(summary_path: Path, inputs: Path, outputs: Path, max_events
         plot_manifest=plot_manifest,
         branch_summary=branch_info,
     )
+    command_parts = [
+        "python3",
+        "-m",
+        "analysis.cli",
+        "run",
+        "--summary",
+        str(summary_path),
+        "--inputs",
+        str(inputs),
+        "--outputs",
+        str(outputs),
+        "--workers",
+        str(workers),
+    ]
+    if max_events is not None:
+        command_parts.extend(["--max-events", str(max_events)])
+    command = " ".join(shlex.quote(part) for part in command_parts)
     write_text(
         "\n".join(
             [
                 "#!/usr/bin/env bash",
                 "set -euo pipefail",
                 "PYTHONPATH=. MPLCONFIGDIR=.cache/matplotlib XDG_CACHE_HOME=.cache \\",
-                "  python3 -m analysis.vlq_pipeline \\",
-                "  --summary analysis/leptons-bjet-vlq-search.json \\",
-                "  --inputs input-data \\",
-                "  --outputs outputs/vlq \\",
-                "  --workers 8",
+                f"  {command}",
                 "",
             ]
         ),

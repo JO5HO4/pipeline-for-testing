@@ -80,3 +80,7 @@ def main() -> None:
         preflight(Path(args.summary), Path(args.inputs), Path(args.outputs))
     else:
         run_pipeline(Path(args.summary), Path(args.inputs), Path(args.outputs), args.max_events, args.workers)
+
+
+if __name__ == "__main__":
+    main()

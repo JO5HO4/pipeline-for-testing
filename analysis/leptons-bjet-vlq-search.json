@@ -1450,6 +1450,12 @@
     },
     "background_policy": {
       "irreducible_backgrounds": "simulation-driven from available ttW, ttZ, ttH, diboson, four-top, and rare-top-like samples when present",
+      "central_background_sample_policy": "Use one central sample representation per physics background process or exclusive process slice. Generator, shower, radiation, pThard, Herwig/H7UE, ShowerSys, and diagram-subtraction alternatives are noncentral systematic or modeling alternatives unless explicitly promoted by a revised analysis contract.",
+      "noncentral_background_alternative_policy": {
+        "status": "exclude_from_central_background_sum",
+        "classification_rule": "Samples with pThard, Herwig, H7UE, ShowerSys, _shw, DS_dyn, or explicitly listed ttbar alternative DSIDs are processed for accounting and diagnostics but not added to central background yields.",
+        "motivation": "Alternative samples model the same physics process under a different generator, shower, radiation, or overlap-removal scheme. Adding them to the nominal process double counts the background and inflates expected yields."
+      },
       "fake_nonprompt_method": "not reproducible from open data; save control-proxy counts only",
       "electron_charge_misid_method": "not reproducible from open data; save opposite-charge application-proxy diagnostics only",
       "central_background_uncertainty": "flat conservative diagnostic uncertainty plus MC statistical uncertainty unless a richer nuisance model is provided"
