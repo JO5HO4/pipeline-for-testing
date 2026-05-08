@@ -18,7 +18,7 @@ invocation_keywords:
 
 when_to_use:
   - "Use when executing or validating the design stage of the analysis workflow."
-  - "Use when this context is available: `skills/metadata.csv`."
+  - "Use when this context is available: the bundled ATLAS Open Data metadata CSV (`references/patterns/metadata.csv`) or a canonical runtime `skills/metadata.csv` derived from it."
   - "Use when this context is available: MC sample identifiers (`dataset_number`/DSID preferred; `physics_short` only when unique)."
 
 when_not_to_use:
@@ -28,7 +28,7 @@ inputs:
   required:
     - name: skills_metadata_csv
       type: artifact
-      description: "`skills/metadata.csv`"
+      description: "the bundled ATLAS Open Data metadata CSV (`references/patterns/metadata.csv`) or a canonical runtime `skills/metadata.csv` derived from it"
     - name: mc_sample_identifiers
       type: artifact
       description: "MC sample identifiers (`dataset_number`/DSID preferred; `physics_short` only when unique)"
@@ -156,7 +156,7 @@ It preserves the original physics and workflow intent while exposing explicit in
 
 # Procedure
 
-1. Read `skills/metadata.csv` and build a DSID-keyed lookup.
+1. Read the bundled ATLAS Open Data metadata CSV (`references/patterns/metadata.csv`) or a canonical runtime `skills/metadata.csv` derived from it and build a DSID-keyed lookup.
 2. Validate normalization fields per requested sample.
 3. Compute per-sample normalization factors using luminosity conversion.
 4. Build final event weights: generator/event weight times optional corrections times normalization factor.
@@ -218,7 +218,7 @@ Normalization definition:
 
 ## Layer 3 — Example Implementation
 ### Inputs (Current Repository Workflow)
-- `skills/metadata.csv`
+- the bundled ATLAS Open Data metadata CSV (`references/patterns/metadata.csv`) or a canonical runtime `skills/metadata.csv` derived from it
 - MC sample identifiers (`dataset_number`/DSID preferred; `physics_short` only when unique)
 - target luminosity `lumi_fb`
 - event-level ntuple weights (`weight_mc` or `mcEventWeight`, plus optional correction factors)
@@ -240,7 +240,7 @@ Normalization definition:
 - signed sum-of-weights values are nonzero and can differ from event counts
 
 ### Procedure (Current Repository Workflow)
-1. Read `skills/metadata.csv` and build a DSID-keyed lookup.
+1. Read the bundled ATLAS Open Data metadata CSV (`references/patterns/metadata.csv`) or a canonical runtime `skills/metadata.csv` derived from it and build a DSID-keyed lookup.
 2. Validate normalization fields per requested sample.
 3. Compute per-sample normalization factors using luminosity conversion.
 4. Build final event weights: generator/event weight times optional corrections times normalization factor.
