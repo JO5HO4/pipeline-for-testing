@@ -30,6 +30,7 @@ Produce the cut-flow, region-yield, and provenance artifacts that connect execut
 - process-aggregated views
 - sample-resolved views
 - prompt-MC versus reducible-MC-proxy yield split for same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels
+- signal-proxy viability audit for regions with weak or invisible signal proxies
 - cut-flow provenance
 
 ## Generation steps
@@ -38,8 +39,9 @@ Produce the cut-flow, region-yield, and provenance artifacts that connect execut
 2. Record both unweighted counts and weighted yields.
 3. Compute process-level and combined totals without hiding sample-level detail by default.
 4. For same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels, compute separate totals for `prompt_mc_background`, `data_driven_reducible_background` if available, and `reducible_mc_proxy_diagnostic`.
-5. Record uncertainty proxies from event weights.
-6. Link final selected yields to the same region semantics that downstream histogramming will use.
+5. Compute a signal-proxy viability table. Mark any claim-visible region with weighted `S < 1` or `S/B < 0.05` as `weak_signal_proxy` unless a reviewed proxy-viability audit gives a narrower interpretation.
+6. Record uncertainty proxies from event weights.
+7. Link final selected yields to the same region semantics that downstream histogramming will use.
 
 ## Output contract
 
@@ -48,12 +50,14 @@ Produce the cut-flow, region-yield, and provenance artifacts that connect execut
 - MC uncertainties come from weighted bookkeeping
 - H to gammagamma cut-flow views separate signal production modes, prompt diphoton background, and data
 - same-sign and multilepton yield views never hide raw reducible MC inside a central expected-background total
+- VLQ-style aggregate yields expose `background_groups`, `background_alternative_groups`, `prompt_mc_background`, `reducible_mc_proxy_diagnostic`, and `signal_proxy_primary` separately so the deterministic scope guard can audit them
 
 ## Constraints
 
 - merged process rows require an explicit merge map
 - alternative samples do not enter central totals unless the decision record says so
 - raw `ttbar`, inclusive `W+jets`, inclusive `Z+jets`, and multijet/photon MC in same-sign or multilepton channels are `reducible_mc_proxy_diagnostic` by default; they enter central expected background only when a reviewed data-driven, hybrid, or closure-backed method promotes them
+- weak or missing signal proxies do not invalidate the diagnostic stack by themselves, but they block sensitivity language for the affected regions until `signal_proxy_viability_audit.json` classifies the limitation
 
 ## Verification Gate
 
@@ -63,6 +67,7 @@ Produce the cut-flow, region-yield, and provenance artifacts that connect execut
 2. The `cut-flow tables` preserve step ordering and show that unweighted event counts do not increase across stricter sequential cuts unless an explicit branch reset is documented in the provenance.
 3. The `process-aggregated views` can be traced back to the `sample-resolved views`, and alternative samples are excluded from central totals unless the decision record explicitly promotes them.
 4. For same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels, the yield artifacts include a prompt-MC versus reducible-MC-proxy split, and raw reducible MC proxies are not summed into the central expected-background total without reviewed promotion evidence.
+5. For VLQ-style aggregate yields, the `vlq_scope_guard.py` artifact exists before plots, statistics, or reports consume those yields; if the guard flags low `S` or low `S/B`, `signal_proxy_viability_audit.json` exists before any sensitivity claim is made.
 
 ### REPAIR
 
@@ -81,11 +86,13 @@ assertions_checked:
   - assertion_2
   - assertion_3
   - assertion_4
+  - assertion_5
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
   assertion_4: pass|fail
+  assertion_5: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED

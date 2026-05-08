@@ -30,3 +30,4 @@ Use this as the single session-skill entrypoint for the refactored HEP workflow 
 - a mandatory reviewer would be skipped
 - a missing artifact would force guessed physics content
 - a central-result policy would be violated by continuing
+- a VLQ-style same-sign or trilepton plot, report, fit, significance, or central-yield claim would consume aggregate yields before `vlq_scope_guard.py` produced `outputs/report/vlq_scope_guard.json` with `gate_outcome: PASS|CONDITIONAL_PASS`

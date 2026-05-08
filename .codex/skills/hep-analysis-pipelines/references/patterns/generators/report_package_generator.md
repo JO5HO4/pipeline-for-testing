@@ -23,7 +23,9 @@ Generate the plot-rich, note-style report package that communicates the analysis
 - fit and significance artifacts
 - blinding and discrepancy artifacts
 - pipeline skill compliance audit covering report-visible claims
+- deterministic VLQ scope guard artifact when aggregate VLQ yields are reported
 - prompt-MC versus reducible-MC-proxy split and reducible-background role audit when the analysis has same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive regions
+- signal-proxy viability audit when any claim-visible proxy region has weighted `S < 1` or `S/B < 0.05`
 - plot manifest inputs
 
 ## Outputs
@@ -40,9 +42,10 @@ Generate the plot-rich, note-style report package that communicates the analysis
 2. Embed plots inline and place a caption directly next to each embedded image.
 3. Distinguish central nominal samples from alternatives in the narrative.
 4. In same-sign or multilepton reports, distinguish `prompt_mc_background`, `data_driven_reducible_background` if available, and `reducible_mc_proxy_diagnostic`; do not call a raw reducible-MC stack the expected background.
-5. State expected versus observed significance explicitly, using accepted Asimov fields for expected claims.
-6. Append assumptions, deviations, unresolved issues, and reviewer-linked evidence.
-7. Check every headline number and physics-result table against the pipeline skill compliance audit before writing central language.
+5. For VLQ-style reports, quote the `vlq_scope_guard.py` result and keep regions with weak signal proxies out of sensitivity headlines unless the viability audit explicitly approves the scope.
+6. State expected versus observed significance explicitly, using accepted Asimov fields for expected claims.
+7. Append assumptions, deviations, unresolved issues, and reviewer-linked evidence.
+8. Check every headline number and physics-result table against the pipeline skill compliance audit before writing central language.
 
 ## Output contract
 
@@ -50,6 +53,7 @@ Generate the plot-rich, note-style report package that communicates the analysis
 - the report cites only central claims that passed reviewer gates
 - blocked central claims stay blocked in the narrative
 - same-sign or multilepton yield plots that include raw reducible MC proxies are labeled diagnostic or show the prompt/reducible split
+- VLQ signal-proxy plots label weak or invisible proxy regions as diagnostic and separate central `signal_proxy_primary` from visualization-only alternatives
 - raw diagnostic `q0`/`Z` values from blocked or diagnostic-only Asimov fits appear only in a diagnostics/audit section, never as the expected-significance headline or physics-result value
 - any result marked `diagnostic_only`, `blocked`, or `noncompliant_blocking` by the pipeline skill compliance audit is not phrased as a central claim
 
@@ -57,6 +61,8 @@ Generate the plot-rich, note-style report package that communicates the analysis
 
 - do not hide data-MC discrepancies
 - do not label raw reducible `ttbar`, inclusive `W+jets`, inclusive `Z+jets`, or multijet/photon MC as central expected background in same-sign or multilepton regions without a reviewed data-driven, hybrid, or closure-backed method
+- do not call the VLQ MC stack a validated expected background when it contains reducible MC proxies; use diagnostic MC stack or explicit prompt/reducible labels
+- do not let weak signal-proxy regions drive sensitivity language unless `signal_proxy_viability_audit.json` explicitly allows that claim scope
 - do not cite plot paths without embedding the plots
 - do not mix observed and expected significance language
 - do not present `q0`/`z_discovery` as central expected significance when `claim_status` is blocked or `accepted_z_discovery` is null
@@ -72,6 +78,7 @@ Generate the plot-rich, note-style report package that communicates the analysis
 4. For H to gammagamma expected significance, the reported physics value comes from `accepted_z_discovery`; if `claim_status` is blocked or `accepted_z_discovery` is null, the report says the expected-significance claim is blocked and may list raw diagnostic values only with the block reason.
 5. A report-scope pipeline skill compliance audit exists and no report-visible central result is marked `diagnostic_only` or `noncompliant_blocking`.
 6. For same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive regions, the report labels any raw reducible MC stack as diagnostic or explicitly shows the prompt/reducible split; central expected-background language is used only for reviewed prompt MC plus approved data-driven or hybrid reducible estimates.
+7. For VLQ-style reports, `outputs/report/vlq_scope_guard.json` exists with `gate_outcome: PASS|CONDITIONAL_PASS`; material data-MC discrepancies and weak signal-proxy regions are linked to their audits before the report uses central language.
 
 ### REPAIR
 
@@ -92,6 +99,7 @@ assertions_checked:
   - assertion_4
   - assertion_5
   - assertion_6
+  - assertion_7
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
@@ -99,6 +107,7 @@ assertion_results:
   assertion_4: pass|fail
   assertion_5: pass|fail
   assertion_6: pass|fail
+  assertion_7: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED

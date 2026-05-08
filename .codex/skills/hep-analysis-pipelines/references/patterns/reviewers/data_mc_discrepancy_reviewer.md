@@ -16,6 +16,7 @@ Check whether substantial disagreement between observed data and MC expectations
 - discrepancy check log
 - cut-flow and yield context
 - normalization and sample-mapping artifacts
+- deterministic sample-scope guard artifact (`outputs/report/vlq_scope_guard.json`) when VLQ-style aggregate yields are present
 - prompt-MC versus reducible-MC-proxy yield split for same-sign, trilepton, fake-lepton, nonprompt-lepton, or charge-misID-sensitive channels
 - reducible-background role audit listing raw `ttbar`, inclusive `W+jets`, inclusive `Z+jets`, multijet/photon, fake/nonprompt, and charge-misID proxy inputs with their central-expected eligibility
 - data-driven fake/nonprompt and charge-misID availability artifact, including blocked inputs when calibrated methods are absent
@@ -37,6 +38,7 @@ For same-sign dilepton, trilepton, fake/nonprompt-lepton, or charge-misID-sensit
 - central expected background must be separated into `prompt_mc_background`, `data_driven_reducible_background`, and `reducible_mc_proxy_diagnostic` components, or must block the central expected-background claim
 - a plot or table that includes raw reducible MC proxies must not be labeled simply `expected background`, `total background`, or `MC prediction`; it must say `diagnostic MC stack` or name the prompt/reducible split
 - if raw reducible MC proxies make MC exceed data in a claim-visible region, the audit must classify the issue as a central-background-role violation unless a reviewed closure or data-driven estimate justifies the central use
+- if `B/Data > 1.5` or `Data/B > 1.5` in a claim-visible VLQ region, write `outputs/report/data_mc_discrepancy_audit.json` with the top background contributors, the central-only versus all-MC comparison, and whether any noncentral alternative or reducible proxy contributed to the discrepancy
 
 ## Common failure modes
 
@@ -45,6 +47,7 @@ For same-sign dilepton, trilepton, fake/nonprompt-lepton, or charge-misID-sensit
 - expected MC much larger than data because noncentral generator/shower/radiation alternatives were stacked with central samples
 - expected MC much larger than data because raw reducible `ttbar` or jets MC was stacked as validated expected background in a same-sign or multilepton region
 - report or plot labels hide that a stack is a diagnostic reducible-MC proxy rather than a validated expected background
+- `vlq_scope_guard.py` was not run, was run after report/statistics generation, or produced `BLOCKED` but the report still treats the yields as central
 - bug and modeling-mismatch cases not distinguished
 
 ## Required remediation guidance
@@ -63,6 +66,7 @@ For same-sign dilepton, trilepton, fake/nonprompt-lepton, or charge-misID-sensit
 4. If MC is materially above data, the evidence includes a central-only versus all-MC comparison or explains why alternative-sample double counting is impossible.
 5. For same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive regions, the evidence includes a prompt-MC versus reducible-MC-proxy split and a data-driven reducible-background availability artifact.
 6. Raw reducible MC proxies are not used as central expected background unless a reviewed data-driven, hybrid, or closure-backed method explicitly promotes them; report-visible labels distinguish `prompt_mc_background` from `reducible_mc_proxy_diagnostic`.
+7. For VLQ-style aggregate yields, `outputs/report/vlq_scope_guard.json` exists with `gate_outcome: PASS|CONDITIONAL_PASS` before report-visible yield claims, and material discrepancies have `outputs/report/data_mc_discrepancy_audit.json`.
 
 ### REPAIR
 
@@ -83,6 +87,7 @@ assertions_checked:
   - assertion_4
   - assertion_5
   - assertion_6
+  - assertion_7
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
@@ -90,6 +95,7 @@ assertion_results:
   assertion_4: pass|fail
   assertion_5: pass|fail
   assertion_6: pass|fail
+  assertion_7: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED

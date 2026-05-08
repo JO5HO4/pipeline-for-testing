@@ -31,3 +31,4 @@ Use this skill when the hard part is invoking the right repository code path wit
 - the wrapper would run without its required reviewer evidence
 - the selected backend is not eligible for the intended claim
 - the repo runtime is not ready for the requested command
+- a VLQ-style report or statistical wrapper would consume aggregate yields before `vlq_scope_guard.py` has passed or conditionally passed

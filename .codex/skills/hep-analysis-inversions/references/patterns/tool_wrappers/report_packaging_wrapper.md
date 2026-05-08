@@ -16,6 +16,7 @@ Use this wrapper when the agent needs repository code to assemble plots, report 
 - fit and significance artifacts
 - registry and normalization artifacts
 - discrepancy and blinding artifacts
+- deterministic VLQ scope guard artifact when aggregate VLQ yields are present
 - output and reports directories
 
 ## Outputs
@@ -28,6 +29,7 @@ Use this wrapper when the agent needs repository code to assemble plots, report 
 
 - required statistical and validation artifacts exist
 - blinding policy and discrepancy posture are explicit
+- for VLQ-style same-sign or trilepton reports, `python .codex/skills/hep-pipeline-skill-compliance-audit/scripts/vlq_scope_guard.py --repo .` has produced `outputs/report/vlq_scope_guard.json` with `gate_outcome: PASS|CONDITIONAL_PASS`
 
 ## Postconditions
 
@@ -38,12 +40,14 @@ Use this wrapper when the agent needs repository code to assemble plots, report 
 
 1. Use the integrated pipeline via `.rootenv/bin/python -m analysis.cli run` when report assembly should stay synchronized with upstream production.
 2. Use `analysis.report.make_report.build_report` through a controlled Python entrypoint only when focused report regeneration is required and the inputs are frozen.
+3. Do not invoke report assembly if the VLQ scope guard is missing or blocked; repair sample scope, prompt/reducible split, discrepancy audit, or signal-proxy audit first.
 
 ## Failure modes
 
 - report text describes artifacts that were not produced
 - plots are cited by path only instead of embedded with captions
 - expected and observed significance are conflated
+- VLQ reports promote a blocked diagnostic MC stack or weak signal proxy into central language
 
 ## Verification expectations
 
@@ -58,6 +62,7 @@ Use this wrapper when the agent needs repository code to assemble plots, report 
 1. The wrapper outputs exist before handoff: `report artifacts under outputs/report/`, the `rendered final report under reports/`, and the `plot manifests and artifact link inventories`.
 2. The generated report package is reviewer-ready and includes embedded plots with captions rather than path-only references.
 3. Narrative claims in the rendered report trace back to reviewed artifacts, and expected versus observed significance remain explicitly distinct.
+4. For VLQ-style reports, the scope guard exists with `gate_outcome: PASS|CONDITIONAL_PASS` before the wrapper runs.
 
 ### REPAIR
 
@@ -75,10 +80,12 @@ assertions_checked:
   - assertion_1
   - assertion_2
   - assertion_3
+  - assertion_4
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
+  assertion_4: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED

@@ -31,6 +31,8 @@ Create the strategy and model artifacts that define how backgrounds are constrai
 - CR and SR constraint map
 - background input-role summary
 - reducible-background role audit and data-driven availability record for fake/nonprompt or charge-misID-sensitive channels
+- signal-proxy role record that separates the central primary proxy from visualization-only BSM/top-rich alternatives
+- signal-proxy viability audit for weak proxy regions
 - blinding summary
 - signal PDF artifact
 - background scan and chosen model artifacts
@@ -42,9 +44,10 @@ Create the strategy and model artifacts that define how backgrounds are constrai
 2. Use `blinding_and_fit_policy_inversion.md` to resolve allowed data visibility and fit semantics.
 3. For each background input, declare whether it is MC-driven, data-driven, or hybrid and record its normalization mode.
 4. For same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels, classify raw `ttbar`, inclusive `W+jets`, inclusive `Z+jets`, and multijet/photon MC as reducible proxies unless a reviewed data-driven, hybrid, or closure-backed method promotes them.
-5. Build explicit background modeling and control-to-signal mappings.
-6. Generate or record the signal parameterization, background scan, chosen model, and spurious-signal evidence.
-7. Emit provenance for nominal template choice, sideband normalization, smoothing context, template-source role, reducible-background status, and blinding behavior.
+5. Declare the central signal proxy separately from visualization-only signal alternatives. Visualization-only alternatives may appear in diagnostic plots but must not drive sensitivity language or central signal totals.
+6. Build explicit background modeling and control-to-signal mappings.
+7. Generate or record the signal parameterization, background scan, chosen model, and spurious-signal evidence.
+8. Emit provenance for nominal template choice, sideband normalization, smoothing context, template-source role, reducible-background status, signal-proxy status, and blinding behavior.
 
 ## Output contract
 
@@ -53,6 +56,7 @@ Create the strategy and model artifacts that define how backgrounds are constrai
 - nominal background template choice and sideband normalization are explicit for H to gammagamma
 - every background PDF or template declares its source class and normalization mode
 - reducible components declare whether they are `data_driven_reducible_background`, `hybrid_reducible_background`, or `reducible_mc_proxy_diagnostic`
+- signal components declare whether they are `signal_proxy_primary`, `signal_proxy_alternative`, or `visualization_only`; `signal_proxy_alternative` and `visualization_only` components are not central statistical inputs
 
 ## Constraints
 
@@ -61,6 +65,8 @@ Create the strategy and model artifacts that define how backgrounds are constrai
 - no silent exposure of observed data in a blinded window
 - no data-driven template without a reviewed template contract
 - no raw reducible MC proxy may be labeled central expected background in same-sign or multilepton channels without reviewed promotion evidence
+- no weak signal-proxy region may support sensitivity language unless the signal-proxy viability audit explicitly allows that claim scope
+- no visualization-only BSM/top-rich signal alternative may be silently substituted for the central signal proxy
 - if model choice remains ambiguous, block and escalate through the inversion or reviewer path
 
 ## Verification Gate
@@ -72,6 +78,7 @@ Create the strategy and model artifacts that define how backgrounds are constrai
 3. If the analysis is blinded, the `blinding summary` confirms that `120-130 GeV` is not exposed in blinded mode; if fit or significance products are prepared, the model artifacts record the full `105-160 GeV` fit range.
 4. If an H to gammagamma background template is central, the `background input-role summary` names an explicit nominal diphoton sample, and any data-driven input listed there points to a reviewed `data-driven template contract` rather than silently reusing observed data.
 5. For same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels, the background strategy separates prompt MC, data-driven reducible background if available, and reducible MC proxies; central expected-background claims block when this role split is absent.
+6. For VLQ-style signal proxies, the model artifacts identify one central `signal_proxy_primary`, separate visualization-only alternatives, and include a viability audit before any sensitivity language uses regions with `S < 1` or `S/B < 0.05`.
 
 ### REPAIR
 
@@ -91,12 +98,14 @@ assertions_checked:
   - assertion_3
   - assertion_4
   - assertion_5
+  - assertion_6
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
   assertion_4: pass|fail
   assertion_5: pass|fail
+  assertion_6: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED
