@@ -99,13 +99,14 @@ failure_modes:
   - "process-role assignment is unambiguous for the active analysis objective"
 
 validation_checks:
-  - "every registered sample has exactly one classification among data, signal, background"
+  - "every registered sample has exactly one classification among data, central signal, central background, noncentral signal alternative, or noncentral background alternative"
   - "each sample contains process identity and source-file linkage"
   - "process-role assignment is unambiguous for the active analysis objective"
   - "normalization terms are present or explicitly marked as not specified"
   - "normalization value is computable when all required terms are available"
   - "default central-yield registry rows for MC have `lumi_fb = 36.1`"
   - "central-yield workflows include only nominal/reference samples per physics process; alternatives are flagged as non-central"
+  - "central-yield workflows exclude generator, shower, radiation, pThard, diagram-subtraction, and systematic-variation alternatives unless the analysis contract explicitly promotes them"
   - "if multiple candidate datasets exist for one central process, one nominal/reference choice is recorded and any unresolved ambiguity blocks execution"
 
 handoff_to:
@@ -153,6 +154,8 @@ Policy requirements:
 - for this ATLAS Open Data Run-2 H->gammagamma workflow, use `lumi_fb = 36.1` for central MC normalization unless an explicit analysis-level override is requested and documented
 - record missing normalization inputs explicitly rather than silently assuming values
 - when multiple MC samples exist for one physics process (for example alternate generators/modeling), define one nominal/reference sample set for central yields and mark alternative samples for systematic variations only
+- for ATLAS Open Data sample inventories, treat generator/shower/radiation/pThard/Herwig/H7UE/ShowerSys/diagram-subtraction alternatives as noncentral by default; process them for diagnostics, but do not add them to central signal or background yields unless the analysis contract explicitly promotes them
+- when a dataset name or process description says `for systematics`, `parton showering systematics`, `pThard`, `ShowerSys`, `Herwig`, `H7UE`, `_shw`, or `DS_dyn`, preserve the sample in the registry with `central_sample: false` and a concrete `noncentral_reason`
 - for decay-specific analyses, central signal samples must match the target decay/final state; inclusive or other-decay Higgs samples require explicit exclusion or non-central labeling
 - when dataset-name semantics are insufficient to determine a unique nominal sample set, invoke the MC sample disambiguation skill and block on unresolved ambiguity
 
@@ -176,6 +179,7 @@ Normalization convention for simulated samples:
 - normalization value is computable when all required terms are available
 - default central-yield registry rows for MC have `lumi_fb = 36.1`
 - central-yield workflows include only nominal/reference samples per physics process; alternatives are flagged as non-central
+- every alternative sample has a machine-readable exclusion reason and is excluded from central stack, central cut-flow, and central statistical inputs
 - if multiple candidate datasets exist for one central process, one nominal/reference choice is recorded and any unresolved ambiguity blocks execution
 
 ## Layer 3 — Example Implementation
@@ -186,7 +190,10 @@ For each sample:
 - `kind`: `data | signal | background`
 - `analysis_role` (recommended): `signal_nominal | background_nominal | signal_alternative | background_alternative`
 - `is_nominal` (recommended boolean)
+- `central_sample` (required for MC used in central-yield workflows)
+- `noncentral_reason` (required when `central_sample` is false)
 - `nominal_process_key` (recommended stable physics-process key)
+- `alternative_family` (recommended, for example `generator`, `parton_shower`, `radiation`, `diagram_subtraction`, `systematic_variation`, `signal_hypothesis`)
 - `files`
 - `xsec_pb`
 - `k_factor`
