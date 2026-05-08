@@ -1349,12 +1349,31 @@
     ]
   },
   "open_data_execution_contract": {
-    "contract_version": "open_data_proxy_v1",
+    "contract_version": "open_data_proxy_v1.1",
     "central_result_type": "three_four_top_diagnostic_proxy_reinterpretation",
-    "sample_scope_policy": "target_relevant_open_data_only",
+    "sample_scope_policy": "process_all_discovered_root_samples_with_central_interpretation_allowlist",
+    "sample_processing_policy": {
+      "registered_scope": "all readable ROOT event samples discovered under input-data/data and input-data/MC",
+      "recommended_processing_scope": "all registered ROOT event samples",
+      "minimum_required_processing_scope": "all observed data samples, all central diagnostic background samples, and the explicit central three/four-top proxy signal samples",
+      "central_interpretation_scope": "only allowlisted central backgrounds and the explicit central signal proxy samples may enter central diagnostic yields or statistics",
+      "noncentral_samples": "may be processed for audit, bookkeeping, or separate reinterpretation studies, but must be excluded from central diagnostic yields and statistics unless explicitly promoted by a revised analysis contract",
+      "required_accounting_artifacts": [
+        "sample registry with every discovered ROOT sample",
+        "central sample allowlist",
+        "noncentral sample list with exclusion reason",
+        "per-sample raw tree entries and processed entries"
+      ]
+    },
     "central_signal_policy": {
       "primary_signal_proxy": "available three-top and four-top open-data samples",
       "proxy_process_key": "three_four_top_proxy",
+      "central_proxy_sample_ids": [
+        "304014",
+        "412043",
+        "412044",
+        "510097"
+      ],
       "proxy_samples": [
         {
           "dsid": "304014",
@@ -1380,7 +1399,24 @@
       "dedicated_vlq_signal_grids_available": false,
       "mass_limit_claims_allowed": false,
       "branching_ratio_scan_allowed": false,
-      "interpretation_note": "Three-top and four-top samples preserve the high-lepton-multiplicity, high-b-jet, top-rich event topology used by the VLQ regions, but they are not VLQ signal models."
+      "interpretation_note": "Three-top and four-top samples preserve the high-lepton-multiplicity, high-b-jet, top-rich event topology used by the VLQ regions, but they are not VLQ signal models.",
+      "noncentral_signal_alternative_policy": {
+        "status": "exclude_from_central_vlq_proxy_result",
+        "atlas_reference_behavior": "A central ATLAS VLQ result would use dedicated VLQ signal grids for each mass and branching-ratio hypothesis. Other BSM samples are not merged into the VLQ signal model and are not Standard Model backgrounds.",
+        "classification_rule": "Any BSM, exotic, SUSY, Wprime, Zprime, leptoquark, dark-matter, or other signal-like MC sample not listed in central_proxy_sample_ids is a noncentral signal alternative.",
+        "allowed_use": [
+          "process for sample accounting and diagnostic kinematic studies",
+          "run one model or DSID at a time as a separately labeled diagnostic reinterpretation",
+          "keep in noncentral sample artifacts with raw and selected-event counts"
+        ],
+        "forbidden_use": [
+          "merge into the central three/four-top signal proxy",
+          "merge into central Standard Model background yields",
+          "quote a combined VLQ signal result from heterogeneous BSM alternatives",
+          "promote to central signal without revising this analysis contract"
+        ],
+        "required_reporting": "Reports must state that noncentral signal alternatives are excluded from central VLQ proxy yields/statistics and list their DSIDs or artifact path."
+      }
     },
     "background_policy": {
       "irreducible_backgrounds": "simulation-driven from available ttW, ttZ, ttH, diboson, four-top, and rare-top-like samples when present",
@@ -1408,7 +1444,10 @@
     },
     "baseline_multiagent_comparability_requirements": [
       "same central sample IDs",
+      "same noncentral signal alternative exclusion policy",
+      "same central-vs-noncentral sample accounting semantics",
       "same IO prefilter policy",
+      "same raw tree entries versus processed entries semantics",
       "same signal-region definitions",
       "same statistic shape",
       "same three-top/four-top signal-proxy policy"
