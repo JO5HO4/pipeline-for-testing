@@ -9,3 +9,7 @@ Use `.agents/coordinator.agent`, `.agents/stage_worker.agent`, and `.agents/stag
 For multiagent execution, act as coordinator. Derive the stage plan from the analysis JSON, write `handoff/stage_plan.json`, then for each selected stage launch one `stage_worker` and one independent `stage_reviewer`. Repair if blocked, and continue only after review passes or conditionally passes.
 
 Process the usable samples, produce reproducible CLI commands, plots, yields, statistics, scorecard, reviews, and final report. Report unavailable ingredients and blocked claims exactly as specified by the analysis JSON.
+
+When creating, modifying, regenerating, or reviewing any plot, explicitly use the `$plotting` skill. Final analysis plots should follow ATLAS-style HEP plotting conventions, include correct open-data/diagnostic label text, be saved as true PDF plus PNG when practical, and be recorded in a plot manifest.
+
+For the VLQ region yields, produce a zero-yield audit for every signal region whose observed data, central background, or central signal proxy yield is zero or clipped from a negative signed weight. The audit must distinguish physics sparsity from implementation problems such as sample-scope mismatch, branch fallback, object-definition differences, signed-weight cancellation, or a missing region threshold.

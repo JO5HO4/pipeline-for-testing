@@ -1,13 +1,13 @@
 ---
-name: atlas-plot-style
-description: Apply ATLAS publication committee plot styling while creating, modifying, or reviewing plotting code in high-energy-physics repositories. Use for ROOT/C++ macros, PyROOT, Python matplotlib, mplhep, notebooks, histogram scripts, plotting utilities, figure export pipelines, and code-review requests that mention ATLAS style, PubCom plot style, ATLAS labels, ATLAS Internal/Preliminary/Simulation, color-vision-safe palettes, data-vs-simulation histograms, or publication-ready HEP plots.
+name: plotting
+description: Use whenever creating, modifying, regenerating, or reviewing plots, figures, histograms, plot manifests, plotting utilities, notebooks, ROOT/C++ macros, PyROOT, Python matplotlib, mplhep, or figure export pipelines in a high-energy-physics repository. Apply ATLAS-style plotting conventions when the analysis is ATLAS-related or uses ATLAS open data, including correct label/status text, color-vision-safe palettes, data-vs-simulation styling, PDF export, and visual checks. Also use for requests that mention ATLAS style, PubCom plot style, ATLAS labels, ATLAS Internal/Preliminary/Simulation, publication-ready HEP plots, or plotting code review.
 ---
 
-# ATLAS Plot Style
+# Plotting
 
 ## Goal
 
-Make plotting code produce clear ATLAS-style high-energy-physics figures while preserving the analysis logic. Treat this skill as a code-editing and code-review standard for ROOT, PyROOT, matplotlib, mplhep, and notebook plotting workflows.
+Make plotting code produce clear high-energy-physics figures while preserving the analysis logic. For ATLAS-related analyses or ATLAS open data, apply ATLAS-style conventions by default. Treat this skill as a code-editing and code-review standard for ROOT, PyROOT, matplotlib, mplhep, and notebook plotting workflows.
 
 ## Codex Workflow
 
@@ -16,8 +16,9 @@ Make plotting code produce clear ATLAS-style high-energy-physics figures while p
 3. Make the smallest reliable change that applies the ATLAS conventions below. Do not change physics selections, histogram definitions, binning, weights, uncertainties, or data inputs unless the user explicitly asks.
 4. If a requested change affects approval status, luminosity, center-of-mass energy, units, bin width, or whether data are real ATLAS data or simulation, use the information already in the repo or prompt. If it is not available, leave a clear TODO or ask instead of guessing.
 5. Export publication-like figures as true PDF whenever possible. PNG is acceptable only for event displays, special graphics, quick diagnostics, or when the user asks for raster output.
-6. Run the narrowest available smoke test or plot-generation command. If execution is not possible, state the command that should be run and why it was not run.
-7. In the final response, summarize changed files, style decisions applied, and the command used to regenerate plots.
+6. Write or update a plot manifest that records output paths, backend, style package used, label/status text, and whether each plot is diagnostic-only, blinded, simulation-only, or uses observed data.
+7. Run the narrowest available smoke test or plot-generation command. If execution is not possible, state the command that should be run and why it was not run.
+8. In the final response, summarize changed files, style decisions applied, and the command used to regenerate plots.
 
 ## Core ATLAS Plot Defaults
 

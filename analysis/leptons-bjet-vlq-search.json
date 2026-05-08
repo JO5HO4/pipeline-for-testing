@@ -30,6 +30,36 @@
     "analysis_scope_note": "This JSON intentionally describes what can be executed with the available ATLAS open-data ntuples. It preserves the same-charge dilepton/trilepton object and region structure, but does not request official VLQ mass limits, full CLs limits, fake-lepton matrix-method reproduction, or electron charge-misID calibration when the required signal grids and auxiliary inputs are absent.",
     "open_data_analysis_short_name": "same_charge_leptons_bjets_open_data_proxy"
   },
+  "plotting_policy": {
+    "required_skill": "$plotting",
+    "scope": "Use for every produced, regenerated, modified, or reviewed figure and plot manifest.",
+    "style_requirement": "Apply ATLAS-style HEP plotting conventions while preserving selections, weights, binning, object definitions, region thresholds, sample roles, and blinding/unblinding policy.",
+    "label_policy": "Use open-data/diagnostic label text such as 'ATLAS Open Data' or 'ATLAS Open Data, diagnostic proxy'. Do not use 'ATLAS' or 'ATLAS Preliminary' as an approval label for unapproved local outputs.",
+    "required_outputs": [
+      "true PDF for final analysis plots whenever practical",
+      "PNG companion for report embedding",
+      "plot manifest recording file paths, backend, style package, label text, observed-data status, and diagnostic-only status"
+    ],
+    "review_checks": [
+      "axes and units are explicit",
+      "data markers are black with uncertainty bars",
+      "central backgrounds and signal proxies use distinguishable HEP/ATLAS-style colors",
+      "negative signed MC yields are not hidden by cosmetics",
+      "report captions explain the open-data proxy scope without making official ATLAS claims"
+    ]
+  },
+  "region_zero_yield_policy": {
+    "required_artifact": "outputs/report/region_zero_yield_audit.json",
+    "scope": "Required for every signal region with zero observed data, zero central background, zero central signal proxy, or a yield clipped from a negative signed MC sum.",
+    "audit_requirements": [
+      "record observed-data, central-background, and central-signal-proxy weighted and unweighted yields",
+      "record raw signed MC yield separately from any nonnegative yield used by a counting statistic",
+      "identify whether the zero is expected from sparse open-data acceptance or suspicious from implementation state",
+      "for suspicious zeros, name the likely source: sample-scope mismatch, object-definition difference, branch fallback, signed-weight cancellation, missing region threshold, or parser error",
+      "summarize zero-yield regions in the final report"
+    ],
+    "acceptance_rule": "A zero-yield region is acceptable only when the audit traces the result to the fixed region definition and available open-data sample acceptance, or explicitly blocks the affected claim."
+  },
   "analysis_objectives": [
     {
       "objective_id": "OBJ_OPEN_DATA_PROXY",
