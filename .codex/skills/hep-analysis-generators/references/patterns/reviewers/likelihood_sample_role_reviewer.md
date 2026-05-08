@@ -17,6 +17,7 @@ Verify that every data or MC sample used by the analysis has an explicit role in
 - sample contract set
 - nominal sample selection record
 - data-driven template contracts when used
+- reducible-background role audit and central-expected eligibility flags for same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels
 - region map and event-overlap policy
 - closure or weak-correlation rationale when data-driven templates are used
 
@@ -32,6 +33,7 @@ Verify that every data or MC sample used by the analysis has an explicit role in
 - the same data events appear as both `observed_data` and `template_source` without a disjoint-event declaration
 - a data-driven template lacks closure, decorrelation, or weak-correlation rationale
 - reducible, irreducible, and negligible background classes are asserted without supporting reasoning
+- raw reducible `ttbar` or jets MC is assigned the same central likelihood role as prompt irreducible background in a same-sign or multilepton channel
 - an MC alternative sample is used as the central template without explicit approval
 - normalization mode is missing for a background that should be theory-constrained, CR-constrained, floating, or shape-only
 - the template observable or transfer relation is not stated
@@ -51,6 +53,7 @@ Verify that every data or MC sample used by the analysis has an explicit role in
 2. The required evidence is present on disk or in the conversation: the signal-signature and likelihood-intake decision record, the sample contract set, the nominal sample selection record, data-driven template contracts when used, the region map and event-overlap policy, and the closure or weak-correlation rationale when data-driven templates are used.
 3. The evidence explicitly confirms that every central or reviewer-visible sample has a `likelihood role`, `physics role`, `nominality`, and `normalization mode`, and that the same events are not used as both `observed_data` and `template_source` without a disjoint-event declaration.
 4. Any data-driven template listed in the evidence includes closure or decorrelation rationale rather than assuming that the template is valid.
+5. For same-sign, trilepton, fake/nonprompt-lepton, or charge-misID-sensitive channels, raw reducible MC proxy samples are not assigned central expected-background likelihood roles unless reviewed promotion evidence is attached.
 
 ### REPAIR
 
@@ -69,11 +72,13 @@ assertions_checked:
   - assertion_2
   - assertion_3
   - assertion_4
+  - assertion_5
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
   assertion_4: pass|fail
+  assertion_5: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED

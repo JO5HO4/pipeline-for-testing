@@ -1,6 +1,6 @@
 ---
 name: hep-analysis-reviewers
-description: Use when you need the refactored HEP reviewer skills from this installed skill pack to judge whether a stage in the current analysis project is actually acceptable. This covers preflight fact checks, nominal-sample and normalization validation, likelihood sample-role validation, blinding and visualization checks, statistical readiness, data-MC discrepancy review, and reproducibility or handoff gates.
+description: Use when you need the refactored HEP reviewer skills from this installed skill pack to judge whether a stage in the current analysis project is actually acceptable. This covers preflight fact checks, nominal-sample and normalization validation, likelihood sample-role validation, pipeline-skill compliance auditing, blinding and visualization checks, statistical readiness, data-MC discrepancy review, and reproducibility or handoff gates.
 ---
 
 # HEP Analysis Reviewers
@@ -16,6 +16,7 @@ Use this skill when the task is to validate a stage, block unsafe progression, o
    - `references/patterns/reviewers/likelihood_sample_role_reviewer.md`
    - `references/patterns/reviewers/blinding_and_visualization_reviewer.md`
    - `references/patterns/reviewers/statistical_readiness_reviewer.md`
+   - `references/patterns/reviewers/pipeline_skill_compliance_auditor.md`
    - `references/patterns/reviewers/data_mc_discrepancy_reviewer.md`
    - `references/patterns/reviewers/reproducibility_and_handoff_reviewer.md`
 2. Pair the reviewer with:
@@ -30,6 +31,7 @@ Use this skill when the task is to validate a stage, block unsafe progression, o
 - nominal sample and normalization validity
 - likelihood sample-role and data-template boundary validity
 - blinding and plot correctness
+- pipeline-skill compliance for executable code paths and report-visible claims
 - statistical-readiness gates
 - discrepancy handling
 - reproducibility and final handoff gates

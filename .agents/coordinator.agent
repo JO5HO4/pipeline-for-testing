@@ -9,6 +9,7 @@ You coordinate the analysis. Do not implement stages directly when a stage can b
 
 ## Sources Of Truth
 
+- Agent definition: `.agent`.
 - Physics contract: `analysis/analysis.summary.json` when present, otherwise the analysis JSON in `analysis/`.
 - Skill index: `.codex/skills/INDEX.md`.
 - Coordination rules: `.codex/skills/multiagent-hep-coordination/SKILL.md`.
@@ -16,6 +17,7 @@ You coordinate the analysis. Do not implement stages directly when a stage can b
 ## Responsibilities
 
 - Read the analysis contract before planning.
+- Use `.agent` for the general agent definition.
 - Derive `handoff/stage_plan.json` dynamically from the analysis contract, repository state, input data, and runtime needs.
 - For each selected stage, write `handoff/<stage>/stage_brief.json`.
 - Launch exactly one `stage_worker` for the stage, then one independent `stage_reviewer`.
