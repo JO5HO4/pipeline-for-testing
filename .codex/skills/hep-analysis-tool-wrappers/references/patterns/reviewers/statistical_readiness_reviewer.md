@@ -25,7 +25,7 @@ Verify that templates, model choices, systematics, fit backend, and significance
 - nuisance or systematics outputs
 - fit backend provenance
 - significance artifacts and parameter-floating policy
-- pipeline skill compliance audit for fit/significance code paths and central statistical claims
+- pre-run pipeline skill compliance audit for fit/significance code paths and central statistical claims, with `scope: pre_fit`
 
 ## Criteria
 
@@ -45,6 +45,7 @@ Verify that templates, model choices, systematics, fit backend, and significance
 - raw diagnostic Asimov `q0`/`Z` promoted as expected discovery sensitivity after `claim_status = "blocked"`
 - weighted bin-center RooDataSet plus extended unbinned likelihood used as the central H to gammagamma Asimov method
 - pipeline implementation differs from the governing skills even though the downstream artifact was labeled accepted
+- missing pre-fit compliance audit before executing a statistical stage capable of central claims
 
 ## Required remediation guidance
 
@@ -53,17 +54,18 @@ Verify that templates, model choices, systematics, fit backend, and significance
 - regenerate data-template artifacts with `../generators/data_driven_template_generator.md`
 - regenerate model artifacts with `../generators/background_and_signal_model_generator.md`
 - rerun fit products through `../generators/systematics_and_workspace_generator.md`
-- rerun `pipeline_skill_compliance_auditor.md` whenever the executable fit/significance path changes
+- rerun the pre-fit compliance guard whenever the executable fit/significance path changes; a post-run audit can diagnose violations but cannot satisfy the precondition
 
 ## Verification Gate
 
 ### ASSERTIONS
 
 1. A reviewer verdict artifact or conversation note for `Statistical Readiness Reviewer` exists and records exactly one verdict from `pass`, `conditional_pass`, `block`, or `fail`.
-2. The required evidence is present on disk or in the conversation: the likelihood sample role review note, effective-luminosity check artifact, smoothing check and provenance artifacts, signal and background model artifacts, data-driven template contracts when used, nuisance or systematics outputs, fit backend provenance, significance artifacts with parameter-floating policy, and pipeline skill compliance audit.
+2. The required evidence is present on disk or in the conversation: the likelihood sample role review note, effective-luminosity check artifact, smoothing check and provenance artifacts, signal and background model artifacts, data-driven template contracts when used, nuisance or systematics outputs, fit backend provenance, significance artifacts with parameter-floating policy, and a pre-run pipeline skill compliance audit with `scope: pre_fit`.
 3. For a central H to gammagamma claim, the evidence explicitly confirms `pyroot_roofit` as the primary backend rather than an optional backend.
 4. If expected significance is used, the evidence explicitly confirms `mu_gen = 1`, the signal-plus-background hypothesis, the full `105-160 GeV` range, `claim_status = "accepted"`, finite `accepted_q0`/`accepted_z_discovery`, free-`mu` closure, acceptable fit status/covariance quality, no POI-at-bound condition, and a binned-Asimov or `S/sqrt(B)` sanity check consistent with the reported order of magnitude; if a data-driven template enters the model, the evidence also confirms reviewed separation from observed data. For H to gammagamma, weighted bin-center `RooDataSet` or extended unbinned weighted RooFit is never central-claim eligible, even if closure appears acceptable.
 5. If an Asimov artifact records raw diagnostic `q0`/`Z` while `claim_status` is blocked or diagnostic-only, the reviewer verifies those values are not used as central expected significance in reports, summaries, or handoff records.
+6. The pre-fit compliance audit existed before the statistical command ran. A post-run audit alone is insufficient and must produce `gate_outcome: BLOCKED` with reason `missing_pre_fit_compliance_audit`.
 
 ### REPAIR
 
@@ -83,12 +85,14 @@ assertions_checked:
   - assertion_3
   - assertion_4
   - assertion_5
+  - assertion_6
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
   assertion_4: pass|fail
   assertion_5: pass|fail
+  assertion_6: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED
