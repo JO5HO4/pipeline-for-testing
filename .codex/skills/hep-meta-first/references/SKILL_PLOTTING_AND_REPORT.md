@@ -174,6 +174,7 @@ validation_checks:
   - "control-region pre-fit/post-fit plots display data points and stacked signal/background expectations"
   - "for H->gammagamma, blinded sideband-fit plots exist and show observed sideband data, the full-range sideband-fitted background-only PDF, and stacked expected signal"
   - "for H->gammagamma, expected-significance Asimov fit plots exist for each active category and the combined fit and show Asimov pseudo-data, the fitted free-`mu` signal-plus-background total, and the corresponding background-only component over `105-160 GeV`"
+  - "for H->gammagamma, expected-significance plot/report labels use accepted Asimov values only; blocked or diagnostic-only raw `q0`/`Z` values are labeled as diagnostics and excluded from central result captions"
   - "for H->gammagamma, observed-data full-range free-`mu` fit plots exist only after explicit unblinding and then show observed data, the fitted signal-plus-background total, and the fitted background-only component for each active category and the combined fit"
   - "for H->gammagamma, required statistical-input plots exist and are treated as mandatory artifacts rather than optional diagnostics"
   - "for H->gammagamma reporting, cut flow is presented separately for signal production modes, diphoton background MC, and data"
@@ -240,6 +241,7 @@ Policy requirements:
 - for category-resolved resonance fits, provide one mass distribution per active category with data points (sidebands-only when blinded), post-fit background, and stacked signal-on-background expectation
 - for `H -> gamma gamma`, provide a mandatory blinded sideband-fit provenance plot for each active category showing the actual sideband data, the background-only PDF fitted in `105-120 GeV` and `130-160 GeV` and evaluated over the full `105-160 GeV` range, and the expected signal stacked on top of the background expectation
 - for `H -> gamma gamma`, provide a mandatory expected-significance fit plot set showing the signal-plus-background Asimov pseudo-data, the fitted free-`mu` signal-plus-background total, and the corresponding background-only component; these plots must cover the full `105-160 GeV` range and may include the blinded window because the inputs are pseudo-data
+- for `H -> gamma gamma`, plot captions and report text must not call raw diagnostic `q0`/`Z` values the expected significance when `claim_status` is blocked or `accepted_z_discovery` is null; use accepted Asimov fields for central captions and move blocked raw values to diagnostics
 - for `H -> gamma gamma`, reserve the observed-data full-range free-`mu` fit plot set for explicit unblinding only; once unblinded, show full-range observed data together with the fitted signal-plus-background total and fitted background-only component, and declare that `mu` is shared across categories
 - for `H -> gamma gamma`, the statistical-input plots are mandatory:
   - one signal `m_gg` plot per category with the fitted signal PDF overlaid on signal MC
@@ -296,6 +298,7 @@ Policy requirements:
 - control-region pre-fit/post-fit plots display data points and stacked signal/background expectations
 - for `H -> gamma gamma`, blinded sideband-fit provenance plots exist for every active category and show sideband data, the full-range sideband-fitted background-only PDF, and stacked expected signal
 - for `H -> gamma gamma`, expected-significance Asimov fit plots exist for every active category and the combined fit and show Asimov pseudo-data, the fitted free-`mu` signal-plus-background total, and the corresponding background-only component over `105-160 GeV`
+- for `H -> gamma gamma`, expected-significance plot captions identify whether the statistical claim is accepted or blocked; blocked raw diagnostic values are not used as central result labels
 - for `H -> gamma gamma`, observed-data full-range fit plots exist only after explicit unblinding and then show observed data, the fitted free-`mu` signal-plus-background total, and the fitted background-only component for every active category and the combined fit
 - for `H -> gamma gamma`, the required statistical-input plots exist and are not treated as optional
 - for `H -> gamma gamma`, cut flow is presented separately for signal production modes, diphoton background MC, and data

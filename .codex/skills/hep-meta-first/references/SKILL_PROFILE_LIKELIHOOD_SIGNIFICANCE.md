@@ -112,6 +112,7 @@ validation_checks:
   - "significance artifact exists for each fit under test"
   - "successful result satisfies `q0 >= 0`"
   - "successful result satisfies `z_discovery = sqrt(q0)` within numerical tolerance"
+  - "central expected-significance claims use accepted fields (`claim_status = \"accepted\"`, finite `accepted_q0`, finite `accepted_z_discovery`) rather than raw diagnostic fields"
   - "failed result includes actionable diagnostic information"
   - "for the required PyROOT backend in H->gammagamma workflows, exported NLL values and POI conventions are mapped consistently into the standard significance schema"
   - "for H->gammagamma workflows, primary significance artifacts declare `pyroot_roofit`; any non-ROOT significance artifact is explicitly marked cross-check-only and excluded from central claims"
@@ -122,6 +123,7 @@ validation_checks:
   - "for H->gammagamma, blinded workflows do not inspect observed data in `120-130 GeV` and do not produce central observed significance from blinded observed data"
   - "when an Asimov sensitivity result is reported in blinded workflows, Asimov generation/evaluation range includes the full `105-160 GeV` range including the signal region"
   - "discovery-sensitivity Asimov artifacts explicitly document signal-plus-background generation hypothesis (`mu_gen = 1`) and background-parameter provenance from the `mu = 0` fit snapshot"
+  - "for H->gammagamma Asimov claims, free-`mu` closure, fit status, covariance quality, POI-bound checks, and binned-Asimov sanity checks pass before the result is eligible for central reporting"
   - "H->gammagamma significance fits keep signal DSCB shape parameters fixed, allow signal normalization to float through `mu`, and allow background normalization and background shape parameters to float"
   - "for H->gammagamma, significance-stage artifacts expose the fitted signal-plus-background total and corresponding background-only component needed to plot the expected Asimov fit"
   - "for H->gammagamma, observed-data significance/component outputs are produced only after explicit unblinding and are then sufficient to plot full-range observed data with the fitted free-`mu` signal-plus-background total and background-only component"
@@ -176,6 +178,8 @@ Policy requirements:
 - for expected discovery-significance sensitivity evaluation, generate the Asimov dataset under the signal-plus-background hypothesis (`mu_gen = 1`)
 - background-shape parameters used for this generation may come from a data fit with `mu = 0`; record both hypotheses explicitly
 - distinguish clearly between fixed quantities used to generate the Asimov dataset and floating quantities used in the later significance fit
+- for `H -> gamma gamma`, central expected-significance claims require closure-validated accepted fields (`claim_status = "accepted"`, `accepted_q0`, `accepted_z_discovery`); raw `q0`/`z_discovery` from a failed or diagnostic fit are audit values only
+- for `H -> gamma gamma`, a weighted bin-center RooDataSet evaluated with an extended unbinned likelihood is not central-claim eligible unless independent closure, fit-status, covariance-quality, POI-bound, and binned-Asimov sanity checks all pass
 - for `H -> gamma gamma`, signal DSCB shape parameters from the signal-MC fit must remain fixed in downstream significance fits
 - for `H -> gamma gamma`, signal normalization must float only through the shared signal-strength parameter `mu`
 - for `H -> gamma gamma`, background normalization is free and background shape parameters are free in the significance fit
@@ -183,6 +187,7 @@ Policy requirements:
 - Asimov datasets are pseudo-data (not observed data), so they can be evaluated/visualized in the full mass range including the signal window
 - for `H -> gamma gamma`, the significance stage must emit or preserve the signal-plus-background total and the corresponding background-only component so downstream plotting can render the expected Asimov fit and, after explicit unblinding, the observed-data full-range fit
 - significance results must clearly label whether they are observed-data or Asimov-based expected results
+- if an Asimov fit has `mu_hat` materially incompatible with `mu_gen`, a failed conditional/free fit, poor covariance quality, or a POI pinned at a configured bound, the result is blocked and must not be reported as expected discovery sensitivity
 
 Test statistic definition:
 `q0 = -2 ln lambda(0) = 2 * (NLL_mu0 - NLL_muhat)`
@@ -218,6 +223,7 @@ Asymptotic significance:
 - significance artifact exists for each fit under test
 - successful result satisfies `q0 >= 0`
 - successful result satisfies `z_discovery = sqrt(q0)` within numerical tolerance
+- central expected-significance claims satisfy `claim_status = "accepted"` and use finite `accepted_q0`/`accepted_z_discovery`
 - failed result includes actionable diagnostic information
 - for the required PyROOT backend in H->gammagamma workflows, exported NLL values and POI conventions are mapped consistently into the standard significance schema
 - for H->gammagamma workflows, primary significance artifacts declare `pyroot_roofit`; any non-ROOT significance artifact is explicitly marked cross-check-only and excluded from central claims
@@ -228,6 +234,7 @@ Asymptotic significance:
 - for `H -> gamma gamma`, blinded workflows do not inspect observed data in `120-130 GeV` and do not produce central observed significance from blinded observed data
 - when an Asimov sensitivity result is reported in blinded workflows, Asimov generation/evaluation range includes the full `105-160 GeV` range including the signal region
 - discovery-sensitivity Asimov artifacts explicitly document signal-plus-background generation hypothesis (`mu_gen = 1`) and background-parameter provenance from the `mu = 0` fit snapshot
+- discovery-sensitivity Asimov artifacts explicitly document closure status, fit status, covariance quality, POI-bound checks, and binned-Asimov/order-of-magnitude sanity checks
 - `H -> gamma gamma` significance fits keep signal DSCB shape parameters fixed, allow signal normalization to float through `mu`, and allow background normalization and background shape parameters to float
 - `H -> gamma gamma` significance-stage artifacts are sufficient to draw the expected Asimov fit with pseudo-data, fitted signal-plus-background total, and background-only component over the full mass range
 - if observed-data significance or full-range observed component payloads are produced, explicit unblinding is declared and the artifact contains observed full-range data plus the fitted free-`mu` signal-plus-background total and background-only component
@@ -251,6 +258,10 @@ Asymptotic significance:
 - `observed_significance_allowed` (recommended)
 - `signal_shape_parameter_policy` (recommended: `fixed_from_signal_mc_fit`)
 - `background_parameter_policy` (recommended)
+- `claim_status` (required for Asimov central claims)
+- `accepted_q0` and `accepted_z_discovery` (required and finite only when `claim_status = "accepted"`)
+- `raw_diagnostic_q0` and `raw_diagnostic_z_discovery` (required when a failed/diagnostic Asimov fit records raw values)
+- `asimov_closure_passed`, fit statuses, covariance quality, and POI-bound diagnostics
 
 ### CLI (Current Repository)
 `python -m analysis.stats.significance --workspace outputs/fit/workspace.json --fit-id FIT1 --out outputs/fit/FIT1/significance.json`
