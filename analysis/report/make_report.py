@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import math
 import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from analysis.common import read_json, write_json, write_text
-from analysis.stats.fit import FIT_ID
+
+FIT_ID = "FIT1"
 
 
 def _table(headers: list[str], rows: list[list[Any]]) -> str:
@@ -33,6 +35,33 @@ def _image_block(report_dir: Path, image_path: str, alt: str, caption: str) -> s
 
 def _category_label(category: str) -> str:
     return category.replace("_", " ")
+
+
+def _finite_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and math.isfinite(float(value))
+
+
+def _hyy_asimov_validation(fit_result: dict[str, Any], asimov: dict[str, Any]) -> tuple[bool, list[str]]:
+    target_mu = float(asimov.get("mu_gen", 1.0))
+    closure_tolerance = 0.05
+    diagnostics = []
+    for label, value in (
+        ("measurement mu_hat", fit_result.get("mu_hat")),
+        ("significance mu_hat", asimov.get("mu_hat")),
+    ):
+        if not _finite_number(value):
+            diagnostics.append(f"{label} is unavailable")
+        elif abs(float(value) - target_mu) > closure_tolerance:
+            diagnostics.append(f"{label}={float(value):.3f} does not close to mu_gen={target_mu:.1f}")
+    if asimov.get("fit_status_free") not in (None, 0):
+        diagnostics.append(f"free Asimov fit status={asimov.get('fit_status_free')}")
+    if asimov.get("fit_status_mu0") not in (None, 0):
+        diagnostics.append(f"mu=0 Asimov fit status={asimov.get('fit_status_mu0')}")
+    for item in asimov.get("diagnostics", []):
+        text = str(item)
+        if not text.startswith("Asimov closure failed"):
+            diagnostics.append(text)
+    return not diagnostics, diagnostics
 
 
 def _registry_summary(registry: list[dict[str, Any]]) -> tuple[str, str]:
@@ -105,13 +134,31 @@ def _build_report_text(
         if payload.get("capped_noncompliant")
     ]
     fit_dataset_type = fit_result.get("dataset_type", "observed")
+    asimov_valid, asimov_validation_diagnostics = _hyy_asimov_validation(fit_result, asimov)
+    asimov_validation_text = ", ".join(asimov_validation_diagnostics or ["none"])
+    if asimov_valid:
+        asimov_summary_text = f"Asimov expected significance: `Z = {asimov['z_discovery']:.3f}`"
+        asimov_q0_text = f"Asimov `q0`: `{asimov['q0']:.3f}`"
+        asimov_intro_text = f"The Asimov expected sensitivity is `Z = {asimov['z_discovery']:.3f}` with `q0 = {asimov['q0']:.3f}`."
+        fit_mu_text_expected = f"Expected-only fit `mu`: `{fit_result['mu_hat']:.3f} +/- {fit_result['mu_uncertainty']:.3f}`"
+    else:
+        asimov_summary_text = f"Asimov expected significance: blocked; raw diagnostic `Z = {asimov['z_discovery']:.3f}` is rejected"
+        asimov_q0_text = f"Asimov `q0`: blocked; raw diagnostic `{asimov['q0']:.3f}` is rejected"
+        asimov_intro_text = (
+            f"The Asimov expected sensitivity is blocked because the generated `mu = {asimov['mu_gen']:.1f}` pseudo-data "
+            f"do not close under the free fit: raw `mu_hat = {asimov['mu_hat']:.3f}` and raw `Z = {asimov['z_discovery']:.3f}` are diagnostic only."
+        )
+        fit_mu_text_expected = (
+            f"Expected-only fit `mu`: invalid closure, raw `{fit_result['mu_hat']:.3f} +/- {fit_result['mu_uncertainty']:.3f}` "
+            f"for generated `mu = {asimov['mu_gen']:.1f}`"
+        )
 
     if observed["status"] in {"ok", "warning"}:
         introduction_summary = (
             f"This run executes the five-category ATLAS open-data Higgs-to-diphoton measurement defined in `{summary['source_summary']}` "
             f"with a PyROOT/RooFit primary backend. The central measurement fit returns `mu = {fit_result['mu_hat']:.3f} +/- {fit_result['mu_uncertainty']:.3f}`, "
             f"the observed discovery significance from data is `Z = {observed['z_discovery']:.3f}` with `q0 = {observed['q0']:.3f}`, "
-            f"and the Asimov expected sensitivity is `Z = {asimov['z_discovery']:.3f}` with `q0 = {asimov['q0']:.3f}`."
+            f"and {asimov_intro_text}"
         )
         introduction_policy = "This run was explicitly unblinded, so observed and expected significance are both reported."
         fit_dataset_text = "observed selected events over the full 105-160 GeV range"
@@ -136,12 +183,12 @@ def _build_report_text(
     else:
         introduction_summary = (
             f"This run executes the five-category ATLAS open-data Higgs-to-diphoton measurement defined in `{summary['source_summary']}` with a PyROOT/RooFit primary backend. "
-            f"Observed signal-region data remain blinded, so the central fit uses signal-plus-background Asimov pseudo-data and returns `mu = {fit_result['mu_hat']:.3f} +/- {fit_result['mu_uncertainty']:.3f}` as an expected-only reference. "
-            f"The blinded expected discovery sensitivity from the same Asimov construction is `Z = {asimov['z_discovery']:.3f}` with `q0 = {asimov['q0']:.3f}`."
+            f"Observed signal-region data remain blinded, so the central fit uses signal-plus-background Asimov pseudo-data and produces raw `mu = {fit_result['mu_hat']:.3f} +/- {fit_result['mu_uncertainty']:.3f}`. "
+            f"{asimov_intro_text}"
         )
         introduction_policy = f"Observed signal-strength and observed significance remain `{observed['status']}` because explicit unblinding was not requested. The report therefore keeps observed and expected statistics strictly separated."
         fit_dataset_text = "signal-plus-background Asimov pseudo-data over the full 105-160 GeV range"
-        fit_mu_text = f"Expected-only fit `mu`: `{fit_result['mu_hat']:.3f} +/- {fit_result['mu_uncertainty']:.3f}`"
+        fit_mu_text = fit_mu_text_expected
         fit_range_text = (
             f"The fit range is `{summary['runtime_defaults']['fit_mass_range_gev'][0]:.0f}-{summary['runtime_defaults']['fit_mass_range_gev'][1]:.0f} GeV` "
             f"with blinded plotting in `{signal_window_label}`."
@@ -309,9 +356,10 @@ The effective prompt-diphoton MC luminosity recorded in `outputs/report/mc_effec
 - {fit_mu_text}
 - {observed_stat_line.removeprefix("- ")}
 - {observed_q0_line.removeprefix("- ")}
-- Asimov expected significance: `Z = {asimov["z_discovery"]:.3f}`
-- Asimov `q0`: `{asimov["q0"]:.3f}`
+- {asimov_summary_text}
+- {asimov_q0_text}
 - Asimov generation hypothesis: `mu_gen = {asimov["mu_gen"]}` with dataset type `{asimov["dataset_type"]}`
+- Asimov closure validation: {"accepted" if asimov_valid else "blocked"} ({asimov_validation_text})
 - Fit diagnostics: {", ".join(fit_result.get("diagnostics", []) or ["none"])}
 - {observed_diag_line.removeprefix("- ")}
 - Significance diagnostics: {", ".join(asimov.get("diagnostics", []) or ["none"])}
