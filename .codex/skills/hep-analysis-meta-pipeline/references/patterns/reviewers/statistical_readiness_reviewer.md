@@ -40,6 +40,9 @@ Verify that templates, model choices, systematics, fit backend, and significance
 - a data-driven template enters the model without closure expectations or without reviewed separation from observed data
 - `pyhf` or another non-ROOT backend presented as the primary H to gammagamma result
 - Asimov significance generated with the wrong range, the wrong hypothesis, or undocumented fixed and floating parameters
+- H to gammagamma Asimov artifacts with `mu_hat` far from `mu_gen`, failed fit status, bad covariance quality, or POI pinned at a configured bound
+- raw diagnostic Asimov `q0`/`Z` promoted as expected discovery sensitivity after `claim_status = "blocked"`
+- weighted bin-center RooDataSet plus extended unbinned likelihood used as the central Asimov method without closure and binned-Asimov/order-of-magnitude sanity checks
 
 ## Required remediation guidance
 
@@ -56,7 +59,8 @@ Verify that templates, model choices, systematics, fit backend, and significance
 1. A reviewer verdict artifact or conversation note for `Statistical Readiness Reviewer` exists and records exactly one verdict from `pass`, `conditional_pass`, `block`, or `fail`.
 2. The required evidence is present on disk or in the conversation: the likelihood sample role review note, effective-luminosity check artifact, smoothing check and provenance artifacts, signal and background model artifacts, data-driven template contracts when used, nuisance or systematics outputs, fit backend provenance, and significance artifacts with parameter-floating policy.
 3. For a central H to gammagamma claim, the evidence explicitly confirms `pyroot_roofit` as the primary backend rather than an optional backend.
-4. If expected significance is used, the evidence explicitly confirms `mu_gen = 1`, the signal-plus-background hypothesis, and the full `105-160 GeV` range; if a data-driven template enters the model, the evidence also confirms reviewed separation from observed data.
+4. If expected significance is used, the evidence explicitly confirms `mu_gen = 1`, the signal-plus-background hypothesis, the full `105-160 GeV` range, `claim_status = "accepted"`, finite `accepted_q0`/`accepted_z_discovery`, free-`mu` closure, acceptable fit status/covariance quality, no POI-at-bound condition, and a binned-Asimov or `S/sqrt(B)` sanity check consistent with the reported order of magnitude; if a data-driven template enters the model, the evidence also confirms reviewed separation from observed data.
+5. If an Asimov artifact records raw diagnostic `q0`/`Z` while `claim_status` is blocked or diagnostic-only, the reviewer verifies those values are not used as central expected significance in reports, summaries, or handoff records.
 
 ### REPAIR
 
@@ -75,11 +79,13 @@ assertions_checked:
   - assertion_2
   - assertion_3
   - assertion_4
+  - assertion_5
 assertion_results:
   assertion_1: pass|fail
   assertion_2: pass|fail
   assertion_3: pass|fail
   assertion_4: pass|fail
+  assertion_5: pass|fail
 violations_found: <integer>
 repair_applied: true|false  # with one-line description if true
 gate_outcome: PASS | CONDITIONAL_PASS | BLOCKED | ESCALATED

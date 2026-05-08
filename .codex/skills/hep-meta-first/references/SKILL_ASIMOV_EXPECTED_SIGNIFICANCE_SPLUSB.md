@@ -4,7 +4,7 @@ display_name: "Asimov Expected Significance (S+B Generation)"
 version: 1.0
 category: stats
 
-summary: "Expected H->gammagamma discovery significance must use signal-plus-background Asimov pseudo-data over `105-160 GeV`, including the blinded window, with explicit generation and fit-parameter provenance plus a mandatory full-range Asimov fit visualization."
+summary: "Expected H->gammagamma discovery significance must use signal-plus-background Asimov pseudo-data over `105-160 GeV`, including the blinded window, with explicit generation and fit-parameter provenance, closure-validated accepted values, and a mandatory full-range Asimov fit visualization."
 
 invocation_keywords:
   - "asimov expected significance splusb"
@@ -67,7 +67,7 @@ outputs:
     description: "optional sideband/background-fit provenance artifact linking parameter values to the `mu = 0` fit used for shape determination"
   - name: asimov_construction_method_artifact
     type: artifact
-    description: "Asimov-construction-method artifact recording whether the dataset was generated directly from RooFit tools or constructed explicitly as a weighted bin-center dataset over `105-160 GeV`"
+    description: "Asimov-construction-method artifact recording whether the central result used direct RooFit generation, a binned/RooDataHist likelihood, or a diagnostic-only weighted bin-center fallback over `105-160 GeV`"
   - name: fixed_vs_floating_parameter_policy_artifact
     type: artifact
     description: "artifact distinguishing fixed quantities used to generate the Asimov dataset from floating quantities used in the downstream significance fit"
@@ -130,10 +130,11 @@ validation_checks:
   - "for H->gammagamma, Asimov generation/evaluation range for expected significance is the full `105-160 GeV` range including `120-130 GeV`"
   - "signal component in the Asimov dataset uses signal MC normalized to the MC prediction and a double-sided Crystal Ball shape with parameters taken from the signal-MC fit"
   - "background component in the Asimov dataset uses the background PDF fitted to observed sideband data only and then evaluated over the full `105-160 GeV` range"
-  - "if direct generation support is unavailable, the Asimov dataset is explicitly constructed by binning `105-160 GeV`, placing one weighted entry at each bin center, and assigning the bin-integral weight from the PDF"
+  - "if direct generation support is unavailable, the central fallback is a binned Poisson/RooDataHist likelihood using bin integrals; a weighted bin-center RooDataSet in an extended unbinned likelihood is diagnostic-only unless an independent closure gate passes"
   - "artifacts distinguish fixed generation inputs from floating significance-fit parameters"
   - "for H->gammagamma, Asimov expected-significance artifacts are sufficient to render a full-range visualization with Asimov pseudo-data, the fitted free-`mu` signal-plus-background total, and the corresponding background-only component"
-  - "for H->gammagamma, the free-`mu` Asimov fit records `mu_hat` for closure and blocks the significance claim if it is materially incompatible with `mu_gen = 1` or if fit-quality checks fail"
+  - "for H->gammagamma, the free-`mu` Asimov fit records `mu_hat` for closure and blocks the significance claim if it is materially incompatible with `mu_gen = 1`, if the POI is at a configured bound, or if fit-quality checks fail"
+  - "accepted expected-significance artifacts have `claim_status = \"accepted\"`, finite `accepted_q0`, finite `accepted_z_discovery`, and do not promote raw diagnostic `q0`/`z_discovery` values"
   - "expected (Asimov) and observed significance outputs are reported separately"
 
 handoff_to:
@@ -154,11 +155,11 @@ It preserves the original physics and workflow intent while exposing explicit in
 3. Fit the signal MC `m_gg` distribution with a double-sided Crystal Ball function and use the fitted signal-shape parameters as the signal-shape input.
 4. Normalize the signal component to the MC signal prediction.
 5. Set `mu_gen = 1` and generate Asimov pseudo-data from the full S+B model over `105-160 GeV`.
-6. If direct generation support is unavailable, construct the Asimov dataset explicitly in RooFit style:
+6. If direct RooFit Asimov generation support is unavailable, use a central binned likelihood fallback:
    - choose the desired binning over `105-160 GeV`
-   - for each bin, place one entry at the bin center
-   - assign the entry weight equal to the integral of the PDF over that bin
-   - use RooFit dataset objects or equivalent weighted dataset objects for this construction
+   - compute signal and background bin integrals from the PDFs
+   - evaluate the likelihood as binned Poisson terms or with RooFit binned/RooDataHist objects
+   - do not use a weighted bin-center RooDataSet in an extended unbinned likelihood for a central expected-significance claim unless the independent closure checks below pass
 7. On this Asimov dataset, compute discovery significance with:
    - conditional fit at `mu = 0`
    - unconditional fit with free `mu`
@@ -196,12 +197,14 @@ Policy requirements:
 - for `H -> gamma gamma`, generate the Asimov background component from the fitted background PDF over the full `105-160 GeV` range, including `120-130 GeV`
 - do not conflate the background-shape fit hypothesis (`mu = 0`) with the Asimov generation hypothesis (`mu_gen = 1`)
 - do not exclude `120-130 GeV` from blinded expected-significance Asimov generation; once the background PDF is fit in sidebands it is defined over the full `105-160 GeV` range and should be used over that full range
-- if direct tool support is unavailable, construct the Asimov dataset explicitly in RooFit style by choosing binning over `105-160 GeV`, placing one entry at each bin center, and assigning the entry weight equal to the bin integral of the PDF
+- if direct tool support is unavailable, construct the central Asimov likelihood as a binned Poisson/RooDataHist likelihood using bin integrals over `105-160 GeV`
+- a weighted bin-center RooDataSet used in an extended unbinned RooFit likelihood is a diagnostic-only fallback by default; it must not support a central expected-significance claim unless an independent closure gate verifies `mu_hat` near `mu_gen = 1`, fit status/covariance quality are acceptable, the POI is not at a bound, and the result is compatible with a binned Asimov sanity calculation
 - evaluate discovery `q0` on the generated Asimov dataset using the standard conditional (`mu = 0`) versus unconditional (free `mu`) fits
 - record explicitly which quantities were fixed to generate the Asimov dataset and which quantities are later allowed to float in the significance fit
 - for `H -> gamma gamma`, produce a mandatory full-range Asimov fit visualization or plot-payload that shows the signal-plus-background Asimov pseudo-data, the fitted free-`mu` signal-plus-background total, and the corresponding background-only component so the excess near `125 GeV` is visible against the smooth continuum expectation
 - for `H -> gamma gamma`, record the fitted `mu_hat` from the free-`mu` Asimov closure fit and block the expected-significance claim if it is not compatible with `mu_gen = 1` within the configured tolerance
 - if the Asimov closure or required fit-quality checks fail, preserve raw `q0` and `z_discovery` only as diagnostic audit values, set `claim_status = "blocked"`, and set `accepted_q0 = null` and `accepted_z_discovery = null`
+- raw diagnostic values from blocked Asimov fits must not be printed as the expected significance in report headlines, summaries, or physics-result tables; they may appear only in a diagnostics/audit section with the block reason
 - label outputs as expected/Asimov and record both hypotheses in metadata
 
 ## Layer 2 — Workflow Contract
@@ -217,13 +220,17 @@ Policy requirements:
   - `asimov_closure_passed`
   - `accepted_q0`
   - `accepted_z_discovery`
+  - `raw_diagnostic_q0` and `raw_diagnostic_z_discovery` when `claim_status` is blocked or diagnostic-only
+  - fit-quality diagnostics for the free and conditional fits (`fit_status`, covariance quality, POI bounds, and `mu_hat`)
+  - category-level signal yield, background yield, and `S/sqrt(B)` or binned-Asimov sanity values used to detect order-of-magnitude failures
 - optional sideband/background-fit provenance artifact linking parameter values to the `mu = 0` fit used for shape determination
 - Asimov-construction-method artifact containing:
   - `generation_range = [105.0, 160.0]`
   - `blind_window_in_observed_data = [120.0, 130.0]`
-  - `construction_mode` (`direct_generation` or `weighted_bin_center_dataset`)
+  - `construction_mode` (`direct_generation`, `binned_roodatahist`, `binned_poisson`, or `weighted_bin_center_dataset_diagnostic`)
   - `binning`
   - `weighted_dataset_object_type`
+  - `central_claim_eligible` with the closure and fit-quality reason
 - fixed-vs-floating-parameter-policy artifact containing:
   - fixed inputs at generation time:
     - signal yield normalized to MC prediction
@@ -246,10 +253,13 @@ Policy requirements:
 - for `H -> gamma gamma`, Asimov generation/evaluation range for expected significance is the full `105-160 GeV` range including `120-130 GeV`
 - the signal Asimov component uses signal MC normalized to the MC prediction and DSCB parameters from the signal-MC fit
 - the background Asimov component uses the background PDF fitted to observed sideband data only and then evaluated over the full `105-160 GeV` range
-- if direct generation support is unavailable, the weighted bin-center construction method is used and recorded explicitly
+- if direct generation support is unavailable, the central fallback uses binned Poisson/RooDataHist bin-integral semantics and records that method explicitly
+- a weighted bin-center RooDataSet with an extended unbinned likelihood is not central-claim eligible unless closure, fit status, covariance quality, POI-bound, and binned-Asimov sanity checks all pass
 - artifacts distinguish fixed generation inputs from floating significance-fit parameters
 - mandatory `H -> gamma gamma` Asimov fit visualization or plot-payload exists and contains Asimov pseudo-data, fitted free-`mu` signal-plus-background total, and the corresponding background-only component over `105-160 GeV`
-- free-`mu` Asimov closure records `mu_hat`; if `mu_hat` is materially inconsistent with `mu_gen = 1`, or if the free/conditional fit status or covariance quality fails, the accepted expected-significance claim is blocked and only raw diagnostic values are retained
+- free-`mu` Asimov closure records `mu_hat`; if `mu_hat` is materially inconsistent with `mu_gen = 1`, if `mu_hat` is at a configured bound, or if the free/conditional fit status or covariance quality fails, the accepted expected-significance claim is blocked and only raw diagnostic values are retained
+- accepted H->gammagamma expected significance requires `claim_status = "accepted"` plus finite `accepted_q0` and `accepted_z_discovery`; `q0`/`z_discovery` alone are never sufficient evidence for a physics claim
+- compare the accepted expected significance with a binned-Asimov or `S/sqrt(B)` sanity estimate from the same signal/background counts; an order-of-magnitude mismatch, such as hundreds of sigma when yields imply single-digit sigma, blocks the claim
 - expected (Asimov) and observed significance outputs are reported separately
 
 ## Layer 3 — Example Implementation

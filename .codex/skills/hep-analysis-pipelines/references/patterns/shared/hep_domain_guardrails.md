@@ -15,6 +15,7 @@ These rules are binding across the new skill system.
 - For the H to gammagamma workflow, expected discovery significance uses signal-plus-background Asimov pseudo-data over `105-160 GeV`.
 - Observed significance is allowed only after explicit unblinding and must use observed data over the full `105-160 GeV` range.
 - Signal-region data in `120-130 GeV` must not be inspected in blinded mode.
+- H to gammagamma expected-significance claims must use closure-validated accepted Asimov fields. Raw diagnostic `q0`/`Z` values from blocked fits, failed covariance/status checks, POI-at-bound fits, or diagnostic-only weighted bin-center constructions are not physics results.
 
 ## Fit backend policy
 
