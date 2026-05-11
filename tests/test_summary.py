@@ -23,6 +23,10 @@ def test_vlq_normalization_has_analysis_inventory():
     assert normalized["analysis_short_name"] == "same_charge_leptons_bjets"
     assert normalized["inventory"]["n_signal_regions"] > 0
     assert normalized["inventory"]["fit_ids"]
-    assert normalized["runtime_defaults"]["object_selection"]["btag_quantile_min"] == 4
+    object_selection = normalized["runtime_defaults"]["object_selection"]
+    assert object_selection["btag_working_point"] == "77% efficiency"
+    assert object_selection["btag_quantile_min"] == 3
+    assert object_selection["electron_crack_veto"] == [1.37, 1.52]
+    assert object_selection["require_exact_trilepton"] is True
     assert normalized["runtime_defaults"]["statistics"]["method"].startswith("Gaussian")
     assert normalized["implementation_differences"]

@@ -35,7 +35,7 @@ BTAG_QUANTILE_WORKING_POINTS = {
     "70": 4,
     "60": 5,
 }
-BTAG_QUANTILE_70_WP_MIN = BTAG_QUANTILE_WORKING_POINTS["70"]
+BTAG_QUANTILE_DEFAULT_WP = "77"
 BACKGROUND_REL_UNCERTAINTY = 0.30
 BACKGROUND_ALTERNATIVE_TOKENS = [
     "pthard",
@@ -73,6 +73,10 @@ BRANCH_CANDIDATES: dict[str, list[str]] = {
     "met": ["met_et", "met_met", "MET", "met"],
     "trig_e": ["trigE", "trigger_e", "passTrigE"],
     "trig_m": ["trigM", "trigger_m", "passTrigM"],
+    "trig_de": ["trigDE", "trigger_de", "passTrigDE"],
+    "trig_dm": ["trigDM", "trigger_dm", "passTrigDM"],
+    "trig_ml": ["trigML", "trigger_ml", "passTrigML"],
+    "lep_e": ["lep_e", "lepton_e", "lep_energy", "lepton_energy"],
     "sig_lep": ["sig_lep"],
     "n_sig_lep": ["n_sig_lep"],
 }
@@ -150,9 +154,29 @@ class RegionSpec:
     n_btags_min: int
     n_btags_max: int | None
     ht_min: float
+    ht_max: float | None
     met_min: float
     dphi_min: float | None
     dphi_max: float | None
+
+
+@dataclass(frozen=True)
+class SelectionConfig:
+    btag_working_point: str
+    btag_quantile_min: int
+    electron_pt_min: float
+    muon_pt_min: float
+    electron_eta_max: float
+    electron_crack_min: float
+    electron_crack_max: float
+    electron_central_eta_max_for_ee_emu: float
+    muon_eta_max: float
+    jet_pt_min: float
+    jet_eta_max: float
+    require_exact_trilepton: bool
+    same_sign_ee_mass_min: float
+    same_sign_ee_z_window_veto: float
+    trigger_keys: tuple[str, ...]
 
 
 def _limit_value(payload: Any, key: str, default: float | None) -> float | None:
@@ -167,6 +191,73 @@ def _limit_value(payload: Any, key: str, default: float | None) -> float | None:
 def _int_limit(payload: Any, key: str, default: int | None) -> int | None:
     value = _limit_value(payload, key, default)
     return None if value is None else int(value)
+
+
+def _working_point_from_text(text: Any, default: str = BTAG_QUANTILE_DEFAULT_WP) -> str:
+    match = re.search(r"(\d+)", str(text or ""))
+    return match.group(1) if match else default
+
+
+def _numbers_from_text(text: Any) -> list[float]:
+    return [float(value) for value in re.findall(r"\d+(?:\.\d+)?", str(text or ""))]
+
+
+def _eta_max_from_text(text: Any, default: float) -> float:
+    numbers = _numbers_from_text(text)
+    return max(numbers) if numbers else default
+
+
+def _eta_exclusion_from_text(text: Any, default_min: float, default_max: float) -> tuple[float, float]:
+    match = re.search(r"(\d+(?:\.\d+)?)\s*<\s*\|?eta\|?\s*<\s*(\d+(?:\.\d+)?)", str(text or ""))
+    if not match:
+        return default_min, default_max
+    return float(match.group(1)), float(match.group(2))
+
+
+def _central_eta_from_text(text: Any, default: float) -> float:
+    match = re.search(r"\|?eta\|?\s*>\s*(\d+(?:\.\d+)?)", str(text or ""))
+    return float(match.group(1)) if match else default
+
+
+def selection_config_from_summary(summary: dict[str, Any]) -> SelectionConfig:
+    retrieval = summary.get("retrieval_features", {})
+    object_baseline = retrieval.get("object_baseline", {})
+    preselection = retrieval.get("event_preselection", {})
+    electrons = object_baseline.get("electrons", {})
+    muons = object_baseline.get("muons", {})
+    jets = object_baseline.get("jets", {})
+
+    btag_working_point = _working_point_from_text(
+        object_baseline.get("b_tagging", {}).get("working_point"),
+        default=BTAG_QUANTILE_DEFAULT_WP,
+    )
+    btag_quantile_min = BTAG_QUANTILE_WORKING_POINTS.get(btag_working_point)
+    if btag_quantile_min is None:
+        raise ValueError(f"Unsupported b-tag working point in analysis spec: {btag_working_point!r}")
+
+    ee_veto = preselection.get("same_charge_lepton_category", {}).get("ee_mass_veto", {})
+    electron_crack_min, electron_crack_max = _eta_exclusion_from_text(
+        electrons.get("eta_requirement"),
+        default_min=1.37,
+        default_max=1.52,
+    )
+    return SelectionConfig(
+        btag_working_point=btag_working_point,
+        btag_quantile_min=btag_quantile_min,
+        electron_pt_min=float(electrons.get("pt_min_GeV", 28.0)),
+        muon_pt_min=float(muons.get("pt_min_GeV", 28.0)),
+        electron_eta_max=_eta_max_from_text(electrons.get("eta_requirement"), 2.47),
+        electron_crack_min=electron_crack_min,
+        electron_crack_max=electron_crack_max,
+        electron_central_eta_max_for_ee_emu=_central_eta_from_text(electrons.get("extra_requirement_for_ee_and_emu"), 1.37),
+        muon_eta_max=_eta_max_from_text(muons.get("eta_requirement"), 2.5),
+        jet_pt_min=float(jets.get("pt_min_GeV", 25.0)),
+        jet_eta_max=_eta_max_from_text(jets.get("eta_requirement"), 2.5),
+        require_exact_trilepton=True,
+        same_sign_ee_mass_min=float(ee_veto.get("mee_GeV_min", 15.0)),
+        same_sign_ee_z_window_veto=float(ee_veto.get("Z_window_veto_GeV", 10.0)),
+        trigger_keys=("trig_e", "trig_m", "trig_de", "trig_dm", "trig_ml"),
+    )
 
 
 def parse_regions(summary: dict[str, Any]) -> list[RegionSpec]:
@@ -184,6 +275,7 @@ def parse_regions(summary: dict[str, Any]) -> list[RegionSpec]:
                 n_btags_min=_int_limit(item.get("n_btags"), "min", 0) or 0,
                 n_btags_max=_int_limit(item.get("n_btags"), "max", None),
                 ht_min=_limit_value(item.get("HT_GeV"), "min", 0.0) or 0.0,
+                ht_max=_limit_value(item.get("HT_GeV"), "max", None),
                 met_min=_limit_value(item.get("ETmiss_GeV"), "min", 0.0) or 0.0,
                 dphi_min=_limit_value(item.get("delta_phi_ll_radians"), "min", None),
                 dphi_max=_limit_value(item.get("delta_phi_ll_radians"), "max", None),
@@ -203,6 +295,7 @@ def is_vlq_summary(summary: dict[str, Any], summary_path: Path | None = None) ->
 
 def normalize_vlq_summary(summary: dict[str, Any], summary_path: Path) -> dict[str, Any]:
     regions = parse_regions(summary)
+    selection = selection_config_from_summary(summary)
     return {
         "source_summary": str(summary_path),
         "analysis_short_name": summary["analysis_metadata"]["analysis_short_name"],
@@ -213,12 +306,170 @@ def normalize_vlq_summary(summary: dict[str, Any], summary_path: Path) -> dict[s
             "region_names": [region.name for region in regions],
         },
         "runtime_defaults": {
-            "object_selection": {"btag_quantile_min": BTAG_QUANTILE_70_WP_MIN},
+            "object_selection": {
+                "btag_working_point": f"{selection.btag_working_point}% efficiency",
+                "btag_quantile_min": selection.btag_quantile_min,
+                "electron_pt_min": selection.electron_pt_min,
+                "muon_pt_min": selection.muon_pt_min,
+                "electron_eta_max": selection.electron_eta_max,
+                "electron_crack_veto": [selection.electron_crack_min, selection.electron_crack_max],
+                "electron_central_eta_max_for_ee_emu": selection.electron_central_eta_max_for_ee_emu,
+                "jet_pt_min": selection.jet_pt_min,
+                "jet_eta_max": selection.jet_eta_max,
+                "same_sign_ee_mass_min": selection.same_sign_ee_mass_min,
+                "same_sign_ee_z_window_veto": selection.same_sign_ee_z_window_veto,
+                "require_exact_trilepton": selection.require_exact_trilepton,
+                "trigger_keys": list(selection.trigger_keys),
+            },
             "statistics": {"method": "Gaussian counting approximation with diagnostic-only claim scope"},
         },
         "implementation_differences": [
             "Open-data proxy samples replace unavailable dedicated VLQ signal grids.",
             "Per-region counting diagnostics replace the unavailable full nuisance-parameter likelihood.",
+        ],
+    }
+
+
+def _assertion(name: str, passed: bool, expected: Any, actual: Any, detail: str) -> dict[str, Any]:
+    return {
+        "name": name,
+        "passed": bool(passed),
+        "expected": expected,
+        "actual": actual,
+        "detail": detail,
+    }
+
+
+def _float_equal(left: float | None, right: float | None) -> bool:
+    if left is None or right is None:
+        return left is right
+    return math.isclose(float(left), float(right), rel_tol=0.0, abs_tol=1e-9)
+
+
+def analysis_spec_conformance_audit(
+    summary: dict[str, Any],
+    regions: list[RegionSpec] | None = None,
+    selection: SelectionConfig | None = None,
+) -> dict[str, Any]:
+    regions = regions if regions is not None else parse_regions(summary)
+    selection = selection if selection is not None else selection_config_from_summary(summary)
+    retrieval = summary.get("retrieval_features", {})
+    object_baseline = retrieval.get("object_baseline", {})
+    preselection = retrieval.get("event_preselection", {})
+    electrons = object_baseline.get("electrons", {})
+    muons = object_baseline.get("muons", {})
+    jets = object_baseline.get("jets", {})
+    ee_veto = preselection.get("same_charge_lepton_category", {}).get("ee_mass_veto", {})
+
+    expected_btag_wp = _working_point_from_text(object_baseline.get("b_tagging", {}).get("working_point"))
+    expected_btag_quantile = BTAG_QUANTILE_WORKING_POINTS.get(expected_btag_wp)
+    expected_e_crack = _eta_exclusion_from_text(electrons.get("eta_requirement"), 1.37, 1.52)
+    expected_ht_max = {
+        str(item["region_name"]): _limit_value(item.get("HT_GeV"), "max", None)
+        for item in summary.get("signal_regions", [])
+        if _limit_value(item.get("HT_GeV"), "max", None) is not None
+    }
+    parsed_by_name = {region.name: region for region in regions}
+    parsed_ht_max = {name: parsed_by_name.get(name).ht_max if parsed_by_name.get(name) else None for name in expected_ht_max}
+    ht_max_ok = all(_float_equal(expected, parsed_ht_max[name]) for name, expected in expected_ht_max.items())
+
+    assertions = [
+        _assertion(
+            "btag_working_point_from_spec",
+            selection.btag_working_point == expected_btag_wp and selection.btag_quantile_min == expected_btag_quantile,
+            {"working_point": expected_btag_wp, "quantile_min": expected_btag_quantile},
+            {"working_point": selection.btag_working_point, "quantile_min": selection.btag_quantile_min},
+            "The runtime b-tag quantile threshold must come from retrieval_features.object_baseline.b_tagging.",
+        ),
+        _assertion(
+            "electron_fiducial_from_spec",
+            _float_equal(selection.electron_eta_max, _eta_max_from_text(electrons.get("eta_requirement"), 2.47))
+            and _float_equal(selection.electron_crack_min, expected_e_crack[0])
+            and _float_equal(selection.electron_crack_max, expected_e_crack[1]),
+            {
+                "eta_max": _eta_max_from_text(electrons.get("eta_requirement"), 2.47),
+                "crack_veto": list(expected_e_crack),
+            },
+            {
+                "eta_max": selection.electron_eta_max,
+                "crack_veto": [selection.electron_crack_min, selection.electron_crack_max],
+            },
+            "Electron fiducial cuts must include the barrel/endcap transition veto described in the spec.",
+        ),
+        _assertion(
+            "ee_emu_central_electron_rule_from_spec",
+            _float_equal(
+                selection.electron_central_eta_max_for_ee_emu,
+                _central_eta_from_text(electrons.get("extra_requirement_for_ee_and_emu"), 1.37),
+            ),
+            _central_eta_from_text(electrons.get("extra_requirement_for_ee_and_emu"), 1.37),
+            selection.electron_central_eta_max_for_ee_emu,
+            "Explicit ee/e-mu regions must apply the extra central-electron requirement.",
+        ),
+        _assertion(
+            "muon_and_jet_baselines_from_spec",
+            _float_equal(selection.muon_eta_max, _eta_max_from_text(muons.get("eta_requirement"), 2.5))
+            and _float_equal(selection.jet_pt_min, float(jets.get("pt_min_GeV", 25.0)))
+            and _float_equal(selection.jet_eta_max, _eta_max_from_text(jets.get("eta_requirement"), 2.5)),
+            {
+                "muon_eta_max": _eta_max_from_text(muons.get("eta_requirement"), 2.5),
+                "jet_pt_min": float(jets.get("pt_min_GeV", 25.0)),
+                "jet_eta_max": _eta_max_from_text(jets.get("eta_requirement"), 2.5),
+            },
+            {
+                "muon_eta_max": selection.muon_eta_max,
+                "jet_pt_min": selection.jet_pt_min,
+                "jet_eta_max": selection.jet_eta_max,
+            },
+            "Muon and jet fiducial cuts must be read from retrieval_features.object_baseline.",
+        ),
+        _assertion(
+            "signal_region_ht_upper_bounds_preserved",
+            ht_max_ok,
+            expected_ht_max,
+            parsed_ht_max,
+            "Any signal-region HT_GeV.max in the canonical JSON must survive parsing and be applied by the region mask.",
+        ),
+        _assertion(
+            "trilepton_category_is_exact",
+            bool(selection.require_exact_trilepton),
+            True,
+            selection.require_exact_trilepton,
+            "The trilepton category is treated as exactly three selected nominal leptons.",
+        ),
+        _assertion(
+            "same_sign_ee_mass_veto_from_spec",
+            _float_equal(selection.same_sign_ee_mass_min, float(ee_veto.get("mee_GeV_min", 15.0)))
+            and _float_equal(selection.same_sign_ee_z_window_veto, float(ee_veto.get("Z_window_veto_GeV", 10.0))),
+            {
+                "mee_GeV_min": float(ee_veto.get("mee_GeV_min", 15.0)),
+                "Z_window_veto_GeV": float(ee_veto.get("Z_window_veto_GeV", 10.0)),
+            },
+            {
+                "mee_GeV_min": selection.same_sign_ee_mass_min,
+                "Z_window_veto_GeV": selection.same_sign_ee_z_window_veto,
+            },
+            "Same-sign ee selections must apply the low-mass and Z-window veto encoded in event_preselection.",
+        ),
+    ]
+    failures = [item for item in assertions if not item["passed"]]
+    data_driven_tags = summary.get("validation_strategy", {}).get("background_estimation_tags", [])
+    if not data_driven_tags:
+        data_driven_tags = retrieval.get("background_estimation_tags", [])
+    return {
+        "status": "ok" if not failures else "failed",
+        "gate_outcome": "PASS" if not failures else "FAIL",
+        "assertion_count": len(assertions),
+        "failure_count": len(failures),
+        "failures": failures,
+        "assertions": assertions,
+        "conditional_notes": [
+            {
+                "name": "data_driven_background_methods",
+                "status": "not_implemented_by_open_data_proxy",
+                "spec_references": data_driven_tags,
+                "required_policy": "Do not present MC-only reducible, fake, or charge-misID proxies as validated paper background estimates unless the data-driven machinery is implemented.",
+            }
         ],
     }
 
@@ -561,24 +812,33 @@ def _fill_histograms(histograms: dict[str, Any], sample: dict[str, Any], feature
             hist[target_kind][group] += counts
 
 
-def _region_mask(region: RegionSpec, features: dict[str, np.ndarray]) -> np.ndarray:
-    if region.lepton_category.lower().startswith("2"):
+def _region_mask(region: RegionSpec, features: dict[str, np.ndarray], selection: SelectionConfig) -> np.ndarray:
+    lepton_category = region.lepton_category.lower()
+    is_dilepton_region = lepton_category.startswith("2") or "exactly 2" in lepton_category
+    if lepton_category.startswith("2"):
         mask = features["is_ss2l"]
-    elif "exactly 2" in region.lepton_category.lower():
+    elif "exactly 2" in lepton_category:
         mask = features["is_ss2l"]
-    elif region.lepton_category.lower().startswith("3"):
-        mask = features["is_3l"]
+    elif lepton_category.startswith("3"):
+        mask = features["is_3l_exact"] if selection.require_exact_trilepton else features["is_3l"]
     else:
-        mask = features["is_ss2l"] | features["is_3l"]
+        trilepton_mask = features["is_3l_exact"] if selection.require_exact_trilepton else features["is_3l"]
+        mask = features["is_ss2l"] | trilepton_mask
     flavour = region.lepton_flavour_treatment.lower().replace("-", " ").strip()
     lead_type = features["lead_lepton_type"]
     sublead_type = features["sublead_lepton_type"]
+    lead_eta_abs = np.abs(features["lead_lepton_eta"])
+    sublead_eta_abs = np.abs(features["sublead_lepton_eta"])
     if flavour in {"ee", "e e"}:
         mask = mask & (lead_type == 11) & (sublead_type == 11)
     elif flavour in {"e mu", "emu", "e/mu", "e-mu"}:
         mask = mask & (((lead_type == 11) & (sublead_type == 13)) | ((lead_type == 13) & (sublead_type == 11)))
     elif flavour in {"mu mu", "mumu", "mu/mu", "mu-mu"}:
         mask = mask & (lead_type == 13) & (sublead_type == 13)
+    if flavour in {"ee", "e e", "e mu", "emu", "e/mu", "e-mu"}:
+        lead_central_if_electron = (lead_type != 11) | (lead_eta_abs <= selection.electron_central_eta_max_for_ee_emu)
+        sublead_central_if_electron = (sublead_type != 11) | (sublead_eta_abs <= selection.electron_central_eta_max_for_ee_emu)
+        mask = mask & lead_central_if_electron & sublead_central_if_electron
     charge = region.charge_requirement.lower()
     if "+" in charge and "--" not in charge and "++ or --" not in charge and "same charge" not in charge:
         mask = mask & (features["lead_lepton_charge"] > 0) & (features["sublead_lepton_charge"] > 0)
@@ -586,6 +846,8 @@ def _region_mask(region: RegionSpec, features: dict[str, np.ndarray]) -> np.ndar
         mask = mask & (features["lead_lepton_charge"] < 0) & (features["sublead_lepton_charge"] < 0)
     mask = mask & (features["n_jets"] >= region.n_jets_min) & (features["n_btags"] >= region.n_btags_min)
     mask = mask & (features["ht"] >= region.ht_min) & (features["met"] >= region.met_min)
+    if region.ht_max is not None:
+        mask = mask & (features["ht"] <= region.ht_max)
     if region.n_jets_max is not None:
         mask = mask & (features["n_jets"] <= region.n_jets_max)
     if region.n_btags_max is not None:
@@ -594,10 +856,37 @@ def _region_mask(region: RegionSpec, features: dict[str, np.ndarray]) -> np.ndar
         mask = mask & (features["delta_phi_ll"] >= region.dphi_min)
     if region.dphi_max is not None:
         mask = mask & (features["delta_phi_ll"] <= region.dphi_max)
+    if is_dilepton_region:
+        is_same_sign_ee = (
+            (lead_type == 11)
+            & (sublead_type == 11)
+            & ((features["lead_lepton_charge"] * features["sublead_lepton_charge"]) > 0)
+        )
+        ee_mass_pass = (features["dilepton_mass"] > selection.same_sign_ee_mass_min) & (
+            np.abs(features["dilepton_mass"] - 91.1876) > selection.same_sign_ee_z_window_veto
+        )
+        mask = mask & (~is_same_sign_ee | ee_mass_pass)
     return mask
 
 
-def _process_batch(batch: ak.Array, sample: dict[str, Any], branch_map: dict[str, str | None], fields: set[str]) -> tuple[np.ndarray, dict[str, np.ndarray], dict[str, np.ndarray], dict[str, Any]]:
+def _dilepton_mass(pt0: np.ndarray, eta0: np.ndarray, phi0: np.ndarray, e0: np.ndarray, pt1: np.ndarray, eta1: np.ndarray, phi1: np.ndarray, e1: np.ndarray) -> np.ndarray:
+    px0 = pt0 * np.cos(phi0)
+    py0 = pt0 * np.sin(phi0)
+    pz0 = pt0 * np.sinh(eta0)
+    px1 = pt1 * np.cos(phi1)
+    py1 = pt1 * np.sin(phi1)
+    pz1 = pt1 * np.sinh(eta1)
+    mass2 = (e0 + e1) ** 2 - (px0 + px1) ** 2 - (py0 + py1) ** 2 - (pz0 + pz1) ** 2
+    return np.sqrt(np.maximum(mass2, 0.0))
+
+
+def _process_batch(
+    batch: ak.Array,
+    sample: dict[str, Any],
+    branch_map: dict[str, str | None],
+    fields: set[str],
+    selection: SelectionConfig,
+) -> tuple[np.ndarray, dict[str, np.ndarray], dict[str, np.ndarray], dict[str, Any]]:
     event_branch = branch_map.get("event") or next(iter(batch.fields))
     n_events = len(batch[event_branch])
     weights = np.ones(n_events, dtype=float)
@@ -613,13 +902,32 @@ def _process_batch(batch: ak.Array, sample: dict[str, Any], branch_map: dict[str
     lep_eta = batch[branch_map["lep_eta"]]
     lep_phi = batch[branch_map["lep_phi"]]
     lep_charge = batch[branch_map["lep_charge"]]
-    if branch_map.get("lep_type") in batch.fields:
+    if branch_map.get("lep_e") in batch.fields:
+        lep_e = batch[branch_map["lep_e"]] * scale
+    else:
+        lep_e = lep_pt * np.cosh(lep_eta)
+    has_lepton_type = branch_map.get("lep_type") in batch.fields
+    if has_lepton_type:
         lep_type = np.abs(batch[branch_map["lep_type"]])
     else:
         lep_type = ak.zeros_like(lep_charge)
-    lep_mask = (lep_pt > 28.0) & (np.abs(lep_eta) < 2.5) & (np.abs(lep_charge) > 0)
-    if branch_map.get("lep_type") in batch.fields:
-        lep_mask = lep_mask & ((lep_type == 11) | (lep_type == 13))
+    lep_abs_eta = np.abs(lep_eta)
+    electron_fiducial = (lep_abs_eta < selection.electron_eta_max) & ~(
+        (lep_abs_eta > selection.electron_crack_min) & (lep_abs_eta < selection.electron_crack_max)
+    )
+    muon_fiducial = lep_abs_eta < selection.muon_eta_max
+    if has_lepton_type:
+        is_electron = lep_type == 11
+        is_muon = lep_type == 13
+        lepton_pt_pass = (is_electron & (lep_pt > selection.electron_pt_min)) | (is_muon & (lep_pt > selection.muon_pt_min))
+        lepton_fiducial = (is_electron & electron_fiducial) | (is_muon & muon_fiducial)
+        lep_mask = lepton_pt_pass & lepton_fiducial & (np.abs(lep_charge) > 0)
+    else:
+        lep_mask = (
+            (lep_pt > min(selection.electron_pt_min, selection.muon_pt_min))
+            & (lep_abs_eta < max(selection.electron_eta_max, selection.muon_eta_max))
+            & (np.abs(lep_charge) > 0)
+        )
     if branch_map.get("sig_lep") in batch.fields:
         lep_mask = lep_mask & (batch[branch_map["sig_lep"]] != 0)
     else:
@@ -635,39 +943,59 @@ def _process_batch(batch: ak.Array, sample: dict[str, Any], branch_map: dict[str
     selected_pt = lep_pt[lep_mask]
     selected_eta = lep_eta[lep_mask]
     selected_phi = lep_phi[lep_mask]
+    selected_e = lep_e[lep_mask]
     selected_charge = lep_charge[lep_mask]
     selected_type = lep_type[lep_mask]
     order = ak.argsort(selected_pt, axis=1, ascending=False)
     selected_pt = selected_pt[order]
     selected_eta = selected_eta[order]
     selected_phi = selected_phi[order]
+    selected_e = selected_e[order]
     selected_charge = selected_charge[order]
     selected_type = selected_type[order]
     n_leptons = _ak_numpy(ak.num(selected_pt), 0).astype(int)
 
     charge_pad = ak.fill_none(ak.pad_none(selected_charge, 2, clip=True), 0)
+    pt_pad = ak.fill_none(ak.pad_none(selected_pt, 2, clip=True), 0.0)
+    eta_pad = ak.fill_none(ak.pad_none(selected_eta, 2, clip=True), 0.0)
     phi_pad = ak.fill_none(ak.pad_none(selected_phi, 2, clip=True), 0.0)
+    energy_pad = ak.fill_none(ak.pad_none(selected_e, 2, clip=True), 0.0)
     type_pad = ak.fill_none(ak.pad_none(selected_type, 2, clip=True), 0)
     q0 = _ak_numpy(charge_pad[:, 0], 0)
     q1 = _ak_numpy(charge_pad[:, 1], 0)
+    pt0 = _ak_numpy(pt_pad[:, 0], 0.0)
+    pt1 = _ak_numpy(pt_pad[:, 1], 0.0)
+    eta0 = _ak_numpy(eta_pad[:, 0], 0.0)
+    eta1 = _ak_numpy(eta_pad[:, 1], 0.0)
+    phi0 = _ak_numpy(phi_pad[:, 0], 0.0)
+    phi1 = _ak_numpy(phi_pad[:, 1], 0.0)
+    e0 = _ak_numpy(energy_pad[:, 0], 0.0)
+    e1 = _ak_numpy(energy_pad[:, 1], 0.0)
     t0 = _ak_numpy(type_pad[:, 0], 0).astype(int)
     t1 = _ak_numpy(type_pad[:, 1], 0).astype(int)
     is_ss2l = (n_leptons == 2) & ((q0 * q1) > 0)
     is_3l = n_leptons >= 3
-    delta_phi_ll = np.abs(_ak_numpy(_delta_phi(phi_pad[:, 0], phi_pad[:, 1]), 0.0))
+    is_3l_exact = n_leptons == 3
+    delta_phi_ll = np.abs(_delta_phi(phi0, phi1))
+    dilepton_mass = _dilepton_mass(pt0, eta0, phi0, e0, pt1, eta1, phi1, e1)
 
     jet_pt = batch[branch_map["jet_pt"]] * scale
     jet_eta = batch[branch_map["jet_eta"]]
     jet_phi = batch[branch_map["jet_phi"]]
-    jet_mask = (jet_pt > 25.0) & (np.abs(jet_eta) < 2.5)
+    jet_mask = (jet_pt > selection.jet_pt_min) & (np.abs(jet_eta) < selection.jet_eta_max)
     if branch_map.get("jet_btag") in batch.fields:
         btag_values = batch[branch_map["jet_btag"]]
         btag_branch = str(branch_map["jet_btag"])
         if "quantile" in btag_branch.lower():
-            btag_mask = btag_values >= BTAG_QUANTILE_70_WP_MIN
+            btag_mask = btag_values >= selection.btag_quantile_min
         elif str(ak.type(btag_values)).startswith("var * bool"):
             btag_mask = btag_values == 1
         else:
+            if selection.btag_working_point != "70":
+                raise ValueError(
+                    "Continuous b-tag discriminant threshold is only calibrated for the 70% working point; "
+                    f"got {selection.btag_working_point}% from the analysis spec"
+                )
             btag_mask = btag_values > BTAG_MV2C10_70_WP
     else:
         btag_mask = jet_pt < 0.0
@@ -690,13 +1018,14 @@ def _process_batch(batch: ak.Array, sample: dict[str, Any], branch_map: dict[str
     trigger_available = False
     trigger = np.ones(n_events, dtype=bool)
     trigger_bits = []
-    for key in ("trig_e", "trig_m"):
+    for key in selection.trigger_keys:
         branch = branch_map.get(key)
         if branch in batch.fields:
             trigger_available = True
             trigger_bits.append(_as_bool(batch[branch], n_events))
     if trigger_bits:
         trigger = np.logical_or.reduce(trigger_bits)
+    trilepton_category = is_3l_exact if selection.require_exact_trilepton else is_3l
 
     features = {
         "n_leptons": n_leptons,
@@ -707,19 +1036,23 @@ def _process_batch(batch: ak.Array, sample: dict[str, Any], branch_map: dict[str
         "delta_phi_ll": delta_phi_ll,
         "lead_lepton_type": t0,
         "sublead_lepton_type": t1,
+        "lead_lepton_eta": eta0,
+        "sublead_lepton_eta": eta1,
         "lead_lepton_charge": q0,
         "sublead_lepton_charge": q1,
+        "dilepton_mass": dilepton_mass,
         "is_ss2l": is_ss2l,
         "is_3l": is_3l,
+        "is_3l_exact": is_3l_exact,
         "trigger": trigger,
     }
     cut_masks = {
         "all_events": np.ones(n_events, dtype=bool),
         "trigger": trigger,
         "two_or_more_selected_leptons": trigger & (n_leptons >= 2),
-        "same_sign_dilepton_or_trilepton": trigger & (is_ss2l | is_3l),
-        "one_or_more_selected_jets": trigger & (is_ss2l | is_3l) & (n_jets >= 1),
-        "one_or_more_btags": trigger & (is_ss2l | is_3l) & (n_jets >= 1) & (n_btags >= 1),
+        "same_sign_dilepton_or_trilepton": trigger & (is_ss2l | trilepton_category),
+        "one_or_more_selected_jets": trigger & (is_ss2l | trilepton_category) & (n_jets >= 1),
+        "one_or_more_btags": trigger & (is_ss2l | trilepton_category) & (n_jets >= 1) & (n_btags >= 1),
     }
     diagnostics = {
         "energy_unit_scale": scale,
@@ -728,7 +1061,13 @@ def _process_batch(batch: ak.Array, sample: dict[str, Any], branch_map: dict[str
     return weights, features, cut_masks, diagnostics
 
 
-def _process_sample(sample: dict[str, Any], regions: list[RegionSpec], histograms: dict[str, Any], max_events: int | None = None) -> dict[str, Any]:
+def _process_sample(
+    sample: dict[str, Any],
+    regions: list[RegionSpec],
+    selection: SelectionConfig,
+    histograms: dict[str, Any],
+    max_events: int | None = None,
+) -> dict[str, Any]:
     cutflow = {step: _empty_count() for step in CUTFLOW_STEPS}
     region_counts = {region.name: _empty_count() for region in regions}
     diagnostics = {"files": [], "missing_required": [], "batches": 0, "processed_entries": 0, "trigger_available": False, "energy_unit_scales": []}
@@ -763,7 +1102,7 @@ def _process_sample(sample: dict[str, Any], regions: list[RegionSpec], histogram
         if max_events is not None:
             iterate_kwargs["entry_stop"] = max_events
         for batch in tree.iterate(branches, **iterate_kwargs):
-            weights, features, cut_masks, batch_diag = _process_batch(batch, sample, branch_map, fields)
+            weights, features, cut_masks, batch_diag = _process_batch(batch, sample, branch_map, fields, selection)
             diagnostics["batches"] += 1
             diagnostics["processed_entries"] += len(weights)
             diagnostics["trigger_available"] = bool(diagnostics["trigger_available"] or batch_diag["trigger_available"])
@@ -772,7 +1111,7 @@ def _process_sample(sample: dict[str, Any], regions: list[RegionSpec], histogram
             for step, mask in cut_masks.items():
                 _add_count(cutflow[step], weights, mask)
             for region in regions:
-                mask = cut_masks["one_or_more_btags"] & _region_mask(region, features)
+                mask = cut_masks["one_or_more_btags"] & _region_mask(region, features, selection)
                 any_region |= mask
                 _add_count(region_counts[region.name], weights, mask)
             _add_count(cutflow["any_signal_region"], weights, any_region)
@@ -1018,10 +1357,10 @@ def _merge_histograms(target: dict[str, Any], source: dict[str, Any]) -> None:
             target[var]["signal"][group] += counts
 
 
-def _process_sample_worker(args: tuple[dict[str, Any], list[RegionSpec], int | None]) -> tuple[dict[str, Any], dict[str, Any]]:
-    sample, regions, max_events = args
+def _process_sample_worker(args: tuple[dict[str, Any], list[RegionSpec], SelectionConfig, int | None]) -> tuple[dict[str, Any], dict[str, Any]]:
+    sample, regions, selection, max_events = args
     local_histograms = _initial_histograms()
-    return _process_sample(sample, regions, local_histograms, max_events=max_events), _freeze_histograms(local_histograms)
+    return _process_sample(sample, regions, selection, local_histograms, max_events=max_events), _freeze_histograms(local_histograms)
 
 
 def _apply_atlas_plot_style(ax: Any) -> None:
@@ -1264,6 +1603,7 @@ def _write_report(
     *,
     out_dir: Path,
     summary: dict[str, Any],
+    selection: SelectionConfig,
     samples: list[dict[str, Any]],
     aggregate: dict[str, Any],
     stats: dict[str, Any],
@@ -1320,9 +1660,9 @@ The central signal proxy is the available SM four-top sample. Other top-rich BSM
 
 ## Object and Event Selection
 
-Leptons require pT above 28 GeV, |eta| below 2.5, nonzero charge, available tight-ID flags, and available isolation cone requirements. Jets require pT above 25 GeV, |eta| below 2.5, lepton overlap removal with DeltaR > 0.4 where possible, and b-tagging from `jet_btag_quantile >= 4`, the ATLAS Open Data DL1dv0 continuous 70 percent working-point bin. MC event weights use the current `ScaleFactor_FTAG` branch when present, falling back to `ScaleFactor_BTAG` only if needed.
+Electrons require pT above {selection.electron_pt_min:g} GeV and |eta| < {selection.electron_eta_max:g}, excluding {selection.electron_crack_min:g} < |eta| < {selection.electron_crack_max:g}. Muons require pT above {selection.muon_pt_min:g} GeV and |eta| < {selection.muon_eta_max:g}. Jets require pT above {selection.jet_pt_min:g} GeV, |eta| < {selection.jet_eta_max:g}, lepton overlap removal with DeltaR > 0.4 where possible, and b-tagging from `jet_btag_quantile >= {selection.btag_quantile_min}`, matching the {selection.btag_working_point} percent efficiency working point in the target JSON. MC event weights use the current `ScaleFactor_FTAG` branch when present, falling back to `ScaleFactor_BTAG` only if needed.
 
-Same-sign dilepton regions require exactly two selected leptons with equal charge sign. Same-sign top subregions additionally apply the available leading-pair flavour and positive-charge requirements from the target JSON. Trilepton regions require at least three selected leptons. H_T is computed from selected leptons and jets, and missing transverse momentum uses the available MET branch.
+Same-sign dilepton regions require exactly two selected leptons with equal charge sign. Same-sign ee pairs apply m_ee > {selection.same_sign_ee_mass_min:g} GeV and a {selection.same_sign_ee_z_window_veto:g} GeV Z-window veto. Explicit ee/e-mu regions use only central electrons with |eta| <= {selection.electron_central_eta_max_for_ee_emu:g}. Same-sign top subregions additionally apply the available leading-pair flavour and positive-charge requirements from the target JSON. Trilepton regions require exactly three selected leptons. H_T is computed from selected leptons and jets, missing transverse momentum uses the available MET branch, and trigger flags are ORed across `{", ".join(selection.trigger_keys)}` when present.
 
 ## Cut Flow
 
@@ -1386,20 +1726,25 @@ def run_vlq_pipeline(summary_path: Path, inputs: Path, outputs: Path, max_events
     started = utcnow_iso()
     summary = read_json(summary_path)
     regions = parse_regions(summary)
+    selection = selection_config_from_summary(summary)
+    spec_audit = analysis_spec_conformance_audit(summary, regions, selection)
+    write_json(spec_audit, out_dir / "report" / "analysis_spec_conformance_audit.json")
+    if spec_audit["gate_outcome"] != "PASS":
+        raise RuntimeError("Analysis pipeline does not conform to the target JSON; see report/analysis_spec_conformance_audit.json")
     samples, discovery_notes = discover_samples(inputs)
     histograms = _initial_histograms()
     sample_results: list[dict[str, Any]] = []
     workers = max(1, int(workers))
     if workers == 1:
         for index, sample in enumerate(samples, start=1):
-            result = _process_sample(sample, regions, histograms, max_events=max_events)
+            result = _process_sample(sample, regions, selection, histograms, max_events=max_events)
             sample_results.append(result)
             with (out_dir / "logs" / "processing.log").open("a") as handle:
                 handle.write(f"{utcnow_iso()} {index}/{len(samples)} {sample['sample_id']} {result['status']}\n")
     else:
         with ProcessPoolExecutor(max_workers=workers) as executor:
             futures = {
-                executor.submit(_process_sample_worker, (sample, regions, max_events)): sample
+                executor.submit(_process_sample_worker, (sample, regions, selection, max_events)): sample
                 for sample in samples
             }
             for index, future in enumerate(as_completed(futures), start=1):
@@ -1436,7 +1781,13 @@ def run_vlq_pipeline(summary_path: Path, inputs: Path, outputs: Path, max_events
             "outputs": str(outputs),
             "started_at_utc": started,
             "ended_at_utc": utcnow_iso(),
-            "config_hash": stable_hash({"summary": summary, "regions": [region.__dict__ for region in regions]}),
+            "config_hash": stable_hash(
+                {
+                    "summary": summary,
+                    "regions": [region.__dict__ for region in regions],
+                    "selection": selection.__dict__,
+                }
+            ),
             "max_events_per_sample": max_events,
             "workers": workers,
             "luminosity_fb": LUMI_FB,
@@ -1533,6 +1884,7 @@ def run_vlq_pipeline(summary_path: Path, inputs: Path, outputs: Path, max_events
     report_path = _write_report(
         out_dir=out_dir,
         summary=summary,
+        selection=selection,
         samples=samples,
         aggregate=aggregate,
         stats=stats,

@@ -5,7 +5,14 @@ from pathlib import Path
 
 from analysis.common import read_json, write_json
 from analysis.runtime import write_runtime_recovery
-from analysis.vlq_pipeline import discover_samples, parse_regions, run_vlq_pipeline
+from analysis.vlq_pipeline import (
+    analysis_spec_conformance_audit,
+    discover_samples,
+    normalize_vlq_summary,
+    parse_regions,
+    run_vlq_pipeline,
+    selection_config_from_summary,
+)
 
 
 def _load_vlq_summary(summary: Path) -> dict:
@@ -17,22 +24,22 @@ def _load_vlq_summary(summary: Path) -> dict:
 
 
 def _normalized_summary(source_summary: dict, summary: Path) -> dict:
+    return normalize_vlq_summary(source_summary, summary)
+
+
+def _write_spec_conformance_audit(source_summary: dict, outputs: Path) -> None:
     regions = parse_regions(source_summary)
-    return {
-        "source_summary": str(summary),
-        "analysis_short_name": source_summary["analysis_metadata"]["analysis_short_name"],
-        "inventory": {
-            "n_signal_regions": len(regions),
-            "n_control_regions": len(source_summary.get("control_regions", [])),
-            "fit_ids": [fit.get("fit_id") for fit in source_summary.get("fit_setup", [])],
-            "region_names": [region.name for region in regions],
-        },
-    }
+    selection = selection_config_from_summary(source_summary)
+    audit = analysis_spec_conformance_audit(source_summary, regions, selection)
+    write_json(audit, outputs / "report" / "analysis_spec_conformance_audit.json")
+    if audit["gate_outcome"] != "PASS":
+        raise SystemExit(1)
 
 
 def bootstrap(summary: Path, outputs: Path) -> None:
     source_summary = _load_vlq_summary(summary)
     write_json(_normalized_summary(source_summary, summary), outputs / "summary.normalized.json")
+    _write_spec_conformance_audit(source_summary, outputs)
     write_runtime_recovery(outputs / "report" / "runtime_recovery.json")
 
 
@@ -41,6 +48,7 @@ def preflight(summary: Path, inputs: Path, outputs: Path) -> None:
     samples, discovery_notes = discover_samples(inputs)
     write_json(_normalized_summary(source_summary, summary), outputs / "summary.normalized.json")
     write_json(_normalized_summary(source_summary, summary)["inventory"], outputs / "validation" / "inventory.json")
+    _write_spec_conformance_audit(source_summary, outputs)
     write_json(samples, outputs / "samples.registry.json")
     write_json(discovery_notes, outputs / "samples.discovery_notes.json")
     write_runtime_recovery(outputs / "report" / "runtime_recovery.json")
